@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "node",
+    "target": "es2018",
+    "experimentalDecorators": true,
+    "allowJs": true,
+    "jsx": "preserve",
+    "strict": false,
+    "noImplicitAny": false,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["*"]
+    },
+    "types": ["@dcloudio/types"]
+  },
+  "exclude": ["node_modules", "unpackage"]
+}

@@ -1,0 +1,41 @@
+{
+  "pages": [
+    {
+      "path": "pages/home/index",
+      "style": {
+        "navigationBarTitleText": "小熊油耗",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/records/index",
+      "style": {
+        "navigationBarTitleText": "油耗列表"
+      }
+    },
+    {
+      "path": "pages/add/index",
+      "style": {
+        "navigationBarTitleText": "添加记录"
+      }
+    },
+    {
+      "path": "pages/refuel/index",
+      "style": {
+        "navigationBarTitleText": "加油记录"
+      }
+    },
+    {
+      "path": "pages/profile/index",
+      "style": {
+        "navigationBarTitleText": "我的"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "小熊油耗助手",
+    "navigationBarBackgroundColor": "#F7F8FA",
+    "backgroundColor": "#F7F8FA"
+  }
+}

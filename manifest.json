@@ -1,0 +1,15 @@
+{
+  "name": "小熊油耗助手",
+  "appid": "__UNI__FUEL_TRACKER",
+  "description": "基于 uni-app 的微信小程序模板，帮助记录油耗数据。",
+  "versionName": "1.0.0",
+  "versionCode": "100",
+  "transformPx": false,
+  "mp-weixin": {
+    "appid": "",
+    "setting": {
+      "urlCheck": false
+    },
+    "usingComponents": {}
+  }
+}
