@@ -5,7 +5,7 @@
   },
   "setting": {
     "urlCheck": false,
-    "es6": false,
+    "es6": true,
     "postcss": false,
     "minified": false,
     "newFeature": true,
@@ -14,7 +14,7 @@
   "compileType": "miniprogram",
   "libVersion": "",
   "appid": "touristappid",
-  "projectname": "小熊油耗助手",
+  "projectname": "爱车油耗助手",
   "condition": {
     "search": {
       "current": -1,

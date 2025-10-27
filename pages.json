@@ -3,7 +3,7 @@
     {
       "path": "pages/home/index",
       "style": {
-        "navigationBarTitleText": "小熊油耗",
+        "navigationBarTitleText": "爱车油耗",
         "navigationStyle": "custom"
       }
     },
@@ -34,7 +34,7 @@
   ],
   "globalStyle": {
     "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "小熊油耗助手",
+    "navigationBarTitleText": "爱车油耗助手",
     "navigationBarBackgroundColor": "#F7F8FA",
     "backgroundColor": "#F7F8FA"
   }

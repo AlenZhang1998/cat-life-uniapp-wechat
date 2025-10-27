@@ -1,10 +1,9 @@
-@charset "UTF-8";
 /* 全局通用阴影，保持风格统一 */
 /* 全局通用阴影，保持风格统一 */
-.profile-page.data-v-14bc1b43 {
+.profile-page.data-v-201c0da5 {
   padding: 32rpx;
 }
-.profile-card.data-v-14bc1b43 {
+.profile-card.data-v-201c0da5 {
   display: flex;
   align-items: center;
   background-color: #fff;
@@ -13,7 +12,7 @@
   box-shadow: 0 12rpx 30rpx rgba(30, 193, 95, 0.1);
   margin-bottom: 32rpx;
 }
-.avatar-wrapper.data-v-14bc1b43 {
+.avatar-wrapper.data-v-201c0da5 {
   width: 120rpx;
   height: 120rpx;
   border-radius: 50%;
@@ -27,34 +26,34 @@
   margin-right: 32rpx;
   box-shadow: 0 20rpx 40rpx rgba(30, 193, 95, 0.26);
 }
-.user-info.data-v-14bc1b43 {
+.user-info.data-v-201c0da5 {
   display: flex;
   flex-direction: column;
   gap: 12rpx;
 }
-.user-name.data-v-14bc1b43 {
+.user-name.data-v-201c0da5 {
   font-size: 36rpx;
   font-weight: 700;
 }
-.user-subtitle.data-v-14bc1b43 {
+.user-subtitle.data-v-201c0da5 {
   font-size: 24rpx;
   color: #8a93a0;
 }
-.feature-list.data-v-14bc1b43 {
+.feature-list.data-v-201c0da5 {
   background-color: #fff;
   border-radius: 24rpx;
   box-shadow: 0 12rpx 30rpx rgba(30, 193, 95, 0.1);
 }
-.feature-item.data-v-14bc1b43 {
+.feature-item.data-v-201c0da5 {
   display: flex;
   align-items: center;
   padding: 28rpx;
   border-bottom: 1px solid #edf1f6;
 }
-.feature-item.data-v-14bc1b43:last-child {
+.feature-item.data-v-201c0da5:last-child {
   border-bottom: none;
 }
-.feature-icon.data-v-14bc1b43 {
+.feature-icon.data-v-201c0da5 {
   width: 80rpx;
   height: 80rpx;
   border-radius: 24rpx;
@@ -67,21 +66,21 @@
   justify-content: center;
   margin-right: 24rpx;
 }
-.feature-content.data-v-14bc1b43 {
+.feature-content.data-v-201c0da5 {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 8rpx;
 }
-.feature-title.data-v-14bc1b43 {
+.feature-title.data-v-201c0da5 {
   font-size: 30rpx;
   font-weight: 600;
 }
-.feature-desc.data-v-14bc1b43 {
+.feature-desc.data-v-201c0da5 {
   font-size: 24rpx;
   color: #8a93a0;
 }
-.feature-arrow.data-v-14bc1b43 {
+.feature-arrow.data-v-201c0da5 {
   color: #8a93a0;
   font-size: 36rpx;
 }

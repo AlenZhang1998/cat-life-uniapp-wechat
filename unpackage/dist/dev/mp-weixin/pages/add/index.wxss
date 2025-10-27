@@ -1,30 +1,29 @@
-@charset "UTF-8";
 /* 全局通用阴影，保持风格统一 */
 /* 全局通用阴影，保持风格统一 */
-.add-page.data-v-65a9288a {
+.add-page.data-v-89f6901d {
   padding: 32rpx;
 }
-.form-card.data-v-65a9288a {
+.form-card.data-v-89f6901d {
   background-color: #fff;
   border-radius: 24rpx;
   padding: 32rpx;
   box-shadow: 0 12rpx 30rpx rgba(30, 193, 95, 0.1);
 }
-.form-item.data-v-65a9288a {
+.form-item.data-v-89f6901d {
   margin-bottom: 28rpx;
 }
-.form-item.data-v-65a9288a:last-child {
+.form-item.data-v-89f6901d:last-child {
   margin-bottom: 0;
 }
-.form-label.data-v-65a9288a {
+.form-label.data-v-89f6901d {
   display: block;
   font-size: 28rpx;
   font-weight: 600;
   margin-bottom: 12rpx;
 }
-.picker-value.data-v-65a9288a,
-.form-input.data-v-65a9288a,
-.form-textarea.data-v-65a9288a {
+.picker-value.data-v-89f6901d,
+.form-input.data-v-89f6901d,
+.form-textarea.data-v-89f6901d {
   width: 100%;
   background-color: #f5f8fb;
   border-radius: 16rpx;
@@ -32,13 +31,13 @@
   font-size: 28rpx;
   color: #1f2329;
 }
-.form-input.data-v-65a9288a {
+.form-input.data-v-89f6901d {
   height: 88rpx;
 }
-.form-textarea.data-v-65a9288a {
+.form-textarea.data-v-89f6901d {
   min-height: 160rpx;
 }
-.submit-btn.data-v-65a9288a {
+.submit-btn.data-v-89f6901d {
   margin-top: 48rpx;
   background: linear-gradient(180deg, #1ec15f 0%, #14a04b 100%);
   border: none;

@@ -6,10 +6,9 @@
     "pages/refuel/index",
     "pages/profile/index"
   ],
-  "subPackages": [],
   "window": {
     "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "小熊油耗助手",
+    "navigationBarTitleText": "爱车油耗助手",
     "navigationBarBackgroundColor": "#F7F8FA",
     "backgroundColor": "#F7F8FA"
   },
