@@ -12,9 +12,9 @@
           <view class="chip primary">
             <text class="chip-text">下次保养</text>
           </view>
-          <view class="chip outline">
+          <!-- <view class="chip outline">
             <text class="chip-text">智驾提醒</text>
-          </view>
+          </view> -->
         </view>
       </view>
 
@@ -290,6 +290,8 @@ const handleAction = (action: { key: string }) => {
 
 .home-page {
   padding: 24rpx 32rpx 120rpx;
+  padding-top: calc(34rpx + var(--status-bar-height, env(safe-area-inset-top, 0px)));
+  box-sizing: border-box;
 }
 
 .header-card {
