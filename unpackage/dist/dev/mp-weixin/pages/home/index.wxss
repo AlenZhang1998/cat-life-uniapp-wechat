@@ -2,6 +2,8 @@
 /* 全局通用阴影，保持风格统一 */
 .home-page.data-v-4978fed5 {
   padding: 24rpx 32rpx 120rpx;
+  padding-top: calc(34rpx + var(--status-bar-height, env(safe-area-inset-top, 0px)));
+  box-sizing: border-box;
 }
 .header-card.data-v-4978fed5 {
   background: linear-gradient(180deg, #58b1ff 0%, #1ec15f 100%);
