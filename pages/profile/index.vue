@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-// 个人资料内容，后续可替换为真实用户信息
+// 个人资料内容，后续可替换为真实用户信息 
 const user = ref({
   name: '爱车车主',
   joinDate: '2024-08'
