@@ -22,11 +22,16 @@
 .home-page .header-card .header-meta .location-row.data-v-4978fed5 {
   display: flex;
   align-items: center;
+  justify-content: center;
   font-size: 28rpx;
   font-weight: 600;
 }
 .home-page .header-card .header-meta .location-row .location-icon.data-v-4978fed5 {
-  margin-right: 12rpx;
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: 10rpx;
+  flex-shrink: 0;
+  display: block;
 }
 .home-page .header-card .header-meta .location-row .location-text.data-v-4978fed5 {
   margin-right: 8rpx;
