@@ -10,7 +10,12 @@
             mode="aspectFit"
           />
           <text class="location-text">{{ city }}</text>
-          <text class="location-arrow">v</text>
+          <!-- <text class="location-arrow">v</text> -->
+          <image
+            class="dingwei_right"
+            :src="dingwei_right"
+            mode="aspectFit"
+          />
         </view>
         <view class="header-actions">
           <view class="chip primary">
@@ -144,6 +149,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import locationIcon from '@/static/icons/dingwei.png'
+import dingwei_right from '@/static/icons/dingwei_right.png'
 
 // ================= 基础展示数据 =================
 const city = ref('深圳市')
@@ -328,12 +334,15 @@ const handleAction = (action: { key: string }) => {
         }
 
         .location-text {
-          margin-right: 8rpx;
+          // margin-right: 8rpx;
         }
 
-        .location-arrow {
-          font-size: 24rpx;
-          opacity: 0.8;
+        .dingwei_right {
+          width: 26rpx;
+          height: 26rpx;
+          margin-left: 6rpx;
+          flex-shrink: 0;
+          display: block;
         }
       }
 
