@@ -4,7 +4,11 @@
     <view class="header-card">
       <view class="header-meta">
         <view class="location-row">
-          <text class="location-icon">定位</text>
+          <image
+            class="location-icon"
+            :src="locationIcon"
+            mode="aspectFit"
+          />
           <text class="location-text">{{ city }}</text>
           <text class="location-arrow">v</text>
         </view>
@@ -139,6 +143,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import locationIcon from '@/static/icons/dingwei.png'
 
 // ================= 基础展示数据 =================
 const city = ref('深圳市')
@@ -310,11 +315,16 @@ const handleAction = (action: { key: string }) => {
       .location-row {
         display: flex;
         align-items: center;
+        justify-content: center;
         font-size: 28rpx;
         font-weight: 600;
 
         .location-icon {
-          margin-right: 12rpx;
+          width: 32rpx;
+          height: 32rpx;
+          margin-right: 10rpx;
+          flex-shrink: 0;
+          display: block;
         }
 
         .location-text {
@@ -681,4 +691,3 @@ const handleAction = (action: { key: string }) => {
   }
 }
 </style>
-
