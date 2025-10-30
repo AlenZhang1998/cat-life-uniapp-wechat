@@ -33,12 +33,12 @@
   flex-shrink: 0;
   display: block;
 }
-.home-page .header-card .header-meta .location-row .location-text.data-v-4978fed5 {
-  margin-right: 8rpx;
-}
-.home-page .header-card .header-meta .location-row .location-arrow.data-v-4978fed5 {
-  font-size: 24rpx;
-  opacity: 0.8;
+.home-page .header-card .header-meta .location-row .dingwei_right.data-v-4978fed5 {
+  width: 26rpx;
+  height: 26rpx;
+  margin-left: 6rpx;
+  flex-shrink: 0;
+  display: block;
 }
 .home-page .header-card .header-meta .header-actions.data-v-4978fed5 {
   display: flex;

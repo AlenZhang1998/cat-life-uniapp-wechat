@@ -112,24 +112,25 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       return common_vendor.e({
         a: common_vendor.unref(common_assets.locationIcon),
         b: common_vendor.t(city.value),
-        c: common_vendor.t(carInfo.value.brand),
-        d: common_vendor.t(carInfo.value.model),
-        e: common_vendor.t(carInfo.value.trim),
-        f: common_vendor.t(oilPrice.value.label),
-        g: common_vendor.t(oilPrice.value.value),
-        h: !hasRecentRefuel.value
+        c: common_vendor.unref(common_assets.dingwei_right),
+        d: common_vendor.t(carInfo.value.brand),
+        e: common_vendor.t(carInfo.value.model),
+        f: common_vendor.t(carInfo.value.trim),
+        g: common_vendor.t(oilPrice.value.label),
+        h: common_vendor.t(oilPrice.value.value),
+        i: !hasRecentRefuel.value
       }, !hasRecentRefuel.value ? {} : {}, {
-        i: common_vendor.o(($event) => handleNavigate("trend")),
-        j: common_vendor.t(latestFuel.value),
-        k: common_vendor.f(efficiencyLevels.value, (level, k0, i0) => {
+        j: common_vendor.o(($event) => handleNavigate("trend")),
+        k: common_vendor.t(latestFuel.value),
+        l: common_vendor.f(efficiencyLevels.value, (level, k0, i0) => {
           return {
             a: common_vendor.t(level.label),
             b: level.label,
             c: level.label === currentEfficiency.value.label ? 1 : ""
           };
         }),
-        l: common_vendor.t(selectedRange.value.label),
-        m: common_vendor.f(stats.value, (item, k0, i0) => {
+        m: common_vendor.t(selectedRange.value.label),
+        n: common_vendor.f(stats.value, (item, k0, i0) => {
           return {
             a: common_vendor.t(item.label),
             b: common_vendor.t(item.value),
@@ -138,20 +139,20 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             e: item.key
           };
         }),
-        n: common_vendor.t(selectedRange.value.label),
-        o: common_vendor.f(5, (line, k0, i0) => {
+        o: common_vendor.t(selectedRange.value.label),
+        p: common_vendor.f(5, (line, k0, i0) => {
           return {
             a: line
           };
         }),
-        p: common_vendor.f(trendData.value, (point, index, i0) => {
+        q: common_vendor.f(trendData.value, (point, index, i0) => {
           return {
             a: common_vendor.t(point.day),
             b: point.day,
             c: common_vendor.s(getPointStyle(point.value, index))
           };
         }),
-        q: common_vendor.f(actions.value, (action, k0, i0) => {
+        r: common_vendor.f(actions.value, (action, k0, i0) => {
           return {
             a: common_vendor.t(action.icon),
             b: common_vendor.t(action.label),
