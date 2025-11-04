@@ -19,7 +19,7 @@
         </view>
         <view class="header-actions">
           <view class="chip primary">
-            <text class="chip-text">下次保养</text>
+            <text class="chip-text">下次保养时间</text>
           </view>
           <!-- <view class="chip outline">
             <text class="chip-text">智驾提醒</text>
