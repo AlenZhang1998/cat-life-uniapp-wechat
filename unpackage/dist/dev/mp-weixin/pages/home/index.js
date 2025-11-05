@@ -79,7 +79,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const actions = common_vendor.ref([
       { key: "fuel", label: "油耗", icon: "油", type: "text" },
       { key: "list", label: "列表", icon: "表", type: "text" },
-      { key: "add", label: "加号", icon: "+", type: "primary" },
+      { key: "add", label: "", icon: "+", type: "primary" },
       { key: "refuel", label: "加油", icon: "汽", type: "text" },
       { key: "profile", label: "我的", icon: "我", type: "text" }
     ]);
