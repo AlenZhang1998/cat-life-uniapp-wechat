@@ -21,10 +21,12 @@
       </view>
     </view>
   </view>
+  <BottomActionBar active="profile" />
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import BottomActionBar from '@/components/BottomActionBar.vue'
 
 // 个人资料内容，后续可替换为真实用户信息 
 const user = ref({
@@ -65,7 +67,7 @@ const features = ref([
 @import '@/uni.scss';
 
 .profile-page {
-  padding: 32rpx;
+  padding: 32rpx 32rpx 160rpx;
 }
 
 .profile-card {

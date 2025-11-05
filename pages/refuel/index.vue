@@ -35,10 +35,12 @@
       </view>
     </view>
   </view>
+  <BottomActionBar active="refuel" />
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import BottomActionBar from '@/components/BottomActionBar.vue'
 
 // 加油记录列表，包含油量、金额与备注信息
 const refuelRecords = ref([
@@ -90,7 +92,7 @@ const monthlySummary = computed(() => {
 @import '@/uni.scss';
 
 .refuel-page {
-  padding: 32rpx;
+  padding: 32rpx 32rpx 160rpx;
 }
 
 .summary-card {

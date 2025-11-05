@@ -26,10 +26,12 @@
       <text class="empty-desc">点击底部“加号”即可添加第一条记录</text>
     </view>
   </view>
+  <BottomActionBar active="list" />
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import BottomActionBar from '@/components/BottomActionBar.vue'
 
 // 真实项目中可从服务端读取，这里简单给出三条示例数据
 const recordList = ref([
@@ -43,7 +45,7 @@ const recordList = ref([
 @import '@/uni.scss';
 
 .records-page {
-  padding: 32rpx;
+  padding: 32rpx 32rpx 160rpx;
 }
 
 .page-tips {
