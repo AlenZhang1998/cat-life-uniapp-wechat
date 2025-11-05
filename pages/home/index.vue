@@ -130,26 +130,14 @@
       </view>
     </view>
 
-    <!-- 底部自定义导航 -->
-    <view class="action-bar">
-      <view
-        class="action-item"
-        v-for="action in actions"
-        :key="action.key"
-        @tap="handleAction(action)"
-        :class="[{ primary: action.type === 'primary' }, `action-${action.key}`]"
-      >
-        <view class="action-icon">{{ action.icon }}</view>
-        <text class="action-label">{{ action.label }}</text>
-      </view>
-    </view>
-  </view>
+    <BottomActionBar active="fuel" />
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import locationIcon from '@/static/icons/dingwei.png'
 import dingwei_right from '@/static/icons/dingwei_right.png'
+import BottomActionBar from '@/components/BottomActionBar.vue'
 
 // ================= 基础展示数据 =================
 const city = ref('深圳市')
@@ -238,14 +226,6 @@ const selectedRange = ref({
 })
 
 // 底部操作栏配置，后续可以在此添加路由跳转逻辑
-const actions = ref([
-  { key: 'fuel', label: '油耗', icon: '油', type: 'text' },
-  { key: 'list', label: '列表', icon: '表', type: 'text' },
-  { key: 'add', label: '', icon: '+', type: 'primary' },
-  { key: 'refuel', label: '加油', icon: '汽', type: 'text' },
-  { key: 'profile', label: '我的', icon: '我', type: 'text' }
-])
-
 // ================ 计算属性与函数工具 =================
 const maxTrendValue = computed(() =>
   Math.max(...trendData.value.map((item) => item.value))
@@ -284,16 +264,6 @@ const handleNavigate = (actionKey: string) => {
   })
 }
 
-/**
- * 底部操作栏点击事件，根据 key 做简单分类
- */
-const handleAction = (action: { key: string }) => {
-  if (action.key === 'add') {
-    handleNavigate('addRecord')
-    return
-  }
-  handleNavigate(action.key)
-}
 </script>
 
 <style lang="scss" scoped>
@@ -647,56 +617,5 @@ const handleAction = (action: { key: string }) => {
     }
   }
 
-  .action-bar {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    justify-content: space-around;
-    align-items: flex-end;
-    padding: 16rpx 32rpx 36rpx;
-    background-color: #fff;
-    box-shadow: 0 -12rpx 32rpx rgba(0, 0, 0, 0.06);
-
-    .action-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      color: $muted-text;
-      font-size: 22rpx;
-    }
-
-    .action-item.primary {
-      width: 120rpx;
-      height: 120rpx;
-      border-radius: 50%;
-      background: linear-gradient(180deg, #1ec15f 0%, #14a04b 100%);
-      color: #fff;
-      justify-content: center;
-      margin-bottom: 24rpx;
-      box-shadow: 0 18rpx 32rpx rgba(30, 193, 95, 0.32);
-    }
-
-    .action-icon {
-      font-size: 36rpx;
-      font-weight: 700;
-      margin-bottom: 8rpx;
-    }
-
-    .action-item.primary .action-icon {
-      font-size: 56rpx;
-      margin-bottom: 0;
-    }
-
-    .action-item.primary .action-label {
-      font-size: 24rpx;
-      margin-top: 12rpx;
-    }
-
-    .action-label {
-      white-space: nowrap;
-    }
-  }
 }
 </style>
