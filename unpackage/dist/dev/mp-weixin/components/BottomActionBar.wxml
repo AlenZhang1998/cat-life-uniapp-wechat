@@ -1,0 +1,1 @@
+<view class="action-bar data-v-7a063730"><view wx:for="{{a}}" wx:for-item="action" wx:key="d" bindtap="{{action.e}}" class="{{['data-v-7a063730', 'action-item', action.f, action.g, action.h]}}"><view class="action-icon data-v-7a063730">{{action.a}}</view><text wx:if="{{action.b}}" class="action-label data-v-7a063730">{{action.c}}</text></view></view>
