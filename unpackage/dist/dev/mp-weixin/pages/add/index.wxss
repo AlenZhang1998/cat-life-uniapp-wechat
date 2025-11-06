@@ -1,0 +1,51 @@
+/* 全局通用阴影，保持风格统一 */
+/* 全局通用阴影，保持风格统一 */
+.add-page.data-v-89f6901d {
+  padding: 32rpx 32rpx 200rpx;
+}
+.form-card.data-v-89f6901d {
+  background-color: #fff;
+  border-radius: 24rpx;
+  padding: 32rpx;
+  box-shadow: 0 12rpx 30rpx rgba(30, 193, 95, 0.1);
+}
+.form-item.data-v-89f6901d {
+  margin-bottom: 28rpx;
+}
+.form-item.data-v-89f6901d:last-child {
+  margin-bottom: 0;
+}
+.form-label.data-v-89f6901d {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  margin-bottom: 12rpx;
+}
+.picker-value.data-v-89f6901d,
+.form-input.data-v-89f6901d,
+.form-textarea.data-v-89f6901d {
+  width: 100%;
+  background-color: #f5f8fb;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  font-size: 28rpx;
+  color: #1f2329;
+}
+.form-input.data-v-89f6901d {
+  height: 88rpx;
+}
+.form-textarea.data-v-89f6901d {
+  min-height: 160rpx;
+}
+.submit-btn.data-v-89f6901d {
+  margin-top: 48rpx;
+  background: linear-gradient(180deg, #1ec15f 0%, #14a04b 100%);
+  border: none;
+  border-radius: 999rpx;
+  height: 96rpx;
+  line-height: 96rpx;
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: 600;
+  box-shadow: 0 18rpx 36rpx rgba(30, 193, 95, 0.28);
+}

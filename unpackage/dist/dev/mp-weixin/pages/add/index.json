@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "添加记录",
+  "usingComponents": {
+    "bottom-action-bar": "../../components/BottomActionBar"
+  }
+}

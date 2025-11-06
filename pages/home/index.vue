@@ -131,6 +131,7 @@
     </view>
 
     <BottomActionBar active="fuel" />
+  </view>
 </template>
 
 <script setup lang="ts">
