@@ -14,7 +14,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       model: "2025款 240TURBO CVT",
       trim: "智趣Plus"
     });
-    const oilPrice = common_vendor.ref({
+    common_vendor.ref({
       label: "92#",
       value: "7.07"
     });
@@ -106,21 +106,19 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         d: common_vendor.t(carInfo.value.brand),
         e: common_vendor.t(carInfo.value.model),
         f: common_vendor.t(carInfo.value.trim),
-        g: common_vendor.t(oilPrice.value.label),
-        h: common_vendor.t(oilPrice.value.value),
-        i: !hasRecentRefuel.value
+        g: !hasRecentRefuel.value
       }, !hasRecentRefuel.value ? {} : {}, {
-        j: common_vendor.o(($event) => handleNavigate("trend")),
-        k: common_vendor.t(latestFuel.value),
-        l: common_vendor.f(efficiencyLevels.value, (level, k0, i0) => {
+        h: common_vendor.o(($event) => handleNavigate("trend")),
+        i: common_vendor.t(latestFuel.value),
+        j: common_vendor.f(efficiencyLevels.value, (level, k0, i0) => {
           return {
             a: common_vendor.t(level.label),
             b: level.label,
             c: level.label === currentEfficiency.value.label ? 1 : ""
           };
         }),
-        m: common_vendor.t(selectedRange.value.label),
-        n: common_vendor.f(stats.value, (item, k0, i0) => {
+        k: common_vendor.t(selectedRange.value.label),
+        l: common_vendor.f(stats.value, (item, k0, i0) => {
           return {
             a: common_vendor.t(item.label),
             b: common_vendor.t(item.value),
@@ -129,20 +127,20 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             e: item.key
           };
         }),
-        o: common_vendor.t(selectedRange.value.label),
-        p: common_vendor.f(5, (line, k0, i0) => {
+        m: common_vendor.t(selectedRange.value.label),
+        n: common_vendor.f(5, (line, k0, i0) => {
           return {
             a: line
           };
         }),
-        q: common_vendor.f(trendData.value, (point, index, i0) => {
+        o: common_vendor.f(trendData.value, (point, index, i0) => {
           return {
             a: common_vendor.t(point.day),
             b: point.day,
             c: common_vendor.s(getPointStyle(point.value, index))
           };
         }),
-        r: common_vendor.p({
+        p: common_vendor.p({
           active: "fuel"
         })
       });
