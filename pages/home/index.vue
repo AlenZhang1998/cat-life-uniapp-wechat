@@ -32,13 +32,13 @@
         <text class="car-trim">{{ carInfo.trim }}</text>
       </view>
 
-      <view class="price-row">
+      <!-- <view class="price-row">
         <text class="oil-type">{{ oilPrice.label }}</text>
         <text class="oil-price">
           <text class="price-number">{{ oilPrice.value }}</text>
           元/升
         </text>
-      </view>
+      </view> -->
 
       <view class="reminder-banner" v-if="!hasRecentRefuel">
         <text class="reminder-icon">!</text>
