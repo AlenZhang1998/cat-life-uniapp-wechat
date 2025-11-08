@@ -40,6 +40,9 @@
   flex-shrink: 0;
   display: block;
 }
+.home-page .header-card .header-meta .location-row__hover.data-v-4978fed5 {
+  opacity: 0.7;
+}
 .home-page .header-card .header-meta .header-actions.data-v-4978fed5 {
   display: flex;
   gap: 16rpx;

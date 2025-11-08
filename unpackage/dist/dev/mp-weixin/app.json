@@ -1,6 +1,7 @@
 {
   "pages": [
     "pages/home/index",
+    "pages/city/index",
     "pages/records/index",
     "pages/add/index",
     "pages/refuel/index",

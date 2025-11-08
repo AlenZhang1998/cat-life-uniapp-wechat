@@ -1,5 +1,6 @@
 "use strict";
 const common_vendor = require("../../common/vendor.js");
+const constants_storage = require("../../constants/storage.js");
 const common_assets = require("../../common/assets.js");
 if (!Math) {
   BottomActionBar();
@@ -9,6 +10,15 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "index",
   setup(__props) {
     const city = common_vendor.ref("深圳市");
+    const syncSelectedCity = () => {
+      const stored = common_vendor.index.getStorageSync(
+        constants_storage.STORAGE_KEYS.selectedCity
+      );
+      if (stored) {
+        city.value = stored;
+      }
+    };
+    syncSelectedCity();
     const carInfo = common_vendor.ref({
       brand: "思域",
       model: "2025款 240TURBO CVT",
@@ -98,27 +108,43 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         icon: "none"
       });
     };
+    const navigateToCity = () => {
+      common_vendor.index.navigateTo({
+        url: `/pages/city/index?currentCity=${encodeURIComponent(city.value)}`,
+        events: {
+          "city-selected": (selectedCity) => {
+            if (selectedCity) {
+              city.value = selectedCity;
+            }
+          }
+        }
+      });
+    };
+    common_vendor.onShow(() => {
+      syncSelectedCity();
+    });
     return (_ctx, _cache) => {
       return common_vendor.e({
         a: common_vendor.unref(common_assets.locationIcon),
         b: common_vendor.t(city.value),
         c: common_vendor.unref(common_assets.dingwei_right),
-        d: common_vendor.t(carInfo.value.brand),
-        e: common_vendor.t(carInfo.value.model),
-        f: common_vendor.t(carInfo.value.trim),
-        g: !hasRecentRefuel.value
+        d: common_vendor.o(navigateToCity),
+        e: common_vendor.t(carInfo.value.brand),
+        f: common_vendor.t(carInfo.value.model),
+        g: common_vendor.t(carInfo.value.trim),
+        h: !hasRecentRefuel.value
       }, !hasRecentRefuel.value ? {} : {}, {
-        h: common_vendor.o(($event) => handleNavigate("trend")),
-        i: common_vendor.t(latestFuel.value),
-        j: common_vendor.f(efficiencyLevels.value, (level, k0, i0) => {
+        i: common_vendor.o(($event) => handleNavigate("trend")),
+        j: common_vendor.t(latestFuel.value),
+        k: common_vendor.f(efficiencyLevels.value, (level, k0, i0) => {
           return {
             a: common_vendor.t(level.label),
             b: level.label,
             c: level.label === currentEfficiency.value.label ? 1 : ""
           };
         }),
-        k: common_vendor.t(selectedRange.value.label),
-        l: common_vendor.f(stats.value, (item, k0, i0) => {
+        l: common_vendor.t(selectedRange.value.label),
+        m: common_vendor.f(stats.value, (item, k0, i0) => {
           return {
             a: common_vendor.t(item.label),
             b: common_vendor.t(item.value),
@@ -127,20 +153,20 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             e: item.key
           };
         }),
-        m: common_vendor.t(selectedRange.value.label),
-        n: common_vendor.f(5, (line, k0, i0) => {
+        n: common_vendor.t(selectedRange.value.label),
+        o: common_vendor.f(5, (line, k0, i0) => {
           return {
             a: line
           };
         }),
-        o: common_vendor.f(trendData.value, (point, index, i0) => {
+        p: common_vendor.f(trendData.value, (point, index, i0) => {
           return {
             a: common_vendor.t(point.day),
             b: point.day,
             c: common_vendor.s(getPointStyle(point.value, index))
           };
         }),
-        p: common_vendor.p({
+        q: common_vendor.p({
           active: "fuel"
         })
       });

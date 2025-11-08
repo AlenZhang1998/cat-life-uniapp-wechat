@@ -8,6 +8,14 @@
       }
     },
     {
+      "path": "pages/city/index",
+      "style": {
+        "navigationBarTitleText": "选择城市",
+        "navigationBarBackgroundColor": "#F7F8FA",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
       "path": "pages/records/index",
       "style": {
         "navigationBarTitleText": "油耗列表"

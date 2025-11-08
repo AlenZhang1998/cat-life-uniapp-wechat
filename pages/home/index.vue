@@ -3,7 +3,11 @@
     <!-- 顶部卡片：展示城市、车辆概况和提醒 -->
     <view class="header-card">
       <view class="header-meta">
-        <view class="location-row">
+        <view
+          class="location-row"
+          hover-class="location-row__hover"
+          @tap="navigateToCity"
+        >
           <image
             class="location-icon"
             :src="locationIcon"
@@ -135,13 +139,26 @@
 </template>
 
 <script setup lang="ts">
+import { onShow } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
+import { STORAGE_KEYS } from '@/constants/storage'
 import locationIcon from '@/static/icons/dingwei.png'
 import dingwei_right from '@/static/icons/dingwei_right.png'
 import BottomActionBar from '@/components/BottomActionBar.vue'
 
 // ================= 基础展示数据 =================
 const city = ref('深圳市')
+
+const syncSelectedCity = () => {
+  const stored = uni.getStorageSync(
+    STORAGE_KEYS.selectedCity
+  ) as string | null
+  if (stored) {
+    city.value = stored
+  }
+}
+
+syncSelectedCity()
 const carInfo = ref({
   brand: '思域',
   model: '2025款 240TURBO CVT',
@@ -265,6 +282,23 @@ const handleNavigate = (actionKey: string) => {
   })
 }
 
+const navigateToCity = () => {
+  uni.navigateTo({
+    url: `/pages/city/index?currentCity=${encodeURIComponent(city.value)}`,
+    events: {
+      'city-selected': (selectedCity: string) => {
+        if (selectedCity) {
+          city.value = selectedCity
+        }
+      }
+    }
+  })
+}
+
+onShow(() => {
+  syncSelectedCity()
+})
+
 </script>
 
 <style lang="scss" scoped>
@@ -315,6 +349,10 @@ const handleNavigate = (actionKey: string) => {
           flex-shrink: 0;
           display: block;
         }
+      }
+
+      .location-row__hover {
+        opacity: 0.7;
       }
 
       .header-actions {
