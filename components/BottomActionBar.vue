@@ -114,8 +114,8 @@ const handleAction = (action: (typeof actions)[number]) => {
   bottom: 0;
   display: flex;
   justify-content: space-around;
-  align-items: flex-end;
-  padding: 16rpx 32rpx calc(36rpx + env(safe-area-inset-bottom, 0rpx));
+  // align-items: center;
+  padding: 16rpx 32rpx calc(18rpx + env(safe-area-inset-bottom, 0rpx));
   background-color: #fff;
   box-shadow: 0 -12rpx 32rpx rgba(0, 0, 0, 0.06);
   z-index: 999;
@@ -136,12 +136,13 @@ const handleAction = (action: (typeof actions)[number]) => {
 }
 
 .action-item.primary {
-  width: 120rpx;
-  height: 120rpx;
+  width: 80rpx;
+  height: 80rpx;
   border-radius: 50%;
   background: linear-gradient(180deg, #1ec15f 0%, #14a04b 100%);
   color: #fff;
   justify-content: center;
+  align-items: center;
   margin-bottom: 24rpx;
   box-shadow: 0 18rpx 32rpx rgba(30, 193, 95, 0.32);
 }
@@ -161,8 +162,13 @@ const handleAction = (action: (typeof actions)[number]) => {
 }
 
 .action-item.primary .action-icon {
-  font-size: 56rpx;
+  width: 100%;
+  height: 100%;
   margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 56rpx;
 }
 
 .action-item.primary .action-label {
