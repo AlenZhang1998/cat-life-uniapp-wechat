@@ -39,6 +39,13 @@
   font-size: 36rpx;
   font-weight: 700;
   margin-bottom: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.action-icon__img.data-v-7a063730 {
+  width: 40rpx;
+  height: 40rpx;
 }
 .action-item.primary .action-icon.data-v-7a063730 {
   font-size: 56rpx;

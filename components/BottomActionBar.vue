@@ -11,7 +11,17 @@
         action.key === active ? 'active' : ''
       ]"
     >
-      <view class="action-icon">{{ action.icon }}</view>
+      <view class="action-icon">
+        <image
+          v-if="action.iconType === 'image'"
+          :src="action.key === active ? action.iconActive : action.icon"
+          class="action-icon__img"
+          mode="aspectFit"
+        />
+        <text v-else>
+          {{ action.key === active ? action.iconActive || action.icon : action.icon }}
+        </text>
+      </view>
       <text v-if="action.label" class="action-label">{{ action.label }}</text>
     </view>
   </view>
@@ -28,14 +38,56 @@ const actions: Array<{
   key: ActionKey
   label: string
   icon: string
+  iconActive?: string
+  iconType: 'text' | 'image'
   type: 'text' | 'primary'
   path: string
 }> = [
-  { key: 'fuel', label: '油耗', icon: '油', type: 'text', path: '/pages/home/index' },
-  { key: 'list', label: '列表', icon: '表', type: 'text', path: '/pages/records/index' },
-  { key: 'add', label: '', icon: '+', type: 'primary', path: '/pages/add/index' },
-  { key: 'refuel', label: '加油', icon: '汽', type: 'text', path: '/pages/refuel/index' },
-  { key: 'profile', label: '我的', icon: '我', type: 'text', path: '/pages/profile/index' }
+  {
+    key: 'fuel',
+    label: '油耗',
+    icon: '⛽',
+    iconActive: '🛢️',
+    iconType: 'text',
+    type: 'text',
+    path: '/pages/home/index'
+  },
+  {
+    key: 'list',
+    label: '列表',
+    icon: '📋',
+    iconActive: '📑',
+    iconType: 'text',
+    type: 'text',
+    path: '/pages/records/index'
+  },
+  {
+    key: 'add',
+    label: '',
+    icon: '+',
+    iconActive: '✚',
+    iconType: 'text',
+    type: 'primary',
+    path: '/pages/add/index'
+  },
+  {
+    key: 'refuel',
+    label: '费用',
+    icon: '💰',
+    iconActive: '💵',
+    iconType: 'text',
+    type: 'text',
+    path: '/pages/refuel/index'
+  },
+  {
+    key: 'profile',
+    label: '我的',
+    icon: '🙂',
+    iconActive: '😄',
+    iconType: 'text',
+    type: 'text',
+    path: '/pages/profile/index'
+  }
 ]
 
 const handleAction = (action: (typeof actions)[number]) => {
@@ -98,6 +150,14 @@ const handleAction = (action: (typeof actions)[number]) => {
   font-size: 36rpx;
   font-weight: 700;
   margin-bottom: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-icon__img {
+  width: 40rpx;
+  height: 40rpx;
 }
 
 .action-item.primary .action-icon {

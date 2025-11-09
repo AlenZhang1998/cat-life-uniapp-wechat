@@ -8,11 +8,51 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   setup(__props) {
     const props = __props;
     const actions = [
-      { key: "fuel", label: "油耗", icon: "油", type: "text", path: "/pages/home/index" },
-      { key: "list", label: "列表", icon: "表", type: "text", path: "/pages/records/index" },
-      { key: "add", label: "", icon: "+", type: "primary", path: "/pages/add/index" },
-      { key: "refuel", label: "加油", icon: "汽", type: "text", path: "/pages/refuel/index" },
-      { key: "profile", label: "我的", icon: "我", type: "text", path: "/pages/profile/index" }
+      {
+        key: "fuel",
+        label: "油耗",
+        icon: "⛽",
+        iconActive: "🛢️",
+        iconType: "text",
+        type: "text",
+        path: "/pages/home/index"
+      },
+      {
+        key: "list",
+        label: "列表",
+        icon: "📋",
+        iconActive: "📑",
+        iconType: "text",
+        type: "text",
+        path: "/pages/records/index"
+      },
+      {
+        key: "add",
+        label: "",
+        icon: "+",
+        iconActive: "✚",
+        iconType: "text",
+        type: "primary",
+        path: "/pages/add/index"
+      },
+      {
+        key: "refuel",
+        label: "费用",
+        icon: "💰",
+        iconActive: "💵",
+        iconType: "text",
+        type: "text",
+        path: "/pages/refuel/index"
+      },
+      {
+        key: "profile",
+        label: "我的",
+        icon: "🙂",
+        iconActive: "😄",
+        iconType: "text",
+        type: "text",
+        path: "/pages/profile/index"
+      }
     ];
     const handleAction = (action) => {
       if (action.key === props.active && action.key !== "add") {
@@ -28,16 +68,21 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       return {
         a: common_vendor.f(actions, (action, k0, i0) => {
           return common_vendor.e({
-            a: common_vendor.t(action.icon),
-            b: action.label
+            a: action.iconType === "image"
+          }, action.iconType === "image" ? {
+            b: action.key === _ctx.active ? action.iconActive : action.icon
+          } : {
+            c: common_vendor.t(action.key === _ctx.active ? action.iconActive || action.icon : action.icon)
+          }, {
+            d: action.label
           }, action.label ? {
-            c: common_vendor.t(action.label)
+            e: common_vendor.t(action.label)
           } : {}, {
-            d: action.key,
-            e: common_vendor.o(($event) => handleAction(action), action.key),
-            f: common_vendor.n(action.type === "primary" ? "primary" : ""),
-            g: common_vendor.n(`action-${action.key}`),
-            h: common_vendor.n(action.key === _ctx.active ? "active" : "")
+            f: action.key,
+            g: common_vendor.o(($event) => handleAction(action), action.key),
+            h: common_vendor.n(action.type === "primary" ? "primary" : ""),
+            i: common_vendor.n(`action-${action.key}`),
+            j: common_vendor.n(action.key === _ctx.active ? "active" : "")
           });
         })
       };
