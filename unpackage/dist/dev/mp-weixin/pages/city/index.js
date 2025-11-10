@@ -13,6 +13,12 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const activeAnchor = common_vendor.ref("");
     const highlightedLetter = common_vendor.ref("");
     const eventChannel = common_vendor.ref(null);
+    const pageInstance = common_vendor.getCurrentInstance();
+    const resolveEventChannel = () => {
+      var _a, _b;
+      const getter = ((_a = pageInstance == null ? void 0 : pageInstance.proxy) == null ? void 0 : _a.getOpenerEventChannel) ?? ((_b = pageInstance == null ? void 0 : pageInstance.ctx) == null ? void 0 : _b.getOpenerEventChannel);
+      return typeof getter === "function" ? getter() : null;
+    };
     const baseCities = data_cities.CITY_LIST;
     const sortSections = (entries) => entries.sort((a, b) => {
       if (a.letter === "#")
@@ -123,7 +129,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }, 300);
     };
     common_vendor.onLoad((options) => {
-      eventChannel.value = (getOpenerEventChannel == null ? void 0 : getOpenerEventChannel()) ?? null;
+      eventChannel.value = resolveEventChannel();
       const queryCity = (options == null ? void 0 : options.currentCity) && decodeURIComponent(options.currentCity) || "";
       const storedCity = common_vendor.index.getStorageSync(constants_storage.STORAGE_KEYS.selectedCity) || "";
       currentCity.value = queryCity || storedCity || "深圳市";
