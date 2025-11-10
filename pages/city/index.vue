@@ -109,7 +109,7 @@
 
 <script setup lang="ts">
 import { onLoad } from '@dcloudio/uni-app'
-import { computed, ref } from 'vue'
+import { computed, getCurrentInstance, ref } from 'vue'
 import { STORAGE_KEYS } from '@/constants/storage'
 import { CITY_LIST, CityItem } from '@/data/cities'
 import {
@@ -130,6 +130,14 @@ const locating = ref(false)
 const activeAnchor = ref('')
 const highlightedLetter = ref('')
 const eventChannel = ref<UniApp.EventChannel | null>(null)
+const pageInstance = getCurrentInstance()
+
+const resolveEventChannel = () => {
+  const getter =
+    pageInstance?.proxy?.getOpenerEventChannel ??
+    pageInstance?.ctx?.getOpenerEventChannel
+  return typeof getter === 'function' ? getter() : null
+}
 
 const baseCities: CityItem[] = CITY_LIST as CityItem[]
 
@@ -251,7 +259,7 @@ const jumpTo = (letter: string) => {
 }
 
 onLoad((options) => {
-  eventChannel.value = getOpenerEventChannel?.() ?? null
+  eventChannel.value = resolveEventChannel()
   const queryCity =
     (options?.currentCity && decodeURIComponent(options.currentCity)) || ''
   const storedCity =
