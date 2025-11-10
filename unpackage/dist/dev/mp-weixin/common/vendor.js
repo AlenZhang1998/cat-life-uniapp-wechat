@@ -7970,6 +7970,11 @@ const onLoad = /* @__PURE__ */ createLifeCycleHook(
   2
   /* HookFlags.PAGE */
 );
+const onReady = /* @__PURE__ */ createLifeCycleHook(
+  ON_READY,
+  2
+  /* HookFlags.PAGE */
+);
 exports._export_sfc = _export_sfc;
 exports.computed = computed;
 exports.createSSRApp = createSSRApp;
@@ -7979,8 +7984,10 @@ exports.f = f;
 exports.getCurrentInstance = getCurrentInstance;
 exports.index = index;
 exports.n = n;
+exports.nextTick$1 = nextTick$1;
 exports.o = o;
 exports.onLoad = onLoad;
+exports.onReady = onReady;
 exports.onShow = onShow;
 exports.p = p;
 exports.reactive = reactive;

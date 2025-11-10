@@ -14,10 +14,29 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const highlightedLetter = common_vendor.ref("");
     const eventChannel = common_vendor.ref(null);
     const pageInstance = common_vendor.getCurrentInstance();
+    const indexTouching = common_vendor.ref(false);
+    const indexBarRect = common_vendor.ref(null);
     const resolveEventChannel = () => {
       var _a, _b;
       const getter = ((_a = pageInstance == null ? void 0 : pageInstance.proxy) == null ? void 0 : _a.getOpenerEventChannel) ?? ((_b = pageInstance == null ? void 0 : pageInstance.ctx) == null ? void 0 : _b.getOpenerEventChannel);
       return typeof getter === "function" ? getter() : null;
+    };
+    const measureIndexBar = () => {
+      if (!(pageInstance == null ? void 0 : pageInstance.proxy))
+        return;
+      common_vendor.index.createSelectorQuery().in(pageInstance.proxy).select(".index-bar-fixed").boundingClientRect((rect) => {
+        if (rect) {
+          indexBarRect.value = {
+            top: rect.top ?? 0,
+            height: rect.height ?? 0
+          };
+        }
+      }).exec();
+    };
+    const getClientY = (event) => {
+      var _a, _b;
+      const touch = ((_a = event.touches) == null ? void 0 : _a[0]) ?? ((_b = event.changedTouches) == null ? void 0 : _b[0]);
+      return (touch == null ? void 0 : touch.clientY) ?? (touch == null ? void 0 : touch.pageY) ?? null;
     };
     const baseCities = data_cities.CITY_LIST;
     const sortSections = (entries) => entries.sort((a, b) => {
@@ -121,12 +140,78 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         });
       }
     };
+    const resolveClosestLetter = (letter) => {
+      const sections = displayedSections.value;
+      if (!sections.length)
+        return "";
+      const availableLetters = sections.map((section) => section.letter);
+      const availableSet = new Set(availableLetters);
+      if (availableSet.has(letter))
+        return letter;
+      const orderedLetters = allSections.value.map((section) => section.letter);
+      const targetIndex = orderedLetters.indexOf(letter);
+      if (targetIndex !== -1) {
+        for (let i = targetIndex + 1; i < orderedLetters.length; i++) {
+          const candidate = orderedLetters[i];
+          if (availableSet.has(candidate))
+            return candidate;
+        }
+        for (let i = targetIndex - 1; i >= 0; i--) {
+          const candidate = orderedLetters[i];
+          if (availableSet.has(candidate))
+            return candidate;
+        }
+      }
+      return availableLetters[0];
+    };
     const jumpTo = (letter) => {
-      highlightedLetter.value = letter;
-      activeAnchor.value = `anchor-${letter}`;
+      const resolvedLetter = resolveClosestLetter(letter);
+      if (!resolvedLetter)
+        return;
+      highlightedLetter.value = resolvedLetter;
+      activeAnchor.value = `anchor-${resolvedLetter}`;
       setTimeout(() => {
         activeAnchor.value = "";
       }, 300);
+    };
+    const handleIndexTap = (letter) => {
+      jumpTo(letter);
+    };
+    const getLetterByClientY = (clientY) => {
+      if (!clientY || !indexBarRect.value || !allSections.value.length)
+        return null;
+      const { top, height } = indexBarRect.value;
+      const sections = allSections.value;
+      const relativeY = clientY - top;
+      if (relativeY <= 0)
+        return sections[0].letter;
+      if (relativeY >= height)
+        return sections[sections.length - 1].letter;
+      const itemHeight = height / sections.length;
+      const letterIndex = Math.min(
+        sections.length - 1,
+        Math.max(0, Math.floor(relativeY / itemHeight))
+      );
+      return sections[letterIndex].letter;
+    };
+    const updateLetterByTouch = (event) => {
+      const clientY = getClientY(event);
+      const letter = getLetterByClientY(clientY);
+      if (letter) {
+        jumpTo(letter);
+      }
+    };
+    const handleIndexTouchStart = (event) => {
+      indexTouching.value = true;
+      updateLetterByTouch(event);
+    };
+    const handleIndexTouchMove = (event) => {
+      if (!indexTouching.value)
+        return;
+      updateLetterByTouch(event);
+    };
+    const handleIndexTouchEnd = () => {
+      indexTouching.value = false;
     };
     common_vendor.onLoad((options) => {
       eventChannel.value = resolveEventChannel();
@@ -137,6 +222,9 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       setTimeout(() => {
         handleLocate(false);
       }, 200);
+    });
+    common_vendor.onReady(() => {
+      common_vendor.nextTick$1(measureIndexBar);
     });
     return (_ctx, _cache) => {
       return common_vendor.e({
@@ -178,9 +266,13 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             a: common_vendor.t(section.letter),
             b: section.letter,
             c: section.letter === highlightedLetter.value ? 1 : "",
-            d: common_vendor.o(($event) => jumpTo(section.letter), section.letter)
+            d: common_vendor.o(($event) => handleIndexTap(section.letter), section.letter)
           };
-        })
+        }),
+        o: common_vendor.o(handleIndexTouchStart),
+        p: common_vendor.o(handleIndexTouchMove),
+        q: common_vendor.o(handleIndexTouchEnd),
+        r: common_vendor.o(handleIndexTouchEnd)
       });
     };
   }
