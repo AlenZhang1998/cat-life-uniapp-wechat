@@ -7,7 +7,9 @@ const TENCENT_MAP_KEY = (
   (define_import_meta_env_default == null ? void 0 : define_import_meta_env_default.VITE_TENCENT_MAP_KEY) || ""
 );
 const GEOCODER_ENDPOINT = "https://apis.map.qq.com/ws/geocoder/v1";
-const CITY_NAME_MATCHER = /(北京市|天津市|上海市|重庆市|[\u4e00-\u9fa5]+?(?:自治州|地区|盟|市|区))/u;
+const CITY_NAME_MATCHER = /(北京市|天津市|上海市|重庆市|[\u4e00-\u9fa5]+?(?:自治区|自治州|地区|盟|市|区|县))/u;
+const PROVINCE_PREFIX_MATCHER = /^[\u4e00-\u9fa5]+?(?:省|自治区|特别行政区)/u;
+const PROVINCE_SUFFIX_MATCHER = /(省|特别行政区)$/u;
 const request = (options) => new Promise((resolve, reject) => {
   common_vendor.index.request({
     ...options,
@@ -34,7 +36,18 @@ const extractCityFromText = (text) => {
   if (!text)
     return null;
   const match = text.match(CITY_NAME_MATCHER);
-  return match ? match[1].replace(/(省|特别行政区)$/, "") : null;
+  if (!match)
+    return null;
+  const raw = match[1];
+  const withoutPrefix = raw.replace(PROVINCE_PREFIX_MATCHER, "");
+  const normalized = withoutPrefix || raw;
+  return normalized.replace(PROVINCE_SUFFIX_MATCHER, "");
+};
+const normalizeCityName = (text) => {
+  if (!text)
+    return "";
+  const normalized = extractCityFromText(text);
+  return (normalized ?? text).trim();
 };
 const reverseGeocodeByTencent = async (latitude, longitude) => {
   if (!TENCENT_MAP_KEY) {
@@ -61,7 +74,7 @@ const reverseGeocodeByTencent = async (latitude, longitude) => {
       };
     }
   } catch (error) {
-    common_vendor.index.__f__("warn", "at utils/location.ts:93", "reverseGeocodeByTencent failed", error);
+    common_vendor.index.__f__("warn", "at utils/location.ts:106", "reverseGeocodeByTencent failed", error);
   }
   return null;
 };
@@ -79,7 +92,7 @@ const locateCityByGPS = async () => {
       };
     }
   } catch (error) {
-    common_vendor.index.__f__("warn", "at utils/location.ts:112", "locateCityByGPS failed", error);
+    common_vendor.index.__f__("warn", "at utils/location.ts:125", "locateCityByGPS failed", error);
   }
   return null;
 };
@@ -127,4 +140,5 @@ const ensureLocationAuth = () => new Promise((resolve, reject) => {
 exports.chooseCityFromMap = chooseCityFromMap;
 exports.ensureLocationAuth = ensureLocationAuth;
 exports.locateCityByGPS = locateCityByGPS;
+exports.normalizeCityName = normalizeCityName;
 //# sourceMappingURL=../../.sourcemap/mp-weixin/utils/location.js.map

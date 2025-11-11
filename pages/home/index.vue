@@ -142,19 +142,24 @@
 import { onShow } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
 import { STORAGE_KEYS } from '@/constants/storage'
+import { normalizeCityName } from '@/utils/location'
 import locationIcon from '@/static/icons/dingwei.png'
 import dingwei_right from '@/static/icons/dingwei_right.png'
 import BottomActionBar from '@/components/BottomActionBar.vue'
 
 // ================= 基础展示数据 =================
-const city = ref('深圳市')
+const DEFAULT_CITY = '深圳市'
+const normalizeOrDefault = (value?: string | null) =>
+  normalizeCityName(value) || DEFAULT_CITY
+
+const city = ref(normalizeOrDefault(DEFAULT_CITY))
 
 const syncSelectedCity = () => {
   const stored = uni.getStorageSync(
     STORAGE_KEYS.selectedCity
   ) as string | null
   if (stored) {
-    city.value = stored
+    city.value = normalizeOrDefault(stored)
   }
 }
 
@@ -288,7 +293,7 @@ const navigateToCity = () => {
     events: {
       'city-selected': (selectedCity: string) => {
         if (selectedCity) {
-          city.value = selectedCity
+          city.value = normalizeOrDefault(selectedCity)
         }
       }
     }

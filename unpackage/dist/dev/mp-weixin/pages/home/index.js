@@ -1,21 +1,24 @@
 "use strict";
 const common_vendor = require("../../common/vendor.js");
 const constants_storage = require("../../constants/storage.js");
+const utils_location = require("../../utils/location.js");
 const common_assets = require("../../common/assets.js");
 if (!Math) {
   BottomActionBar();
 }
 const BottomActionBar = () => "../../components/BottomActionBar.js";
+const DEFAULT_CITY = "深圳市";
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "index",
   setup(__props) {
-    const city = common_vendor.ref("深圳市");
+    const normalizeOrDefault = (value) => utils_location.normalizeCityName(value) || DEFAULT_CITY;
+    const city = common_vendor.ref(normalizeOrDefault(DEFAULT_CITY));
     const syncSelectedCity = () => {
       const stored = common_vendor.index.getStorageSync(
         constants_storage.STORAGE_KEYS.selectedCity
       );
       if (stored) {
-        city.value = stored;
+        city.value = normalizeOrDefault(stored);
       }
     };
     syncSelectedCity();
@@ -114,7 +117,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         events: {
           "city-selected": (selectedCity) => {
             if (selectedCity) {
-              city.value = selectedCity;
+              city.value = normalizeOrDefault(selectedCity);
             }
           }
         }
