@@ -152,30 +152,51 @@
 }
 .home-page .latest-card .rating-row.data-v-4978fed5 {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 32rpx;
+}
+.home-page .latest-card .rating-row .rating-label.data-v-4978fed5 {
+  flex: 1;
 }
 .home-page .latest-card .rating-row .rating-badges.data-v-4978fed5 {
+  flex: 0 0 50%;
+  max-width: 50%;
   display: flex;
-  gap: 16rpx;
+  gap: 12rpx;
+  align-items: center;
+  justify-content: space-between;
 }
-.home-page .latest-card .rating-row .rating-badges .rating-badge.data-v-4978fed5 {
-  width: 48rpx;
-  height: 48rpx;
-  border-radius: 16rpx;
-  background-color: #edf3ef;
-  color: #0a9f47;
+.home-page .latest-card .rating-row .rating-badge.data-v-4978fed5 {
+  width: 56rpx;
+  height: 56rpx;
+  padding: 0 6rpx;
+  border-radius: 32rpx;
+  background: var(--badge-bg, #edf3ef);
+  color: var(--badge-color, #0a9f47);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
-  font-size: 26rpx;
-  transition: all 0.3s ease;
+  -webkit-clip-path: polygon(50% 0%, 94% 25%, 94% 75%, 50% 100%, 6% 75%, 6% 25%);
+          clip-path: polygon(50% 0%, 94% 25%, 94% 75%, 50% 100%, 6% 75%, 6% 25%);
+  transform: scale(0.88) translateY(0rpx);
+  opacity: 0.88;
+  transition: transform 0.25s ease, background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: inset 0 0 0 0 rgba(255, 255, 255, 0.25);
 }
-.home-page .latest-card .rating-row .rating-badges .rating-badge.active.data-v-4978fed5 {
-  background-color: #1ec15f;
+.home-page .latest-card .rating-row .rating-badge text.data-v-4978fed5 {
+  line-height: 1;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+.home-page .latest-card .rating-row .rating-badge.active.data-v-4978fed5 {
+  background: var(--badge-color, #1ec15f);
   color: #fff;
-  box-shadow: 0 12rpx 18rpx rgba(30, 193, 95, 0.4);
+  transform: scale(1.12) translateY(0);
+  opacity: 1;
+  box-shadow: 0 18rpx 28rpx rgba(30, 193, 95, 0.35);
+}
+.home-page .latest-card .rating-row .rating-badge.active text.data-v-4978fed5 {
+  font-size: 34rpx;
 }
 .home-page .stats-card .stats-grid.data-v-4978fed5 {
   display: grid;

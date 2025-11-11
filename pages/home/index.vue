@@ -71,6 +71,7 @@
             v-for="level in efficiencyLevels"
             :key="level.label"
             :class="{ active: level.label === currentEfficiency.label }"
+            :style="getBadgeStyle(level)"
           >
             <text>{{ level.label }}</text>
           </view>
@@ -181,14 +182,25 @@ const hasRecentRefuel = ref(false)
 const latestFuel = ref('4.80')
 
 // 评级标签以静态数组呈现，方便后续根据接口高亮不同等级
-const efficiencyLevels = ref([
-  { label: 'S' },
-  { label: 'A' },
-  { label: 'B' },
-  { label: 'C' },
-  { label: 'D' }
+type EfficiencyLevel = {
+  label: string
+  badgeBg: string
+  badgeColor: string
+}
+
+const efficiencyLevels = ref<EfficiencyLevel[]>([
+  { label: 'S', badgeBg: '#e4faed', badgeColor: '#07c263' },
+  { label: 'A', badgeBg: '#f0f9e7', badgeColor: '#94d951' },
+  { label: 'B', badgeBg: '#f4faeb', badgeColor: '#c7e969' },
+  { label: 'C', badgeBg: '#fff7e4', badgeColor: '#f7d36c' },
+  { label: 'D', badgeBg: '#fff1df', badgeColor: '#fabb59' }
 ])
-const currentEfficiency = ref({ label: 'S' })
+const currentEfficiency = ref<EfficiencyLevel>(efficiencyLevels.value[0])
+
+const getBadgeStyle = (level: EfficiencyLevel) => ({
+  '--badge-bg': level.badgeBg,
+  '--badge-color': level.badgeColor
+})
 
 // 统计区块的数据源，这里把单位也一起放进来，便于展示
 const stats = ref([
@@ -495,32 +507,57 @@ onShow(() => {
 
     .rating-row {
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      gap: 32rpx;
+
+      .rating-label {
+        flex: 1;
+      }
 
       .rating-badges {
+        flex: 0 0 50%;
+        max-width: 50%;
         display: flex;
-        gap: 16rpx;
+        gap: 12rpx;
+        align-items: center;
+        justify-content: space-between;
+      }
 
-        .rating-badge {
-          width: 48rpx;
-          height: 48rpx;
-          border-radius: 16rpx;
-          background-color: #edf3ef;
-          color: $primary-dark;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 600;
-          font-size: 26rpx;
-          transition: all 0.3s ease;
-        }
+      .rating-badge {
+        width: 56rpx;
+        height: 56rpx;
+        padding: 0 6rpx;
+        border-radius: 32rpx;
+        background: var(--badge-bg, #edf3ef);
+        color: var(--badge-color, $primary-dark);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        // clip-path: polygon(25% 6%, 75% 6%, 100% 50%, 75% 94%, 25% 94%, 0% 50%);
+        clip-path: polygon(50% 0%, 94% 25%, 94% 75%, 50% 100%, 6% 75%, 6% 25%);
+        transform: scale(0.88) translateY(0rpx);
+        opacity: 0.88;
+        transition: transform 0.25s ease, background 0.25s ease,
+          color 0.25s ease, box-shadow 0.25s ease;
+        box-shadow: inset 0 0 0 0 rgba(255, 255, 255, 0.25);
+      }
 
-        .rating-badge.active {
-          background-color: $primary-color;
-          color: #fff;
-          box-shadow: 0 12rpx 18rpx rgba(30, 193, 95, 0.4);
-        }
+      .rating-badge text {
+        line-height: 1;
+        font-size: 28rpx;
+        font-weight: 700;
+      }
+
+      .rating-badge.active {
+        background: var(--badge-color, $primary-color);
+        color: #fff;
+        transform: scale(1.12) translateY(0);
+        opacity: 1;
+        box-shadow: 0 18rpx 28rpx rgba(30, 193, 95, 0.35);
+      }
+
+      .rating-badge.active text {
+        font-size: 34rpx;
       }
     }
   }
