@@ -34,13 +34,17 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const hasRecentRefuel = common_vendor.ref(false);
     const latestFuel = common_vendor.ref("4.80");
     const efficiencyLevels = common_vendor.ref([
-      { label: "S" },
-      { label: "A" },
-      { label: "B" },
-      { label: "C" },
-      { label: "D" }
+      { label: "S", badgeBg: "#e4faed", badgeColor: "#07c263" },
+      { label: "A", badgeBg: "#f0f9e7", badgeColor: "#94d951" },
+      { label: "B", badgeBg: "#f4faeb", badgeColor: "#c7e969" },
+      { label: "C", badgeBg: "#fff7e4", badgeColor: "#f7d36c" },
+      { label: "D", badgeBg: "#fff1df", badgeColor: "#fabb59" }
     ]);
-    const currentEfficiency = common_vendor.ref({ label: "S" });
+    const currentEfficiency = common_vendor.ref(efficiencyLevels.value[0]);
+    const getBadgeStyle = (level) => ({
+      "--badge-bg": level.badgeBg,
+      "--badge-color": level.badgeColor
+    });
     const stats = common_vendor.ref([
       {
         key: "fuelAvg",
@@ -143,7 +147,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           return {
             a: common_vendor.t(level.label),
             b: level.label,
-            c: level.label === currentEfficiency.value.label ? 1 : ""
+            c: level.label === currentEfficiency.value.label ? 1 : "",
+            d: common_vendor.s(getBadgeStyle(level))
           };
         }),
         l: common_vendor.t(selectedRange.value.label),
