@@ -40,14 +40,15 @@
           :loading="locating"
           @tap="handleLocate"
         >
-          <text class="icon-text">⇱</text>
+          <text class="icon-text">👇</text>
         </button>
         <button
           class="icon-button"
           hover-class="icon-button__hover"
           @tap="handlePickFromMap"
         >
-          <text class="icon-text">◎</text>
+          <text class="icon-text">👆</text>
+          <!-- ◎ -->
         </button>
       </view>
     </view>
@@ -121,7 +122,8 @@ import { CITY_LIST, CityItem } from '@/data/cities'
 import {
   chooseCityFromMap,
   ensureLocationAuth,
-  locateCityByGPS
+  locateCityByGPS,
+  normalizeCityName
 } from '@/utils/location'
 
 type CitySection = {
@@ -231,12 +233,17 @@ const clearKeyword = () => {
   keyword.value = ''
 }
 
+const formatCityName = (value: string) =>
+  normalizeCityName(value) || value
+
 const persistCity = (cityName: string) => {
-  currentCity.value = cityName
+  const normalized = formatCityName(cityName)
+  currentCity.value = normalized
   uni.setStorage({
     key: STORAGE_KEYS.selectedCity,
-    data: cityName
+    data: normalized
   })
+  return normalized
 }
 
 const emitSelection = (cityName: string) => {
@@ -250,8 +257,8 @@ const closePage = () => {
 }
 
 const handleCityTap = (cityName: string) => {
-  persistCity(cityName)
-  emitSelection(cityName)
+  const normalized = persistCity(cityName)
+  emitSelection(normalized)
   closePage()
 }
 
@@ -262,9 +269,10 @@ const handleLocate = async (applyCity = true) => {
     await ensureLocationAuth()
     const located = await locateCityByGPS()
     if (located?.city) {
-      locationCity.value = located.city
+      const normalizedCity = formatCityName(located.city)
+      locationCity.value = normalizedCity
       if (applyCity) {
-        handleCityTap(located.city)
+        handleCityTap(normalizedCity)
       }
       return
     }
@@ -286,8 +294,9 @@ const handleLocate = async (applyCity = true) => {
 const handlePickFromMap = async () => {
   const result = await chooseCityFromMap()
   if (result?.city) {
-    locationCity.value = result.city
-    handleCityTap(result.city)
+    const normalizedCity = formatCityName(result.city)
+    locationCity.value = normalizedCity
+    handleCityTap(normalizedCity)
   } else {
     uni.showToast({
       title: '无法获取定位',
@@ -370,10 +379,12 @@ const handleIndexTouchEnd = () => {
 
 onLoad((options) => {
   eventChannel.value = resolveEventChannel()
-  const queryCity =
+  const queryCityRaw =
     (options?.currentCity && decodeURIComponent(options.currentCity)) || ''
-  const storedCity =
+  const storedCityRaw =
     (uni.getStorageSync(STORAGE_KEYS.selectedCity) as string | null) || ''
+  const queryCity = normalizeCityName(queryCityRaw)
+  const storedCity = normalizeCityName(storedCityRaw)
 
   currentCity.value = queryCity || storedCity || '深圳市'
   locationCity.value = storedCity

@@ -12,7 +12,10 @@ const TENCENT_MAP_KEY =
 const GEOCODER_ENDPOINT = 'https://apis.map.qq.com/ws/geocoder/v1'
 
 const CITY_NAME_MATCHER =
-  /(北京市|天津市|上海市|重庆市|[\u4e00-\u9fa5]+?(?:自治州|地区|盟|市|区))/u
+  /(北京市|天津市|上海市|重庆市|[\u4e00-\u9fa5]+?(?:自治区|自治州|地区|盟|市|区|县))/u
+const PROVINCE_PREFIX_MATCHER =
+  /^[\u4e00-\u9fa5]+?(?:省|自治区|特别行政区)/u
+const PROVINCE_SUFFIX_MATCHER = /(省|特别行政区)$/u
 
 const request = <T>(options: UniApp.RequestOptions) =>
   new Promise<UniApp.RequestSuccessCallbackResult<T>>((resolve, reject) => {
@@ -45,7 +48,17 @@ export const chooseLocationManually = () =>
 export const extractCityFromText = (text?: string | null) => {
   if (!text) return null
   const match = text.match(CITY_NAME_MATCHER)
-  return match ? match[1].replace(/(省|特别行政区)$/, '') : null
+  if (!match) return null
+  const raw = match[1]
+  const withoutPrefix = raw.replace(PROVINCE_PREFIX_MATCHER, '')
+  const normalized = withoutPrefix || raw
+  return normalized.replace(PROVINCE_SUFFIX_MATCHER, '')
+}
+
+export const normalizeCityName = (text?: string | null) => {
+  if (!text) return ''
+  const normalized = extractCityFromText(text)
+  return (normalized ?? text).trim()
 }
 
 export const reverseGeocodeByTencent = async (

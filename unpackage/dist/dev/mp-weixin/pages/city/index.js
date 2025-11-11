@@ -79,12 +79,15 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const clearKeyword = () => {
       keyword.value = "";
     };
+    const formatCityName = (value) => utils_location.normalizeCityName(value) || value;
     const persistCity = (cityName) => {
-      currentCity.value = cityName;
+      const normalized = formatCityName(cityName);
+      currentCity.value = normalized;
       common_vendor.index.setStorage({
         key: constants_storage.STORAGE_KEYS.selectedCity,
-        data: cityName
+        data: normalized
       });
+      return normalized;
     };
     const emitSelection = (cityName) => {
       var _a;
@@ -96,8 +99,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }, 150);
     };
     const handleCityTap = (cityName) => {
-      persistCity(cityName);
-      emitSelection(cityName);
+      const normalized = persistCity(cityName);
+      emitSelection(normalized);
       closePage();
     };
     const handleLocate = async (applyCity = true) => {
@@ -108,9 +111,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         await utils_location.ensureLocationAuth();
         const located = await utils_location.locateCityByGPS();
         if (located == null ? void 0 : located.city) {
-          locationCity.value = located.city;
+          const normalizedCity = formatCityName(located.city);
+          locationCity.value = normalizedCity;
           if (applyCity) {
-            handleCityTap(located.city);
+            handleCityTap(normalizedCity);
           }
           return;
         }
@@ -131,8 +135,9 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const handlePickFromMap = async () => {
       const result = await utils_location.chooseCityFromMap();
       if (result == null ? void 0 : result.city) {
-        locationCity.value = result.city;
-        handleCityTap(result.city);
+        const normalizedCity = formatCityName(result.city);
+        locationCity.value = normalizedCity;
+        handleCityTap(normalizedCity);
       } else {
         common_vendor.index.showToast({
           title: "无法获取定位",
@@ -215,8 +220,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     };
     common_vendor.onLoad((options) => {
       eventChannel.value = resolveEventChannel();
-      const queryCity = (options == null ? void 0 : options.currentCity) && decodeURIComponent(options.currentCity) || "";
-      const storedCity = common_vendor.index.getStorageSync(constants_storage.STORAGE_KEYS.selectedCity) || "";
+      const queryCityRaw = (options == null ? void 0 : options.currentCity) && decodeURIComponent(options.currentCity) || "";
+      const storedCityRaw = common_vendor.index.getStorageSync(constants_storage.STORAGE_KEYS.selectedCity) || "";
+      const queryCity = utils_location.normalizeCityName(queryCityRaw);
+      const storedCity = utils_location.normalizeCityName(storedCityRaw);
       currentCity.value = queryCity || storedCity || "深圳市";
       locationCity.value = storedCity;
       setTimeout(() => {
