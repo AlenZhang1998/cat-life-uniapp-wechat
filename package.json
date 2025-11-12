@@ -12,6 +12,7 @@
     "@dcloudio/uni-ui": "^1.4.23"
   },
   "devDependencies": {
+    "@dcloudio/types": "^3.4.28",
     "@dcloudio/vite-plugin-uni": "3.0.0-4070620250821001",
     "vite": "^5.2.8",
     "vue": "^3.4.0"
