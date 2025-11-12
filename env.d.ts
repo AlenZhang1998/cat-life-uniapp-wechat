@@ -10,3 +10,8 @@ declare module '*.png' {
   const src: string;
   export default src;
 }
+
+declare module '@/wxcomponents/ec-canvas/echarts' {
+  const echarts: any;
+  export = echarts;
+}

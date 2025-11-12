@@ -226,68 +226,32 @@
   color: #8a93a0;
 }
 .home-page .trend-card .trend-body.data-v-4978fed5 {
-  position: relative;
-  height: 280rpx;
-  background: linear-gradient(180deg, #ebf5ee 0%, #fff 100%);
-  border-radius: 24rpx;
-  overflow: hidden;
   margin: 16rpx 0 24rpx;
 }
-.home-page .trend-card .trend-body .grid.data-v-4978fed5 {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background-color: rgba(25, 147, 97, 0.12);
+.home-page .trend-card .trend-chart__wrapper.data-v-4978fed5 {
+  border-radius: 28rpx;
+  border: 2rpx solid rgba(203, 210, 221, 0.6);
+  background: #fff;
+  padding: 8rpx 0 0;
+  height: 600rpx;
+  overflow: hidden;
 }
-.home-page .trend-card .trend-body .grid.data-v-4978fed5:nth-child(1) {
-  top: 10%;
+.home-page .trend-card .trend-chart__canvas.data-v-4978fed5 {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
-.home-page .trend-card .trend-body .grid.data-v-4978fed5:nth-child(2) {
-  top: 35%;
-}
-.home-page .trend-card .trend-body .grid.data-v-4978fed5:nth-child(3) {
-  top: 60%;
-}
-.home-page .trend-card .trend-body .grid.data-v-4978fed5:nth-child(4) {
-  top: 80%;
-}
-.home-page .trend-card .trend-body .grid.data-v-4978fed5:nth-child(5) {
-  top: 90%;
-}
-.home-page .trend-card .trend-body .benchmark-line.data-v-4978fed5 {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 35%;
-  height: 2rpx;
-  background: rgba(138, 147, 160, 0.4);
-}
-.home-page .trend-card .trend-body .chart-line.data-v-4978fed5 {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  top: 0;
-}
-.home-page .trend-card .trend-body .chart-line .chart-point.data-v-4978fed5 {
-  position: absolute;
-  transform: translate(-50%, 0);
+.home-page .trend-card .trend-chart__fallback.data-v-4978fed5 {
+  width: 100%;
+  height: 100%;
   display: flex;
-  flex-direction: column;
   align-items: center;
-}
-.home-page .trend-card .trend-body .chart-line .chart-point .point-dot.data-v-4978fed5 {
-  width: 20rpx;
-  height: 20rpx;
-  border-radius: 999rpx;
-  background-color: #1ec15f;
-  box-shadow: 0 0 0 12rpx rgba(30, 193, 95, 0.18);
-  margin-bottom: 12rpx;
-}
-.home-page .trend-card .trend-body .chart-line .chart-point .point-label.data-v-4978fed5 {
-  font-size: 22rpx;
+  justify-content: center;
   color: #8a93a0;
+  font-size: 24rpx;
+  padding: 0 24rpx;
+  text-align: center;
+  background: linear-gradient(180deg, #f9fbff 0%, #f1f4f9 100%);
 }
 .home-page .trend-card .trend-footer.data-v-4978fed5 {
   color: #8a93a0;
