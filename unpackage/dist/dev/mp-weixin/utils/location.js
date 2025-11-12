@@ -1,6 +1,6 @@
 "use strict";
 const common_vendor = require("../common/vendor.js");
-var define_import_meta_env_default = { VITE_CJS_IGNORE_WARNING: "true", VITE_USER_NODE_ENV: "development", VITE_ROOT_DIR: "/Users/alan2/Downloads/zm/cat-life-uniapp-wechat", BASE_URL: "/", MODE: "development", DEV: true, PROD: false, SSR: false };
+var define_import_meta_env_default = { VITE_CJS_IGNORE_WARNING: "true", VITE_ROOT_DIR: "D:/Learn/projectFile/cat-life-uniapp-wechat", VITE_USER_NODE_ENV: "development", BASE_URL: "/", MODE: "development", DEV: true, PROD: false, SSR: false };
 const TENCENT_MAP_KEY = (
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore uni-app 会在编译阶段注入 import.meta.env
