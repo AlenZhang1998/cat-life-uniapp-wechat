@@ -3,6 +3,10 @@ const common_vendor = require("../../common/vendor.js");
 const constants_storage = require("../../constants/storage.js");
 const utils_location = require("../../utils/location.js");
 const common_assets = require("../../common/assets.js");
+if (!Array) {
+  const _component_ec_canvas = common_vendor.resolveComponent("ec-canvas");
+  _component_ec_canvas();
+}
 if (!Math) {
   BottomActionBar();
 }
@@ -11,6 +15,7 @@ const DEFAULT_CITY = "深圳市";
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "index",
   setup(__props) {
+    const echarts = require("../../wxcomponents/ec-canvas/echarts");
     const normalizeOrDefault = (value) => utils_location.normalizeCityName(value) || DEFAULT_CITY;
     const city = common_vendor.ref(normalizeOrDefault(DEFAULT_CITY));
     const syncSelectedCity = () => {
@@ -86,29 +91,163 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }
     ]);
     const trendData = common_vendor.ref([
-      { day: "周一", value: 6.2 },
-      { day: "周二", value: 6.9 },
-      { day: "周三", value: 8.4 },
-      { day: "周四", value: 9 },
-      { day: "周五", value: 7.6 },
-      { day: "周六", value: 6.8 },
-      { day: "周日", value: 6.5 }
+      { day: "2025-10-01", value: 4.9, cityHigh: 8.2, cityLow: 6.1 },
+      { day: "2025-10-02", value: 8.6, cityHigh: 8.15, cityLow: 6.05 },
+      { day: "2025-10-04", value: 8.1, cityHigh: 8.05, cityLow: 6 },
+      { day: "2025-10-06", value: 7.3, cityHigh: 8, cityLow: 5.96 },
+      { day: "2025-10-09", value: 4.8, cityHigh: 7.95, cityLow: 5.92 }
     ]);
     const selectedRange = common_vendor.ref({
       label: "全部"
     });
-    const maxTrendValue = common_vendor.computed(
-      () => Math.max(...trendData.value.map((item) => item.value))
-    );
-    const minTrendValue = common_vendor.computed(
-      () => Math.min(...trendData.value.map((item) => item.value))
-    );
-    const getPointStyle = (value, index) => {
-      const safeRange = Math.max(maxTrendValue.value - minTrendValue.value, 1);
-      const heightPercent = (value - minTrendValue.value) / safeRange * 80 + 10;
-      const leftPercent = trendData.value.length === 1 ? 50 : index / (trendData.value.length - 1) * 100;
-      return `left:${leftPercent}%;bottom:${heightPercent}%`;
+    const fuelTrendChart = common_vendor.ref(null);
+    const buildTrendOption = () => {
+      const categories = trendData.value.map((item) => item.day);
+      const actualSeries = trendData.value.map((item) => item.value);
+      const highSeries = trendData.value.map((item) => item.cityHigh);
+      const lowSeries = trendData.value.map((item) => item.cityLow);
+      return {
+        color: ["#F47274", "#11B561", "#AEB5C0"],
+        animationDuration: 700,
+        legend: {
+          left: 24,
+          top: 12,
+          icon: "roundRect",
+          itemWidth: 26,
+          itemHeight: 8,
+          textStyle: {
+            color: "#5F6673",
+            fontSize: 12
+          },
+          data: ["安顺市油耗参考-高位", "油耗", "安顺市油耗参考-低位"]
+        },
+        tooltip: {
+          trigger: "axis",
+          backgroundColor: "rgba(28,31,43,0.9)",
+          borderWidth: 0,
+          textStyle: {
+            color: "#fff",
+            fontSize: 12
+          },
+          axisPointer: {
+            type: "line",
+            lineStyle: {
+              color: "#0AB068",
+              width: 1,
+              type: "dashed"
+            }
+          }
+        },
+        grid: {
+          left: 70,
+          right: 24,
+          top: 110,
+          bottom: 80
+        },
+        xAxis: {
+          type: "category",
+          data: categories,
+          boundaryGap: false,
+          axisLine: { lineStyle: { color: "#D0D7E3" } },
+          axisTick: { show: false },
+          axisLabel: {
+            color: "#8a93a0",
+            fontSize: 12,
+            margin: 16
+          },
+          splitLine: { show: false }
+        },
+        yAxis: {
+          type: "value",
+          min: 4,
+          max: 9,
+          interval: 1,
+          axisLine: { show: false },
+          axisTick: { show: false },
+          axisLabel: {
+            color: "#8a93a0",
+            fontSize: 12,
+            formatter: (value) => value.toFixed(1)
+          },
+          splitLine: {
+            lineStyle: { color: "#E1E6EF", type: "dashed" }
+          }
+        },
+        series: [
+          {
+            name: "安顺市油耗参考-高位",
+            type: "line",
+            data: highSeries,
+            smooth: true,
+            showSymbol: true,
+            symbolSize: 12,
+            lineStyle: { width: 2 }
+          },
+          {
+            name: "油耗",
+            type: "line",
+            data: actualSeries,
+            smooth: true,
+            showSymbol: true,
+            symbolSize: 14,
+            lineStyle: { width: 4 },
+            itemStyle: { color: "#11B97A" },
+            areaStyle: {
+              color: {
+                type: "linear",
+                x: 0,
+                y: 0,
+                x2: 0,
+                y2: 1,
+                colorStops: [
+                  { offset: 0, color: "rgba(17,181,97,0.18)" },
+                  { offset: 1, color: "rgba(17,181,97,0)" }
+                ]
+              }
+            }
+          },
+          {
+            name: "安顺市油耗参考-低位",
+            type: "line",
+            data: lowSeries,
+            smooth: true,
+            showSymbol: true,
+            symbolSize: 11,
+            lineStyle: { width: 2, type: "dashed", color: "#AEB5C0" },
+            itemStyle: { color: "#AEB5C0" }
+          }
+        ]
+      };
     };
+    const initFuelTrendChart = (canvas, width, height, dpr) => {
+      var _a;
+      const chart = echarts.init(canvas, null, {
+        width,
+        height,
+        devicePixelRatio: dpr
+      });
+      (_a = canvas.setChart) == null ? void 0 : _a.call(canvas, chart);
+      chart.setOption(buildTrendOption());
+      fuelTrendChart.value = chart;
+      return chart;
+    };
+    const fuelTrendEc = common_vendor.ref({
+      lazyLoad: false,
+      onInit: initFuelTrendChart
+    });
+    common_vendor.watch(
+      trendData,
+      () => {
+        if (fuelTrendChart.value) {
+          fuelTrendChart.value.setOption(buildTrendOption(), true);
+        }
+      },
+      { deep: true }
+    );
+    common_vendor.onUnmounted(() => {
+      var _a;
+      (_a = fuelTrendChart.value) == null ? void 0 : _a.dispose();
+    });
     const handleNavigate = (actionKey) => {
       common_vendor.index.showToast({
         title: `功能 ${actionKey} 开发中`,
@@ -162,19 +301,12 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           };
         }),
         n: common_vendor.t(selectedRange.value.label),
-        o: common_vendor.f(5, (line, k0, i0) => {
-          return {
-            a: line
-          };
+        o: common_vendor.p({
+          id: "fuelTrendChart",
+          canvasId: "fuelTrendChart",
+          ec: fuelTrendEc.value
         }),
-        p: common_vendor.f(trendData.value, (point, index, i0) => {
-          return {
-            a: common_vendor.t(point.day),
-            b: point.day,
-            c: common_vendor.s(getPointStyle(point.value, index))
-          };
-        }),
-        q: common_vendor.p({
+        p: common_vendor.p({
           active: "fuel"
         })
       });

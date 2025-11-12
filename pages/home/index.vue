@@ -109,28 +109,25 @@
         </view>
       </view>
       <view class="trend-body">
-        <!-- 网格背景，模拟图表的参考线 -->
-        <view class="grid" v-for="line in 5" :key="line"></view>
-
-        <!-- 参考基准线 -->
-        <view class="benchmark-line"></view>
-
-        <!-- 使用绝对定位绘制的折线图 -->
-        <view class="chart-line">
-          <view
-            class="chart-point"
-            v-for="(point, index) in trendData"
-            :key="point.day"
-            :style="getPointStyle(point.value, index)"
-          >
-            <view class="point-dot"></view>
-            <text class="point-label">{{ point.day }}</text>
+        <view class="trend-chart__wrapper">
+          <!-- #ifdef MP-WEIXIN -->
+          <ec-canvas
+            id="fuelTrendChart"
+            canvas-id="fuelTrendChart"
+            class="trend-chart__canvas"
+            :ec="fuelTrendEc"
+          ></ec-canvas>
+          <!-- #endif -->
+          <!-- #ifndef MP-WEIXIN -->
+          <view class="trend-chart__fallback">
+            <text>请在微信小程序端查看油耗趋势图</text>
           </view>
+          <!-- #endif -->
         </view>
       </view>
       <view class="trend-footer">
         <text class="benchmark-label">
-          灰线为深圳市油耗参考 - 低位
+          数据基于最近 7 天行驶记录，绿色线为当前车辆，红/灰线为本市参考区间。
         </text>
       </view>
     </view>
@@ -141,12 +138,16 @@
 
 <script setup lang="ts">
 import { onShow } from '@dcloudio/uni-app'
-import { computed, ref } from 'vue'
+import { onUnmounted, ref, watch } from 'vue'
+import type * as EChartsType from '@/wxcomponents/ec-canvas/echarts'
 import { STORAGE_KEYS } from '@/constants/storage'
 import { normalizeCityName } from '@/utils/location'
 import locationIcon from '@/static/icons/dingwei.png'
 import dingwei_right from '@/static/icons/dingwei_right.png'
 import BottomActionBar from '@/components/BottomActionBar.vue'
+// uCharts 官方 ECharts 适配仅支持 CJS 导入，这里使用 require 方式以兼容编译到小程序端
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const echarts = require('../../wxcomponents/ec-canvas/echarts') as typeof EChartsType
 
 // ================= 基础展示数据 =================
 const DEFAULT_CITY = '深圳市'
@@ -245,14 +246,19 @@ const stats = ref([
 ])
 
 // 油耗趋势数据，value 直接对应折线的高度
-const trendData = ref([
-  { day: '周一', value: 6.2 },
-  { day: '周二', value: 6.9 },
-  { day: '周三', value: 8.4 },
-  { day: '周四', value: 9.0 },
-  { day: '周五', value: 7.6 },
-  { day: '周六', value: 6.8 },
-  { day: '周日', value: 6.5 }
+type TrendPoint = {
+  day: string
+  value: number
+  cityHigh: number
+  cityLow: number
+}
+
+const trendData = ref<TrendPoint[]>([
+  { day: '2025-10-01', value: 4.9, cityHigh: 8.2, cityLow: 6.1 },
+  { day: '2025-10-02', value: 8.6, cityHigh: 8.15, cityLow: 6.05 },
+  { day: '2025-10-04', value: 8.1, cityHigh: 8.05, cityLow: 6.0 },
+  { day: '2025-10-06', value: 7.3, cityHigh: 8.0, cityLow: 5.96 },
+  { day: '2025-10-09', value: 4.8, cityHigh: 7.95, cityLow: 5.92 }
 ])
 
 // 统计口径筛选，目前仅用于展示标签
@@ -260,33 +266,164 @@ const selectedRange = ref({
   label: '全部'
 })
 
-// 底部操作栏配置，后续可以在此添加路由跳转逻辑
-// ================ 计算属性与函数工具 =================
-const maxTrendValue = computed(() =>
-  Math.max(...trendData.value.map((item) => item.value))
-)
-const minTrendValue = computed(() =>
-  Math.min(...trendData.value.map((item) => item.value))
-)
+// ================ 油耗趋势图 ================
+const fuelTrendChart = ref<any>(null)
 
-/**
- * 根据油耗值和位置计算折线点的绝对定位样式
- * @param value 当前点的油耗值
- * @param index 当前下标
- */
-const getPointStyle = (value: number, index: number) => {
-  // 避免除以 0，这里设置一个默认区间
-  const safeRange = Math.max(maxTrendValue.value - minTrendValue.value, 1)
-  // 线条会占据容器 80% 的高度，上下留有 10% 的内边距保证视觉呼吸
-  const heightPercent =
-    ((value - minTrendValue.value) / safeRange) * 80 + 10
-  const leftPercent =
-    trendData.value.length === 1
-      ? 50
-      : (index / (trendData.value.length - 1)) * 100
+const buildTrendOption = () => {
+  const categories = trendData.value.map((item) => item.day)
+  const actualSeries = trendData.value.map((item) => item.value)
+  const highSeries = trendData.value.map((item) => item.cityHigh)
+  const lowSeries = trendData.value.map((item) => item.cityLow)
 
-  return `left:${leftPercent}%;bottom:${heightPercent}%`
+  return {
+    color: ['#F47274', '#11B561', '#AEB5C0'],
+    animationDuration: 700,
+    legend: {
+      left: 24,
+      top: 12,
+      icon: 'roundRect',
+      itemWidth: 26,
+      itemHeight: 8,
+      textStyle: {
+        color: '#5F6673',
+        fontSize: 12
+      },
+      data: ['安顺市油耗参考-高位', '油耗', '安顺市油耗参考-低位']
+    },
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: 'rgba(28,31,43,0.9)',
+      borderWidth: 0,
+      textStyle: {
+        color: '#fff',
+        fontSize: 12
+      },
+      axisPointer: {
+        type: 'line',
+        lineStyle: {
+          color: '#0AB068',
+          width: 1,
+          type: 'dashed'
+        }
+      }
+    },
+    grid: {
+      left: 70,
+      right: 24,
+      top: 110,
+      bottom: 80
+    },
+    xAxis: {
+      type: 'category',
+      data: categories,
+      boundaryGap: false,
+      axisLine: { lineStyle: { color: '#D0D7E3' } },
+      axisTick: { show: false },
+      axisLabel: {
+        color: '#8a93a0',
+        fontSize: 12,
+        margin: 16
+      },
+      splitLine: { show: false }
+    },
+    yAxis: {
+      type: 'value',
+      min: 4,
+      max: 9,
+      interval: 1,
+      axisLine: { show: false },
+      axisTick: { show: false },
+      axisLabel: {
+        color: '#8a93a0',
+        fontSize: 12,
+        formatter: (value: number) => value.toFixed(1)
+      },
+      splitLine: {
+        lineStyle: { color: '#E1E6EF', type: 'dashed' }
+      }
+    },
+    series: [
+      {
+        name: '安顺市油耗参考-高位',
+        type: 'line',
+        data: highSeries,
+        smooth: true,
+        showSymbol: true,
+        symbolSize: 12,
+        lineStyle: { width: 2 }
+      },
+      {
+        name: '油耗',
+        type: 'line',
+        data: actualSeries,
+        smooth: true,
+        showSymbol: true,
+        symbolSize: 14,
+        lineStyle: { width: 4 },
+        itemStyle: { color: '#11B97A' },
+        areaStyle: {
+          color: {
+            type: 'linear',
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
+            colorStops: [
+              { offset: 0, color: 'rgba(17,181,97,0.18)' },
+              { offset: 1, color: 'rgba(17,181,97,0)' }
+            ]
+          }
+        }
+      },
+      {
+        name: '安顺市油耗参考-低位',
+        type: 'line',
+        data: lowSeries,
+        smooth: true,
+        showSymbol: true,
+        symbolSize: 11,
+        lineStyle: { width: 2, type: 'dashed', color: '#AEB5C0' },
+        itemStyle: { color: '#AEB5C0' }
+      }
+    ]
+  }
 }
+
+const initFuelTrendChart = (
+  canvas: any,
+  width: number,
+  height: number,
+  dpr: number
+) => {
+  const chart = echarts.init(canvas, null, {
+    width,
+    height,
+    devicePixelRatio: dpr
+  })
+  canvas.setChart?.(chart)
+  chart.setOption(buildTrendOption())
+  fuelTrendChart.value = chart
+  return chart
+}
+
+const fuelTrendEc = ref({
+  lazyLoad: false,
+  onInit: initFuelTrendChart
+})
+
+watch(
+  trendData,
+  () => {
+    if (fuelTrendChart.value) {
+      fuelTrendChart.value.setOption(buildTrendOption(), true)
+    }
+  },
+  { deep: true }
+)
+
+onUnmounted(() => {
+  fuelTrendChart.value?.dispose()
+})
 
 /**
  * 统一处理页面跳转或后续功能入口
@@ -599,79 +736,35 @@ onShow(() => {
 
   .trend-card {
     .trend-body {
-      position: relative;
-      height: 280rpx;
-      background: linear-gradient(180deg, #ebf5ee 0%, #fff 100%);
-      border-radius: 24rpx;
-      overflow: hidden;
       margin: 16rpx 0 24rpx;
+    }
 
-      .grid {
-        position: absolute;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background-color: rgba(25, 147, 97, 0.12);
-      }
+    .trend-chart__wrapper {
+      border-radius: 28rpx;
+      border: 2rpx solid rgba(203, 210, 221, 0.6);
+      background: #fff;
+      padding: 8rpx 0 0;
+      height: 600rpx;
+      overflow: hidden;
+    }
 
-      .grid:nth-child(1) {
-        top: 10%;
-      }
+    .trend-chart__canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
 
-      .grid:nth-child(2) {
-        top: 35%;
-      }
-
-      .grid:nth-child(3) {
-        top: 60%;
-      }
-
-      .grid:nth-child(4) {
-        top: 80%;
-      }
-
-      .grid:nth-child(5) {
-        top: 90%;
-      }
-
-      .benchmark-line {
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 35%;
-        height: 2rpx;
-        background: rgba(138, 147, 160, 0.4);
-      }
-
-      .chart-line {
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        top: 0;
-
-        .chart-point {
-          position: absolute;
-          transform: translate(-50%, 0);
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-
-          .point-dot {
-            width: 20rpx;
-            height: 20rpx;
-            border-radius: 999rpx;
-            background-color: $primary-color;
-            box-shadow: 0 0 0 12rpx rgba(30, 193, 95, 0.18);
-            margin-bottom: 12rpx;
-          }
-
-          .point-label {
-            font-size: 22rpx;
-            color: $muted-text;
-          }
-        }
-      }
+    .trend-chart__fallback {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: $muted-text;
+      font-size: 24rpx;
+      padding: 0 24rpx;
+      text-align: center;
+      background: linear-gradient(180deg, #f9fbff 0%, #f1f4f9 100%);
     }
 
     .trend-footer {

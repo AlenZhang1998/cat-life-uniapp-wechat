@@ -4,7 +4,10 @@
       "path": "pages/home/index",
       "style": {
         "navigationBarTitleText": "爱车油耗",
-        "navigationStyle": "custom"
+        "navigationStyle": "custom",
+        "usingComponents": {
+          "ec-canvas": "/wxcomponents/ec-canvas/ec-canvas"
+        }
       }
     },
     {

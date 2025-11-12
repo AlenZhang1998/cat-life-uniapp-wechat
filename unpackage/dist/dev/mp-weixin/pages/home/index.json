@@ -2,6 +2,7 @@
   "navigationBarTitleText": "爱车油耗",
   "navigationStyle": "custom",
   "usingComponents": {
+    "ec-canvas": "../../wxcomponents/ec-canvas/ec-canvas",
     "bottom-action-bar": "../../components/BottomActionBar"
   }
 }
