@@ -113,11 +113,11 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           left: 24,
           top: 12,
           icon: "roundRect",
-          itemWidth: 26,
-          itemHeight: 8,
+          itemWidth: 20,
+          itemHeight: 6,
           textStyle: {
             color: "#5F6673",
-            fontSize: 12
+            fontSize: 8
           },
           data: ["安顺市油耗参考-高位", "油耗", "安顺市油耗参考-低位"]
         },
@@ -139,10 +139,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           }
         },
         grid: {
-          left: 70,
-          right: 24,
-          top: 110,
-          bottom: 80
+          left: 40,
+          right: 30,
+          top: 40,
+          bottom: 60
         },
         xAxis: {
           type: "category",
@@ -180,8 +180,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             data: highSeries,
             smooth: true,
             showSymbol: true,
-            symbolSize: 12,
-            lineStyle: { width: 2 }
+            symbolSize: 2,
+            lineStyle: { width: 1 }
           },
           {
             name: "油耗",
@@ -189,8 +189,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             data: actualSeries,
             smooth: true,
             showSymbol: true,
-            symbolSize: 14,
-            lineStyle: { width: 4 },
+            symbolSize: 2,
+            lineStyle: { width: 2 },
             itemStyle: { color: "#11B97A" },
             areaStyle: {
               color: {
@@ -212,8 +212,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             data: lowSeries,
             smooth: true,
             showSymbol: true,
-            symbolSize: 11,
-            lineStyle: { width: 2, type: "dashed", color: "#AEB5C0" },
+            symbolSize: 2,
+            lineStyle: { width: 1, type: "dashed", color: "#AEB5C0" },
             itemStyle: { color: "#AEB5C0" }
           }
         ]

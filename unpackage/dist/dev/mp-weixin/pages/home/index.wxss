@@ -225,14 +225,10 @@
   font-size: 22rpx;
   color: #8a93a0;
 }
-.home-page .trend-card .trend-body.data-v-4978fed5 {
-  margin: 16rpx 0 24rpx;
-}
 .home-page .trend-card .trend-chart__wrapper.data-v-4978fed5 {
-  border-radius: 28rpx;
-  border: 2rpx solid rgba(203, 210, 221, 0.6);
+  border-radius: 16rpx;
+  border: 1rpx solid rgba(203, 210, 221, 0.3);
   background: #fff;
-  padding: 8rpx 0 0;
   height: 600rpx;
   overflow: hidden;
 }
@@ -249,7 +245,6 @@
   justify-content: center;
   color: #8a93a0;
   font-size: 24rpx;
-  padding: 0 24rpx;
   text-align: center;
   background: linear-gradient(180deg, #f9fbff 0%, #f1f4f9 100%);
 }

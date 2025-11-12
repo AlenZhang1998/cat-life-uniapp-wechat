@@ -282,11 +282,11 @@ const buildTrendOption = () => {
       left: 24,
       top: 12,
       icon: 'roundRect',
-      itemWidth: 26,
-      itemHeight: 8,
+      itemWidth: 20,
+      itemHeight: 6,
       textStyle: {
         color: '#5F6673',
-        fontSize: 12
+        fontSize: 8
       },
       data: ['安顺市油耗参考-高位', '油耗', '安顺市油耗参考-低位']
     },
@@ -308,10 +308,10 @@ const buildTrendOption = () => {
       }
     },
     grid: {
-      left: 70,
-      right: 24,
-      top: 110,
-      bottom: 80
+      left: 40,
+      right: 30,
+      top: 40,
+      bottom: 60
     },
     xAxis: {
       type: 'category',
@@ -349,8 +349,8 @@ const buildTrendOption = () => {
         data: highSeries,
         smooth: true,
         showSymbol: true,
-        symbolSize: 12,
-        lineStyle: { width: 2 }
+        symbolSize: 2,
+        lineStyle: { width: 1 }
       },
       {
         name: '油耗',
@@ -358,8 +358,8 @@ const buildTrendOption = () => {
         data: actualSeries,
         smooth: true,
         showSymbol: true,
-        symbolSize: 14,
-        lineStyle: { width: 4 },
+        symbolSize: 2,
+        lineStyle: { width: 2 },
         itemStyle: { color: '#11B97A' },
         areaStyle: {
           color: {
@@ -381,8 +381,8 @@ const buildTrendOption = () => {
         data: lowSeries,
         smooth: true,
         showSymbol: true,
-        symbolSize: 11,
-        lineStyle: { width: 2, type: 'dashed', color: '#AEB5C0' },
+        symbolSize: 2,
+        lineStyle: { width: 1, type: 'dashed', color: '#AEB5C0' },
         itemStyle: { color: '#AEB5C0' }
       }
     ]
@@ -736,14 +736,14 @@ onShow(() => {
 
   .trend-card {
     .trend-body {
-      margin: 16rpx 0 24rpx;
+      // margin: 16rpx 0 24rpx;
     }
 
     .trend-chart__wrapper {
-      border-radius: 28rpx;
-      border: 2rpx solid rgba(203, 210, 221, 0.6);
+      border-radius: 16rpx;
+      border: 1rpx solid rgba(203, 210, 221, 0.3);
       background: #fff;
-      padding: 8rpx 0 0;
+      // padding: 8rpx 0 0;
       height: 600rpx;
       overflow: hidden;
     }
@@ -762,7 +762,7 @@ onShow(() => {
       justify-content: center;
       color: $muted-text;
       font-size: 24rpx;
-      padding: 0 24rpx;
+      // padding: 0 24rpx;
       text-align: center;
       background: linear-gradient(180deg, #f9fbff 0%, #f1f4f9 100%);
     }
