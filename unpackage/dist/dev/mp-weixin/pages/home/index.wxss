@@ -1,9 +1,13 @@
 /* 全局通用阴影，保持风格统一 */
 /* 全局通用阴影，保持风格统一 */
 .home-page.data-v-4978fed5 {
-  padding: 24rpx 32rpx 120rpx;
+  padding: 24rpx 32rpx calc(180rpx + env(safe-area-inset-bottom, 0px));
   padding-top: calc(34rpx + var(--status-bar-height, env(safe-area-inset-top, 0px)));
   box-sizing: border-box;
+}
+.home-page.home-page--locked.data-v-4978fed5 {
+  height: 100vh;
+  overflow: hidden;
 }
 .home-page .header-card.data-v-4978fed5 {
   background: linear-gradient(180deg, #58b1ff 0%, #1ec15f 100%);
@@ -266,4 +270,76 @@
 }
 .home-page .filter .filter-arrow.data-v-4978fed5 {
   font-size: 22rpx;
+}
+.home-page .filter.filter__hover.data-v-4978fed5 {
+  opacity: 0.7;
+}
+.home-page .range-picker-overlay.data-v-4978fed5 {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 48rpx;
+  z-index: 1200;
+}
+.home-page .range-picker-dialog.data-v-4978fed5 {
+  width: 100%;
+  background: #fff;
+  border-radius: 40rpx;
+  padding: 48rpx 40rpx 40rpx;
+  box-shadow: 0 30rpx 80rpx rgba(0, 0, 0, 0.12);
+}
+.home-page .range-picker-title.data-v-4978fed5 {
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+.home-page .range-options.data-v-4978fed5 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24rpx;
+  margin: 36rpx 0 12rpx;
+}
+.home-page .range-option.data-v-4978fed5 {
+  flex: 1 1 calc(33% - 16rpx);
+  min-width: 30%;
+  border-radius: 999rpx;
+  border: 2rpx solid rgba(138, 147, 160, 0.35);
+  padding: 22rpx 0;
+  text-align: center;
+  color: #8a93a0;
+  font-size: 26rpx;
+  font-weight: 600;
+  background: #fafbfd;
+}
+.home-page .range-option.active.data-v-4978fed5 {
+  border-color: transparent;
+  background: linear-gradient(180deg, #1ec15f 0%, #12a34a 100%);
+  color: #fff;
+  box-shadow: 0 16rpx 36rpx rgba(18, 163, 74, 0.35);
+}
+.home-page .range-actions.data-v-4978fed5 {
+  display: flex;
+  gap: 24rpx;
+  margin-top: 32rpx;
+}
+.home-page .range-button.data-v-4978fed5 {
+  flex: 1;
+  border-radius: 999rpx;
+  text-align: center;
+  padding: 26rpx 0;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+.home-page .range-button.cancel.data-v-4978fed5 {
+  background: #f5f7fb;
+  color: #1c1f23;
+  border: 1rpx solid #e5e9f2;
+}
+.home-page .range-button.confirm.data-v-4978fed5 {
+  color: #fff;
+  background: linear-gradient(180deg, #1ec15f 0%, #12a34a 100%);
+  box-shadow: 0 18rpx 32rpx rgba(30, 193, 95, 0.32);
 }
