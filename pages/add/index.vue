@@ -59,12 +59,10 @@
       保存油耗记录
     </button>
   </view>
-  <BottomActionBar active="add" />
 </template>
 
 <script setup lang="ts">
 import { reactive } from 'vue'
-import BottomActionBar from '@/components/BottomActionBar.vue'
 
 // 使用 reactive 构建表单数据，后续可便捷地提交给后端接口
 const form = reactive({
