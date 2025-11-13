@@ -106,6 +106,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       const actualSeries = trendData.value.map((item) => item.value);
       const highSeries = trendData.value.map((item) => item.cityHigh);
       const lowSeries = trendData.value.map((item) => item.cityLow);
+      const cityLegendHigh = `${city.value}油耗参考-高位`;
+      const cityLegendLow = `${city.value}油耗参考-低位`;
       return {
         color: ["#F47274", "#11B561", "#AEB5C0"],
         animationDuration: 700,
@@ -119,7 +121,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             color: "#5F6673",
             fontSize: 8
           },
-          data: ["安顺市油耗参考-高位", "油耗", "安顺市油耗参考-低位"]
+          data: [cityLegendHigh, "油耗", cityLegendLow]
         },
         tooltip: {
           trigger: "axis",
@@ -175,7 +177,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         },
         series: [
           {
-            name: "安顺市油耗参考-高位",
+            name: cityLegendHigh,
             type: "line",
             data: highSeries,
             smooth: true,
@@ -207,7 +209,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             }
           },
           {
-            name: "安顺市油耗参考-低位",
+            name: cityLegendLow,
             type: "line",
             data: lowSeries,
             smooth: true,
@@ -235,15 +237,21 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       lazyLoad: false,
       onInit: initFuelTrendChart
     });
+    const refreshFuelTrendChart = () => {
+      if (fuelTrendChart.value) {
+        fuelTrendChart.value.setOption(buildTrendOption(), true);
+      }
+    };
     common_vendor.watch(
       trendData,
       () => {
-        if (fuelTrendChart.value) {
-          fuelTrendChart.value.setOption(buildTrendOption(), true);
-        }
+        refreshFuelTrendChart();
       },
       { deep: true }
     );
+    common_vendor.watch(city, () => {
+      refreshFuelTrendChart();
+    });
     common_vendor.onUnmounted(() => {
       var _a;
       (_a = fuelTrendChart.value) == null ? void 0 : _a.dispose();
