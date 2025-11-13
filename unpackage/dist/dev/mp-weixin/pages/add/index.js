@@ -1,9 +1,5 @@
 "use strict";
 const common_vendor = require("../../common/vendor.js");
-if (!Math) {
-  BottomActionBar();
-}
-const BottomActionBar = () => "../../components/BottomActionBar.js";
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "index",
   setup(__props) {
@@ -50,10 +46,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         i: common_vendor.o((e) => handleFieldChange("amount", e.detail.value)),
         j: form.remark,
         k: common_vendor.o((e) => handleFieldChange("remark", e.detail.value)),
-        l: common_vendor.o(handleSubmit),
-        m: common_vendor.p({
-          active: "add"
-        })
+        l: common_vendor.o(handleSubmit)
       };
     };
   }
