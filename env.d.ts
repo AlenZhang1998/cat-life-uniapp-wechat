@@ -15,3 +15,5 @@ declare module '@/wxcomponents/ec-canvas/echarts' {
   const echarts: any;
   export = echarts;
 }
+
+declare const require: <T = any>(moduleId: string) => T;

@@ -127,7 +127,7 @@
       </view>
       <view class="trend-footer">
         <text class="benchmark-label">
-          数据基于最近 7 天行驶记录，绿色线为当前车辆，红/灰线为本市参考区间。
+          数据基于近 7 天行驶记录，绿线为当前车辆，红/灰线为本市参考区间。
         </text>
       </view>
     </view>
