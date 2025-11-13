@@ -97,9 +97,32 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       { day: "2025-10-06", value: 7.3, cityHigh: 8, cityLow: 5.96 },
       { day: "2025-10-09", value: 4.8, cityHigh: 7.95, cityLow: 5.92 }
     ]);
-    const selectedRange = common_vendor.ref({
-      label: "全部"
-    });
+    const rangeOptions = [
+      { key: "3m", label: "三个月" },
+      { key: "6m", label: "半年" },
+      { key: "1y", label: "一年" },
+      { key: "all", label: "全部" }
+    ];
+    const selectedRange = common_vendor.ref(rangeOptions[3]);
+    const showRangePicker = common_vendor.ref(false);
+    const pendingRangeKey = common_vendor.ref(selectedRange.value.key);
+    const openRangePicker = () => {
+      pendingRangeKey.value = selectedRange.value.key;
+      showRangePicker.value = true;
+    };
+    const closeRangePicker = () => {
+      showRangePicker.value = false;
+    };
+    const selectPendingRange = (option) => {
+      pendingRangeKey.value = option.key;
+    };
+    const confirmRangePicker = () => {
+      const target = rangeOptions.find((option) => option.key === pendingRangeKey.value);
+      if (target) {
+        selectedRange.value = target;
+      }
+      closeRangePicker();
+    };
     const fuelTrendChart = common_vendor.ref(null);
     const buildTrendOption = () => {
       const categories = trendData.value.map((item) => item.day);
@@ -299,7 +322,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           };
         }),
         l: common_vendor.t(selectedRange.value.label),
-        m: common_vendor.f(stats.value, (item, k0, i0) => {
+        m: common_vendor.o(openRangePicker),
+        n: common_vendor.f(stats.value, (item, k0, i0) => {
           return {
             a: common_vendor.t(item.label),
             b: common_vendor.t(item.value),
@@ -308,15 +332,35 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             e: item.key
           };
         }),
-        n: common_vendor.t(selectedRange.value.label),
-        o: common_vendor.p({
+        o: common_vendor.t(selectedRange.value.label),
+        p: common_vendor.o(openRangePicker),
+        q: common_vendor.p({
           id: "fuelTrendChart",
           canvasId: "fuelTrendChart",
           ec: fuelTrendEc.value
         }),
-        p: common_vendor.p({
-          active: "fuel"
+        r: showRangePicker.value
+      }, showRangePicker.value ? {
+        s: common_vendor.f(rangeOptions, (option, k0, i0) => {
+          return {
+            a: common_vendor.t(option.label),
+            b: option.key,
+            c: option.key === pendingRangeKey.value ? 1 : "",
+            d: common_vendor.o(($event) => selectPendingRange(option), option.key)
+          };
+        }),
+        t: common_vendor.o(closeRangePicker),
+        v: common_vendor.o(confirmRangePicker),
+        w: common_vendor.o(() => {
+        }),
+        x: common_vendor.o(closeRangePicker),
+        y: common_vendor.o(() => {
         })
+      } : {}, {
+        z: common_vendor.p({
+          active: "fuel"
+        }),
+        A: showRangePicker.value ? 1 : ""
       });
     };
   }

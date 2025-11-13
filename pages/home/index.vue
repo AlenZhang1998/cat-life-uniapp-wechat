@@ -1,5 +1,5 @@
 <template>
-  <view class="home-page">
+  <view class="home-page" :class="{ 'home-page--locked': showRangePicker }">
     <!-- 顶部卡片：展示城市、车辆概况和提醒 -->
     <view class="header-card">
       <view class="header-meta">
@@ -83,7 +83,7 @@
     <view class="stats-card">
       <view class="stats-header">
         <text class="label">统计</text>
-        <view class="filter">
+        <view class="filter" hover-class="filter__hover" @tap="openRangePicker">
           <text class="filter-text">{{ selectedRange.label }}</text>
           <text class="filter-arrow">⇅</text>
         </view>
@@ -103,7 +103,7 @@
     <view class="trend-card">
       <view class="trend-header">
         <text class="label">油耗变化趋势</text>
-        <view class="filter">
+        <view class="filter" hover-class="filter__hover" @tap="openRangePicker">
           <text class="filter-text">{{ selectedRange.label }}</text>
           <text class="filter-arrow">⇅</text>
         </view>
@@ -129,6 +129,34 @@
         <text class="benchmark-label">
           数据基于近 7 天行驶记录，绿线为当前车辆，红/灰线为本市参考区间。
         </text>
+      </view>
+    </view>
+
+    <view
+      v-if="showRangePicker"
+      class="range-picker-overlay"
+      @tap="closeRangePicker"
+      @touchmove.stop.prevent
+    >
+      <view class="range-picker-dialog" @tap.stop>
+        <view class="range-picker-title">请选择</view>
+        <view class="range-options">
+          <view
+            v-for="option in rangeOptions"
+            :key="option.key"
+            class="range-option"
+            :class="{ active: option.key === pendingRangeKey }"
+            @tap="selectPendingRange(option)"
+          >
+            <text>{{ option.label }}</text>
+          </view>
+        </view>
+        <view class="range-actions">
+          <view class="range-button cancel" @tap="closeRangePicker">取消</view>
+          <view class="range-button confirm" @tap="confirmRangePicker">
+            确定
+          </view>
+        </view>
       </view>
     </view>
 
@@ -262,9 +290,44 @@ const trendData = ref<TrendPoint[]>([
 ])
 
 // 统计口径筛选，目前仅用于展示标签
-const selectedRange = ref({
-  label: '全部'
-})
+type RangeKey = '3m' | '6m' | '1y' | 'all'
+
+type RangeOption = {
+  key: RangeKey
+  label: string
+}
+
+const rangeOptions: RangeOption[] = [
+  { key: '3m', label: '三个月' },
+  { key: '6m', label: '半年' },
+  { key: '1y', label: '一年' },
+  { key: 'all', label: '全部' }
+]
+
+const selectedRange = ref<RangeOption>(rangeOptions[3])
+const showRangePicker = ref(false)
+const pendingRangeKey = ref<RangeKey>(selectedRange.value.key)
+
+const openRangePicker = () => {
+  pendingRangeKey.value = selectedRange.value.key
+  showRangePicker.value = true
+}
+
+const closeRangePicker = () => {
+  showRangePicker.value = false
+}
+
+const selectPendingRange = (option: RangeOption) => {
+  pendingRangeKey.value = option.key
+}
+
+const confirmRangePicker = () => {
+  const target = rangeOptions.find((option) => option.key === pendingRangeKey.value)
+  if (target) {
+    selectedRange.value = target
+  }
+  closeRangePicker()
+}
 
 // ================ 油耗趋势图 ================
 const fuelTrendChart = ref<any>(null)
@@ -469,9 +532,15 @@ onShow(() => {
 @import '@/uni.scss';
 
 .home-page {
-  padding: 24rpx 32rpx 120rpx;
+  // padding: 24rpx 32rpx 120rpx;
+  padding: 24rpx 32rpx calc(180rpx + env(safe-area-inset-bottom, 0px));
   padding-top: calc(34rpx + var(--status-bar-height, env(safe-area-inset-top, 0px)));
   box-sizing: border-box;
+
+  &.home-page--locked {
+    height: 100vh;
+    overflow: hidden;
+  }
 
   .header-card {
     background: linear-gradient(180deg, #58b1ff 0%, #1ec15f 100%);
@@ -801,5 +870,87 @@ onShow(() => {
     }
   }
 
+  .filter.filter__hover {
+    opacity: 0.7;
+  }
+
+  .range-picker-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 48rpx;
+    z-index: 1200;
+  }
+
+  .range-picker-dialog {
+    width: 100%;
+    background: #fff;
+    border-radius: 40rpx;
+    padding: 48rpx 40rpx 40rpx;
+    box-shadow: 0 30rpx 80rpx rgba(0, 0, 0, 0.12);
+  }
+
+  .range-picker-title {
+    text-align: center;
+    font-size: 32rpx;
+    font-weight: 700;
+  }
+
+  .range-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24rpx;
+    margin: 36rpx 0 12rpx;
+  }
+
+  .range-option {
+    flex: 1 1 calc(33% - 16rpx);
+    min-width: 30%;
+    border-radius: 999rpx;
+    border: 2rpx solid rgba(138, 147, 160, 0.35);
+    padding: 22rpx 0;
+    text-align: center;
+    color: $muted-text;
+    font-size: 26rpx;
+    font-weight: 600;
+    background: #fafbfd;
+  }
+
+  .range-option.active {
+    border-color: transparent;
+    background: linear-gradient(180deg, #1ec15f 0%, #12a34a 100%);
+    color: #fff;
+    box-shadow: 0 16rpx 36rpx rgba(18, 163, 74, 0.35);
+  }
+
+  .range-actions {
+    display: flex;
+    gap: 24rpx;
+    margin-top: 32rpx;
+  }
+
+  .range-button {
+    flex: 1;
+    border-radius: 999rpx;
+    text-align: center;
+    padding: 26rpx 0;
+    font-size: 28rpx;
+    font-weight: 600;
+  }
+
+  .range-button.cancel {
+    background: #f5f7fb;
+    color: #1c1f23;
+    border: 1rpx solid #e5e9f2;
+  }
+
+  .range-button.confirm {
+    color: #fff;
+    background: linear-gradient(180deg, #1ec15f 0%, #12a34a 100%);
+    box-shadow: 0 18rpx 32rpx rgba(30, 193, 95, 0.32);
+  }
 }
 </style>
