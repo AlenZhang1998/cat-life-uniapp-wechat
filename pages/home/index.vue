@@ -83,8 +83,12 @@
     <view class="stats-card">
       <view class="stats-header">
         <text class="label">统计</text>
-        <view class="filter" hover-class="filter__hover" @tap="openRangePicker">
-          <text class="filter-text">{{ selectedRange.label }}</text>
+        <view
+          class="filter"
+          hover-class="filter__hover"
+          @tap="openRangePicker('stats')"
+        >
+          <text class="filter-text">{{ statsRange.label }}</text>
           <text class="filter-arrow">⇅</text>
         </view>
       </view>
@@ -103,8 +107,12 @@
     <view class="trend-card">
       <view class="trend-header">
         <text class="label">油耗变化趋势</text>
-        <view class="filter" hover-class="filter__hover" @tap="openRangePicker">
-          <text class="filter-text">{{ selectedRange.label }}</text>
+        <view
+          class="filter"
+          hover-class="filter__hover"
+          @tap="openRangePicker('trend')"
+        >
+          <text class="filter-text">{{ trendRange.label }}</text>
           <text class="filter-arrow">⇅</text>
         </view>
       </view>
@@ -304,12 +312,20 @@ const rangeOptions: RangeOption[] = [
   { key: 'all', label: '全部' }
 ]
 
-const selectedRange = ref<RangeOption>(rangeOptions[3])
-const showRangePicker = ref(false)
-const pendingRangeKey = ref<RangeKey>(selectedRange.value.key)
+type RangeTarget = 'stats' | 'trend'
 
-const openRangePicker = () => {
-  pendingRangeKey.value = selectedRange.value.key
+const statsRange = ref<RangeOption>(rangeOptions[3])
+const trendRange = ref<RangeOption>(rangeOptions[3])
+const showRangePicker = ref(false)
+const pendingRangeKey = ref<RangeKey>(rangeOptions[3].key)
+const activeRangeTarget = ref<RangeTarget>('stats')
+
+const resolveTargetRange = (target: RangeTarget) =>
+  target === 'stats' ? statsRange : trendRange
+
+const openRangePicker = (target: RangeTarget) => {
+  activeRangeTarget.value = target
+  pendingRangeKey.value = resolveTargetRange(target).value.key
   showRangePicker.value = true
 }
 
@@ -324,7 +340,8 @@ const selectPendingRange = (option: RangeOption) => {
 const confirmRangePicker = () => {
   const target = rangeOptions.find((option) => option.key === pendingRangeKey.value)
   if (target) {
-    selectedRange.value = target
+    const rangeRef = resolveTargetRange(activeRangeTarget.value)
+    rangeRef.value = target
   }
   closeRangePicker()
 }
@@ -908,7 +925,7 @@ onShow(() => {
 
   .range-option {
     flex: 1 1 calc(33% - 16rpx);
-    min-width: 30%;
+    max-width: 30%;
     border-radius: 999rpx;
     border: 2rpx solid rgba(138, 147, 160, 0.35);
     padding: 22rpx 0;
@@ -921,7 +938,7 @@ onShow(() => {
 
   .range-option.active {
     border-color: transparent;
-    background: linear-gradient(180deg, #1ec15f 0%, #12a34a 100%);
+    background: linear-gradient(180deg, #1ec15f 0%, #22d78a 100%);
     color: #fff;
     box-shadow: 0 16rpx 36rpx rgba(18, 163, 74, 0.35);
   }
@@ -949,7 +966,7 @@ onShow(() => {
 
   .range-button.confirm {
     color: #fff;
-    background: linear-gradient(180deg, #1ec15f 0%, #12a34a 100%);
+    background: linear-gradient(180deg, #1ec15f 0%, #22d78a 100%);
     box-shadow: 0 18rpx 32rpx rgba(30, 193, 95, 0.32);
   }
 }

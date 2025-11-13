@@ -304,7 +304,7 @@
 }
 .home-page .range-option.data-v-4978fed5 {
   flex: 1 1 calc(33% - 16rpx);
-  min-width: 30%;
+  max-width: 30%;
   border-radius: 999rpx;
   border: 2rpx solid rgba(138, 147, 160, 0.35);
   padding: 22rpx 0;
@@ -316,7 +316,7 @@
 }
 .home-page .range-option.active.data-v-4978fed5 {
   border-color: transparent;
-  background: linear-gradient(180deg, #1ec15f 0%, #12a34a 100%);
+  background: linear-gradient(180deg, #1ec15f 0%, #22d78a 100%);
   color: #fff;
   box-shadow: 0 16rpx 36rpx rgba(18, 163, 74, 0.35);
 }
@@ -340,6 +340,6 @@
 }
 .home-page .range-button.confirm.data-v-4978fed5 {
   color: #fff;
-  background: linear-gradient(180deg, #1ec15f 0%, #12a34a 100%);
+  background: linear-gradient(180deg, #1ec15f 0%, #22d78a 100%);
   box-shadow: 0 18rpx 32rpx rgba(30, 193, 95, 0.32);
 }

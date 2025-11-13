@@ -103,11 +103,15 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       { key: "1y", label: "一年" },
       { key: "all", label: "全部" }
     ];
-    const selectedRange = common_vendor.ref(rangeOptions[3]);
+    const statsRange = common_vendor.ref(rangeOptions[3]);
+    const trendRange = common_vendor.ref(rangeOptions[3]);
     const showRangePicker = common_vendor.ref(false);
-    const pendingRangeKey = common_vendor.ref(selectedRange.value.key);
-    const openRangePicker = () => {
-      pendingRangeKey.value = selectedRange.value.key;
+    const pendingRangeKey = common_vendor.ref(rangeOptions[3].key);
+    const activeRangeTarget = common_vendor.ref("stats");
+    const resolveTargetRange = (target) => target === "stats" ? statsRange : trendRange;
+    const openRangePicker = (target) => {
+      activeRangeTarget.value = target;
+      pendingRangeKey.value = resolveTargetRange(target).value.key;
       showRangePicker.value = true;
     };
     const closeRangePicker = () => {
@@ -119,7 +123,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const confirmRangePicker = () => {
       const target = rangeOptions.find((option) => option.key === pendingRangeKey.value);
       if (target) {
-        selectedRange.value = target;
+        const rangeRef = resolveTargetRange(activeRangeTarget.value);
+        rangeRef.value = target;
       }
       closeRangePicker();
     };
@@ -321,8 +326,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             d: common_vendor.s(getBadgeStyle(level))
           };
         }),
-        l: common_vendor.t(selectedRange.value.label),
-        m: common_vendor.o(openRangePicker),
+        l: common_vendor.t(statsRange.value.label),
+        m: common_vendor.o(($event) => openRangePicker("stats")),
         n: common_vendor.f(stats.value, (item, k0, i0) => {
           return {
             a: common_vendor.t(item.label),
@@ -332,8 +337,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             e: item.key
           };
         }),
-        o: common_vendor.t(selectedRange.value.label),
-        p: common_vendor.o(openRangePicker),
+        o: common_vendor.t(trendRange.value.label),
+        p: common_vendor.o(($event) => openRangePicker("trend")),
         q: common_vendor.p({
           id: "fuelTrendChart",
           canvasId: "fuelTrendChart",
