@@ -38,22 +38,15 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           week: "周五",
           consumption: "4.80",
           mileage: "1587",
-          meta: [
-            { value: "200.00元", caption: "花费" },
-            { value: "7.12元/升", caption: "单价" },
-            { value: "+28.09升", caption: "油量" }
-          ],
-          remark: "92#汽油  加满",
-          remarkTone: "danger",
-          showEdit: true
-        },
-        {
-          type: "comparison",
-          id: "2025-compare-1",
-          pricePerKm: "0.34元/公里",
-          deltaFuel: "-28.09升",
+          amount: "200.00元",
+          pricePerLiter: "7.12元/升",
+          deltaFuel: "+28.09升",
+          oilType: "92#汽油",
+          fillStatus: "加满",
+          fillStatusTone: "danger",
+          fuelConsumption: "-28.09升",
           deltaMileage: "+585.00公里",
-          tone: "success"
+          pricePerKm: "0.34元/公里"
         },
         {
           type: "record",
@@ -62,7 +55,15 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           consumption: "8.59",
           mileage: "1002",
           highlight: "danger",
-          compact: true
+          compact: true,
+          amount: "186.00元",
+          pricePerLiter: "7.20元/升",
+          deltaFuel: "+25.80升",
+          oilType: "95#汽油",
+          fillStatus: "日常补油",
+          fuelConsumption: "-28.09升",
+          deltaMileage: "+585.00公里",
+          pricePerKm: "0.34元/公里"
         },
         {
           type: "record",
@@ -70,31 +71,54 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           date: "10/02",
           consumption: "4.72",
           mileage: "611",
-          compact: true
+          compact: true,
+          amount: "160.00元",
+          pricePerLiter: "6.90元/升",
+          deltaFuel: "+23.30升",
+          oilType: "92#汽油",
+          fillStatus: "加满",
+          fuelConsumption: "-28.09升",
+          deltaMileage: "+585.00公里",
+          pricePerKm: "0.34元/公里"
         },
         {
           type: "record",
-          id: "2025-10-01",
+          id: "2025-10-01A",
           date: "10/01",
           consumption: "5.10",
           mileage: "510",
-          compact: true
+          compact: true,
+          amount: "120.00元",
+          pricePerLiter: "6.85元/升",
+          deltaFuel: "+17.51升",
+          oilType: "92#汽油",
+          fillStatus: "七成满"
         },
         {
           type: "record",
-          id: "2025-10-01",
+          id: "2025-10-01B",
           date: "10/01",
           consumption: "5.10",
           mileage: "510",
-          compact: true
+          compact: true,
+          amount: "120.00元",
+          pricePerLiter: "6.85元/升",
+          deltaFuel: "+17.51升",
+          oilType: "92#汽油",
+          fillStatus: "七成满"
         },
         {
           type: "record",
-          id: "2025-10-01",
+          id: "2025-10-01C",
           date: "10/01",
           consumption: "5.10",
           mileage: "510",
-          compact: true
+          compact: true,
+          amount: "120.00元",
+          pricePerLiter: "6.85元/升",
+          deltaFuel: "+17.51升",
+          oilType: "92#汽油",
+          fillStatus: "七成满"
         }
       ],
       "2024年": [
@@ -104,13 +128,12 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           date: "12/22",
           consumption: "5.02",
           mileage: "1320",
-          meta: [
-            { value: "180.00元", caption: "花费" },
-            { value: "6.90元/升", caption: "单价" },
-            { value: "+25.21升", caption: "油量" }
-          ],
-          remark: "95#汽油  七成满",
-          remarkTone: "accent"
+          amount: "180.00元",
+          pricePerLiter: "6.90元/升",
+          deltaFuel: "+25.21升",
+          oilType: "95#汽油",
+          fillStatus: "七成满",
+          fillStatusTone: "accent"
         },
         {
           type: "record",
@@ -118,7 +141,12 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           date: "11/02",
           consumption: "6.40",
           mileage: "820",
-          compact: true
+          compact: true,
+          amount: "146.00元",
+          pricePerLiter: "6.80元/升",
+          deltaFuel: "+21.47升",
+          oilType: "92#汽油",
+          fillStatus: "加满"
         }
       ],
       "2023年": [
@@ -128,7 +156,12 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           date: "07/03",
           consumption: "5.30",
           mileage: "730",
-          compact: true
+          compact: true,
+          amount: "138.00元",
+          pricePerLiter: "6.50元/升",
+          deltaFuel: "+21.23升",
+          oilType: "92#汽油",
+          fillStatus: "加满"
         }
       ]
     };
@@ -145,6 +178,26 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       selectedYearIndex.value = Number(event.detail.value);
     };
     const isRecordItem = (entry) => entry.type === "record";
+    const expandedRecordMap = common_vendor.ref({});
+    const isExpanded = (id) => Boolean(expandedRecordMap.value[id]);
+    const toggleRecord = (entry) => {
+      const next = {
+        ...expandedRecordMap.value,
+        [entry.id]: !expandedRecordMap.value[entry.id]
+      };
+      expandedRecordMap.value = next;
+    };
+    common_vendor.watch(
+      currentYear,
+      () => {
+        const currentRecords = recordSnapshots[currentYear.value] || [];
+        const firstRecord = currentRecords.find(
+          (item) => item.type === "record"
+        );
+        expandedRecordMap.value = firstRecord ? { [firstRecord.id]: true } : {};
+      },
+      { immediate: true }
+    );
     return (_ctx, _cache) => {
       return {
         a: common_vendor.t(currentYear.value),
@@ -166,35 +219,32 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           } : {}, {
             e: common_vendor.t(entry.consumption),
             f: common_vendor.t(entry.mileage),
-            g: entry.meta
-          }, entry.meta ? {
-            h: common_vendor.f(entry.meta, (meta, k1, i1) => {
-              return {
-                a: common_vendor.t(meta.value),
-                b: common_vendor.t(meta.caption),
-                c: meta.value + meta.caption
-              };
-            })
+            g: isExpanded(entry.id) ? 1 : "",
+            h: common_vendor.t(isExpanded(entry.id)),
+            i: common_vendor.t(entry.amount || "--"),
+            j: common_vendor.t(entry.pricePerLiter || "--"),
+            k: common_vendor.t(entry.deltaFuel || "--"),
+            l: common_vendor.t(entry.oilType || "--"),
+            m: entry.fillStatus
+          }, entry.fillStatus ? {
+            n: common_vendor.t(entry.fillStatus),
+            o: entry.fillStatusTone === "danger" ? 1 : "",
+            p: entry.fillStatusTone === "accent" ? 1 : ""
           } : {}, {
-            i: entry.remark || entry.showEdit
-          }, entry.remark || entry.showEdit ? common_vendor.e({
-            j: entry.remark
-          }, entry.remark ? {
-            k: common_vendor.t(entry.remark),
-            l: entry.remarkTone === "danger" ? 1 : "",
-            m: entry.remarkTone === "accent" ? 1 : ""
+            q: isExpanded(entry.id),
+            r: entry.compact ? 1 : "",
+            s: entry.highlight === "danger" ? 1 : "",
+            t: isExpanded(entry.id) ? 1 : "",
+            v: common_vendor.o(($event) => toggleRecord(entry), entry.id)
+          }) : {}, {
+            w: isExpanded(entry.id)
+          }, isExpanded(entry.id) ? {
+            x: common_vendor.t(isExpanded(entry.id)),
+            y: common_vendor.t(entry.pricePerKm),
+            z: common_vendor.t(entry.fuelConsumption),
+            A: common_vendor.t(entry.deltaMileage)
           } : {}, {
-            n: entry.showEdit
-          }, entry.showEdit ? {} : {}) : {}, {
-            o: entry.compact ? 1 : "",
-            p: entry.highlight === "danger" ? 1 : ""
-          }) : {
-            q: common_vendor.t(entry.pricePerKm),
-            r: common_vendor.t(entry.deltaFuel),
-            s: common_vendor.t(entry.deltaMileage),
-            t: entry.tone === "success" ? 1 : ""
-          }, {
-            v: entry.id
+            B: entry.id
           });
         }),
         j: common_vendor.p({

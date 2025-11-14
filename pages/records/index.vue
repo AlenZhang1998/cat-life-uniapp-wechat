@@ -43,12 +43,16 @@
         <view
           v-if="isRecordItem(entry)"
           class="record-card"
+          hover-class="record-card__hover"
           :class="{
             'record-card--compact': entry.compact,
-            'record-card--alert': entry.highlight === 'danger'
+            'record-card--alert': entry.highlight === 'danger',
+            'record-card--expanded': isExpanded(entry.id)
           }"
+          @tap="toggleRecord(entry)"
         >
           <view class="record-card__top">
+            1111
             <view class="record-date">
               <text class="record-date__value">{{ entry.date }}</text>
               <text v-if="entry.week" class="record-date__week">
@@ -65,45 +69,59 @@
               <text class="record-mileage__value">{{ entry.mileage }}</text>
               <text class="record-mileage__unit">公里</text>
             </view>
-            <text class="record-arrow">›</text>
-          </view>
-          <view class="record-meta" v-if="entry.meta">
-            <view
-              class="record-meta__item"
-              v-for="meta in entry.meta"
-              :key="meta.value + meta.caption"
-            >
-              <text class="record-meta__value">{{ meta.value }}</text>
-              <text class="record-meta__label">{{ meta.caption }}</text>
-            </view>
-          </view>
-          <view
-            class="record-remark"
-            v-if="entry.remark || entry.showEdit"
-          >
             <text
-              v-if="entry.remark"
-              class="record-remark__text"
-              :class="{
-                'record-remark__text--danger': entry.remarkTone === 'danger',
-                'record-remark__text--accent': entry.remarkTone === 'accent'
-              }"
+              class="record-arrow"
+              :class="{ 'record-arrow--expanded': isExpanded(entry.id) }"
             >
-              {{ entry.remark }}
+              ⌄
             </text>
-            <view class="record-edit" v-if="entry.showEdit">✎</view>
+          </view>
+          <view class="record-details" v-show="isExpanded(entry.id)">
+            2222-{{ isExpanded(entry.id) }}
+            <view class="record-meta">
+              <text class="record-meta__value">{{
+                entry.amount || '--'
+              }}</text>
+              <text class="record-meta__value">{{
+                entry.pricePerLiter || '--'
+              }}</text>
+              <text class="record-meta__value">{{
+                entry.deltaFuel || '--'
+              }}</text>
+            </view>
+            <view class="record-remark">
+              <text class="record-remark__text">
+                <text class="record-remark__oil">{{
+                  entry.oilType || '--'
+                }}</text>
+                <text
+                  v-if="entry.fillStatus"
+                  class="record-remark__status"
+                  :class="{
+                    'record-remark__status--danger':
+                      entry.fillStatusTone === 'danger',
+                    'record-remark__status--accent':
+                      entry.fillStatusTone === 'accent'
+                  }"
+                >
+                  {{ entry.fillStatus }}
+                </text>
+              </text>
+              <view class="record-edit">✎</view>
+            </view>
           </view>
         </view>
 
         <view
-          v-else
+          v-if="isExpanded(entry.id)"
           class="comparison-card"
-          :class="{
-            'comparison-card--success': entry.tone === 'success'
-          }"
+          :class="[
+            'comparison-card--success'
+          ]"
         >
+          3333-{{ isExpanded(entry.id) }}
           <view class="comparison-value">{{ entry.pricePerKm }}</view>
-          <view class="comparison-value">{{ entry.deltaFuel }}</view>
+          <view class="comparison-value">{{ entry.fuelConsumption }}</view>
           <view class="comparison-value">{{ entry.deltaMileage }}</view>
           <text class="comparison-arrow">›</text>
         </view>
@@ -114,13 +132,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import BottomActionBar from '@/components/BottomActionBar.vue'
-
-type RecordMeta = {
-  value: string
-  caption: string
-}
 
 type FuelRecordItem = {
   type: 'record'
@@ -129,12 +142,17 @@ type FuelRecordItem = {
   week?: string
   consumption: string
   mileage: string
-  meta?: RecordMeta[]
-  remark?: string
-  remarkTone?: 'danger' | 'accent'
-  showEdit?: boolean
+  amount?: string
+  pricePerLiter?: string
+  deltaFuel?: string
+  oilType?: string
+  fillStatus?: string
+  fillStatusTone?: 'danger' | 'accent'
   compact?: boolean
   highlight?: 'danger'
+  fuelConsumption?: string
+  deltaMileage?: string
+  pricePerKm?: string
 }
 
 type ComparisonItem = {
@@ -188,22 +206,15 @@ const recordSnapshots: Record<string, FuelRecord[]> = {
       week: '周五',
       consumption: '4.80',
       mileage: '1587',
-      meta: [
-        { value: '200.00元', caption: '花费' },
-        { value: '7.12元/升', caption: '单价' },
-        { value: '+28.09升', caption: '油量' }
-      ],
-      remark: '92#汽油  加满',
-      remarkTone: 'danger',
-      showEdit: true
-    },
-    {
-      type: 'comparison',
-      id: '2025-compare-1',
-      pricePerKm: '0.34元/公里',
-      deltaFuel: '-28.09升',
+      amount: '200.00元',
+      pricePerLiter: '7.12元/升',
+      deltaFuel: '+28.09升',
+      oilType: '92#汽油',
+      fillStatus: '加满',
+      fillStatusTone: 'danger',
+      fuelConsumption:'-28.09升',
       deltaMileage: '+585.00公里',
-      tone: 'success'
+      pricePerKm: '0.34元/公里',
     },
     {
       type: 'record',
@@ -212,7 +223,15 @@ const recordSnapshots: Record<string, FuelRecord[]> = {
       consumption: '8.59',
       mileage: '1002',
       highlight: 'danger',
-      compact: true
+      compact: true,
+      amount: '186.00元',
+      pricePerLiter: '7.20元/升',
+      deltaFuel: '+25.80升',
+      oilType: '95#汽油',
+      fillStatus: '日常补油',
+      fuelConsumption:'-28.09升',
+      deltaMileage: '+585.00公里',
+      pricePerKm: '0.34元/公里',
     },
     {
       type: 'record',
@@ -220,31 +239,54 @@ const recordSnapshots: Record<string, FuelRecord[]> = {
       date: '10/02',
       consumption: '4.72',
       mileage: '611',
-      compact: true
+      compact: true,
+      amount: '160.00元',
+      pricePerLiter: '6.90元/升',
+      deltaFuel: '+23.30升',
+      oilType: '92#汽油',
+      fillStatus: '加满',
+      fuelConsumption:'-28.09升',
+      deltaMileage: '+585.00公里',
+      pricePerKm: '0.34元/公里',
     },
     {
       type: 'record',
-      id: '2025-10-01',
+      id: '2025-10-01A',
       date: '10/01',
       consumption: '5.10',
       mileage: '510',
-      compact: true
+      compact: true,
+      amount: '120.00元',
+      pricePerLiter: '6.85元/升',
+      deltaFuel: '+17.51升',
+      oilType: '92#汽油',
+      fillStatus: '七成满'
     },
     {
       type: 'record',
-      id: '2025-10-01',
+      id: '2025-10-01B',
       date: '10/01',
       consumption: '5.10',
       mileage: '510',
-      compact: true
+      compact: true,
+      amount: '120.00元',
+      pricePerLiter: '6.85元/升',
+      deltaFuel: '+17.51升',
+      oilType: '92#汽油',
+      fillStatus: '七成满'
     },
     {
       type: 'record',
-      id: '2025-10-01',
+      id: '2025-10-01C',
       date: '10/01',
       consumption: '5.10',
       mileage: '510',
-      compact: true
+      compact: true,
+      amount: '120.00元',
+      pricePerLiter: '6.85元/升',
+      deltaFuel: '+17.51升',
+      oilType: '92#汽油',
+      fillStatus: '七成满'
     }
   ],
   '2024年': [
@@ -254,13 +296,12 @@ const recordSnapshots: Record<string, FuelRecord[]> = {
       date: '12/22',
       consumption: '5.02',
       mileage: '1320',
-      meta: [
-        { value: '180.00元', caption: '花费' },
-        { value: '6.90元/升', caption: '单价' },
-        { value: '+25.21升', caption: '油量' }
-      ],
-      remark: '95#汽油  七成满',
-      remarkTone: 'accent'
+      amount: '180.00元',
+      pricePerLiter: '6.90元/升',
+      deltaFuel: '+25.21升',
+      oilType: '95#汽油',
+      fillStatus: '七成满',
+      fillStatusTone: 'accent'
     },
     {
       type: 'record',
@@ -268,7 +309,12 @@ const recordSnapshots: Record<string, FuelRecord[]> = {
       date: '11/02',
       consumption: '6.40',
       mileage: '820',
-      compact: true
+      compact: true,
+      amount: '146.00元',
+      pricePerLiter: '6.80元/升',
+      deltaFuel: '+21.47升',
+      oilType: '92#汽油',
+      fillStatus: '加满'
     }
   ],
   '2023年': [
@@ -278,7 +324,12 @@ const recordSnapshots: Record<string, FuelRecord[]> = {
       date: '07/03',
       consumption: '5.30',
       mileage: '730',
-      compact: true
+      compact: true,
+      amount: '138.00元',
+      pricePerLiter: '6.50元/升',
+      deltaFuel: '+21.23升',
+      oilType: '92#汽油',
+      fillStatus: '加满'
     }
   ]
 }
@@ -301,6 +352,30 @@ const handleYearChange = (event: { detail: { value: number } }) => {
 
 const isRecordItem = (entry: FuelRecord): entry is FuelRecordItem =>
   entry.type === 'record'
+
+const expandedRecordMap = ref<Record<string, boolean>>({})
+
+const isExpanded = (id: string) => Boolean(expandedRecordMap.value[id])
+
+const toggleRecord = (entry: FuelRecordItem) => {
+  const next = {
+    ...expandedRecordMap.value,
+    [entry.id]: !expandedRecordMap.value[entry.id]
+  }
+  expandedRecordMap.value = next
+}
+
+watch(
+  currentYear,
+  () => {
+    const currentRecords = recordSnapshots[currentYear.value] || []
+    const firstRecord = currentRecords.find(
+      (item): item is FuelRecordItem => item.type === 'record'
+    )
+    expandedRecordMap.value = firstRecord ? { [firstRecord.id]: true } : {}
+  },
+  { immediate: true }
+)
 </script>
 
 <style lang="scss" scoped>
@@ -438,6 +513,7 @@ const isRecordItem = (entry: FuelRecord): entry is FuelRecordItem =>
   border-radius: 28rpx;
   padding: 28rpx;
   box-shadow: 0 12rpx 30rpx rgba(15, 114, 59, 0.08);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .record-card--compact {
@@ -446,6 +522,14 @@ const isRecordItem = (entry: FuelRecord): entry is FuelRecordItem =>
 
 .record-card--alert .record-consumption__value {
   color: #e64a3b;
+}
+
+.record-card__hover {
+  background: #fefefe;
+}
+
+.record-card--expanded {
+  box-shadow: 0 16rpx 38rpx rgba(13, 102, 53, 0.12);
 }
 
 .record-card__top {
@@ -519,32 +603,38 @@ const isRecordItem = (entry: FuelRecord): entry is FuelRecordItem =>
   font-size: 36rpx;
   color: $muted-text;
   padding-left: 12rpx;
+  transition: transform 0.2s ease;
+}
+
+.record-arrow--expanded {
+  transform: rotate(180deg);
+}
+
+.record-details {
+  margin-top: 20rpx;
+  padding: 24rpx;
+  border-radius: 20rpx;
+  background: #fff;
+  border: 2rpx solid rgba(31, 35, 41, 0.06);
 }
 
 .record-meta {
   display: flex;
   justify-content: space-between;
-  margin-top: 24rpx;
-}
-
-.record-meta__item {
-  flex: 1;
-  text-align: center;
+  margin-bottom: 20rpx;
+  gap: 12rpx;
 }
 
 .record-meta__value {
-  display: block;
+  flex: 1;
+  text-align: center;
   font-size: 28rpx;
   font-weight: 600;
-}
-
-.record-meta__label {
-  font-size: 22rpx;
-  color: $muted-text;
+  color: #1f2329;
 }
 
 .record-remark {
-  margin-top: 18rpx;
+  margin-top: 8rpx;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -553,25 +643,37 @@ const isRecordItem = (entry: FuelRecord): entry is FuelRecordItem =>
 .record-remark__text {
   font-size: 24rpx;
   color: $muted-text;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
 }
 
-.record-remark__text--danger {
+.record-remark__oil {
+  font-weight: 600;
+  color: #1f2329;
+}
+
+.record-remark__status {
+  font-weight: 600;
+}
+
+.record-remark__status--danger {
   color: #d44848;
 }
 
-.record-remark__text--accent {
+.record-remark__status--accent {
   color: $primary-dark;
 }
 
 .record-edit {
-  width: 44rpx;
-  height: 44rpx;
-  border-radius: 14rpx;
-  border: 2rpx solid rgba(31, 35, 41, 0.15);
+  width: 54rpx;
+  height: 54rpx;
+  border-radius: 18rpx;
+  border: 2rpx solid rgba(31, 35, 41, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 26rpx;
+  font-size: 30rpx;
   color: #1f2329;
 }
 
