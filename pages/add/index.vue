@@ -71,6 +71,7 @@
             {{ form.fullAutoStop ? '是' : '否' }}
           </text>
           <switch
+            :class="['switch-gradient', form.fullAutoStop ? 'switch-gradient--on' : '']"
             :checked="form.fullAutoStop"
             @change="(e) => handleSwitchChange('fullAutoStop', e.detail.value)"
           ></switch>
@@ -87,6 +88,7 @@
             {{ form.warningLight ? '是' : '否' }}
           </text>
           <switch
+            :class="['switch-gradient', form.warningLight ? 'switch-gradient--on' : '']"
             :checked="form.warningLight"
             @change="(e) => handleSwitchChange('warningLight', e.detail.value)"
           ></switch>
@@ -103,6 +105,7 @@
             {{ form.hasPreviousRecord ? '是' : '否' }}
           </text>
           <switch
+            :class="['switch-gradient', form.hasPreviousRecord ? 'switch-gradient--on' : '']"
             :checked="form.hasPreviousRecord"
             @change="(e) => handleSwitchChange('hasPreviousRecord', e.detail.value)"
           ></switch>
@@ -290,6 +293,10 @@ const handleSubmit = () => {
 
 .toggle-value.on {
   color: $primary-dark;
+}
+
+:deep(.switch-gradient.switch-gradient--on .wx-switch-input) {
+  background-image: linear-gradient(180deg, #1ec15f 0%, #22d78a 100%);
 }
 
 .picker-value,

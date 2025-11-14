@@ -44,6 +44,9 @@
 .toggle-value.on.data-v-89f6901d {
   color: #0a9f47;
 }
+.data-v-89f6901d .switch-gradient.switch-gradient--on .wx-switch-input {
+  background-image: linear-gradient(180deg, #1ec15f 0%, #22d78a 100%);
+}
 .picker-value.data-v-89f6901d,
 .form-input.data-v-89f6901d,
 .form-textarea.data-v-89f6901d {
