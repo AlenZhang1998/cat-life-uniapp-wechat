@@ -109,12 +109,19 @@
   border-radius: 28rpx;
   padding: 28rpx;
   box-shadow: 0 12rpx 30rpx rgba(15, 114, 59, 0.08);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 .record-card--compact.data-v-f1512143 {
   padding: 24rpx;
 }
 .record-card--alert .record-consumption__value.data-v-f1512143 {
   color: #e64a3b;
+}
+.record-card__hover.data-v-f1512143 {
+  background: #fefefe;
+}
+.record-card--expanded.data-v-f1512143 {
+  box-shadow: 0 16rpx 38rpx rgba(13, 102, 53, 0.12);
 }
 .record-card__top.data-v-f1512143 {
   display: flex;
@@ -176,27 +183,33 @@
   font-size: 36rpx;
   color: #8a93a0;
   padding-left: 12rpx;
+  transition: transform 0.2s ease;
+}
+.record-arrow--expanded.data-v-f1512143 {
+  transform: rotate(180deg);
+}
+.record-details.data-v-f1512143 {
+  margin-top: 20rpx;
+  padding: 24rpx;
+  border-radius: 20rpx;
+  background: #fff;
+  border: 2rpx solid rgba(31, 35, 41, 0.06);
 }
 .record-meta.data-v-f1512143 {
   display: flex;
   justify-content: space-between;
-  margin-top: 24rpx;
-}
-.record-meta__item.data-v-f1512143 {
-  flex: 1;
-  text-align: center;
+  margin-bottom: 20rpx;
+  gap: 12rpx;
 }
 .record-meta__value.data-v-f1512143 {
-  display: block;
+  flex: 1;
+  text-align: center;
   font-size: 28rpx;
   font-weight: 600;
-}
-.record-meta__label.data-v-f1512143 {
-  font-size: 22rpx;
-  color: #8a93a0;
+  color: #1f2329;
 }
 .record-remark.data-v-f1512143 {
-  margin-top: 18rpx;
+  margin-top: 8rpx;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -204,22 +217,32 @@
 .record-remark__text.data-v-f1512143 {
   font-size: 24rpx;
   color: #8a93a0;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
 }
-.record-remark__text--danger.data-v-f1512143 {
+.record-remark__oil.data-v-f1512143 {
+  font-weight: 600;
+  color: #1f2329;
+}
+.record-remark__status.data-v-f1512143 {
+  font-weight: 600;
+}
+.record-remark__status--danger.data-v-f1512143 {
   color: #d44848;
 }
-.record-remark__text--accent.data-v-f1512143 {
+.record-remark__status--accent.data-v-f1512143 {
   color: #0a9f47;
 }
 .record-edit.data-v-f1512143 {
-  width: 44rpx;
-  height: 44rpx;
-  border-radius: 14rpx;
-  border: 2rpx solid rgba(31, 35, 41, 0.15);
+  width: 54rpx;
+  height: 54rpx;
+  border-radius: 18rpx;
+  border: 2rpx solid rgba(31, 35, 41, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 26rpx;
+  font-size: 30rpx;
   color: #1f2329;
 }
 .comparison-card.data-v-f1512143 {
