@@ -13,7 +13,8 @@
         >
           <view class="summary-year">
             <text>{{ currentYear }}</text>
-            <text class="summary-year__arrow">⌄</text>
+            <i class="iconfont icon-youjiantou"></i>
+            <!-- <text class="iconfont icon-youjiantou"></text> -->
           </view>
         </picker>
         <view class="summary-chip">年度油耗概览</view>
@@ -433,6 +434,7 @@ watch(
 .summary-year {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8rpx;
   padding: 10rpx 18rpx;
   border-radius: 30rpx;
@@ -441,11 +443,20 @@ watch(
   font-size: 26rpx;
   font-weight: 600;
   background: rgba(255, 255, 255, 0.6);
+  .icon-youjiantou{
+    font-size: 18rpx;
+    transform: rotate(90deg);
+    margin-top: 6rpx;
+  }
 }
 
-.summary-year__arrow {
-  font-size: 24rpx;
-}
+// .summary-year__arrow {
+//   width: 24rpx;
+//   height: 24rpx;
+//   display: block;
+//   transform-origin: center;
+//   transform: rotate(90deg);
+// }
 
 .summary-chip {
   padding: 10rpx 20rpx;

@@ -1,0 +1,19 @@
+@font-face {
+  font-family: "iconfont"; /* Project id 123456 */
+  src: url('/static/iconfont/iconfont.woff2?t=1690000000000') format('woff2'),
+       url('/static/iconfont/iconfont.woff?t=1690000000000') format('woff'),
+       url('/static/iconfont/iconfont.ttf?t=1690000000000') format('truetype');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-youjiantou:before {
+  content: "\e600";
+}
+
