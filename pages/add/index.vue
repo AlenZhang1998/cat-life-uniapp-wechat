@@ -1,7 +1,16 @@
 <template>
   <view class="add-page">
+    <view class="page-header">
+      <text class="page-title">记录本次加油</text>
+      <text class="page-desc">完善必填信息，可选项帮助获得更精准的油耗分析</text>
+    </view>
+
     <!-- 输入表单，包含日期、里程、油费等核心信息 -->
     <view class="form-card">
+      <view class="section-divider">
+        <text class="section-title">必填信息</text>
+        <text class="section-subtitle">用于计算本次油耗</text>
+      </view>
       <view class="form-item">
         <text class="form-label">加油日期 *</text>
         <picker mode="date" :value="form.date" @change="handleDateChange">
@@ -76,6 +85,11 @@
             @change="(e) => handleSwitchChange('fullAutoStop', e.detail.value)"
           ></switch>
         </view>
+      </view>
+
+      <view class="section-divider">
+        <text class="section-title">补充信息</text>
+        <text class="section-subtitle">描述习惯与车辆状态</text>
       </view>
 
       <view class="form-item toggle-item">
@@ -242,14 +256,39 @@ const handleSubmit = () => {
 @import '@/uni.scss';
 
 .add-page {
-  padding: 32rpx 32rpx 200rpx;
+  min-height: 100vh;
+  padding: 48rpx 32rpx 220rpx;
+  background: linear-gradient(180deg, #f6fbff 0%, #eef6f2 35%, #f8fbfd 100%);
+}
+
+.page-header {
+  margin-bottom: 32rpx;
+  padding: 32rpx 36rpx;
+  border-radius: 32rpx;
+  background: linear-gradient(135deg, rgba(30, 193, 95, 0.14), rgba(88, 177, 255, 0.14));
+  border: 1rpx solid rgba(30, 193, 95, 0.16);
+  box-shadow: 0 24rpx 45rpx rgba(30, 193, 95, 0.12);
+}
+
+.page-title {
+  display: block;
+  font-size: 40rpx;
+  font-weight: 700;
+  margin-bottom: 12rpx;
+  color: #0f172a;
+}
+
+.page-desc {
+  font-size: 26rpx;
+  color: #5b6472;
 }
 
 .form-card {
   background-color: #fff;
   border-radius: $card-radius;
-  padding: $card-padding;
-  box-shadow: $soft-shadow;
+  padding: 40rpx 32rpx 44rpx;
+  box-shadow: 0 28rpx 60rpx rgba(15, 23, 42, 0.08);
+  border: 1rpx solid rgba(8, 16, 44, 0.05);
 }
 
 .form-item {
@@ -281,6 +320,9 @@ const handleSubmit = () => {
   display: flex;
   align-items: center;
   gap: 16rpx;
+  padding: 4rpx 8rpx;
+  border-radius: 999rpx;
+  // background-color: rgba(244, 247, 252, 0.9);
 }
 
 .toggle-value {
@@ -295,19 +337,61 @@ const handleSubmit = () => {
   color: $primary-dark;
 }
 
+// :deep(.switch-gradient .wx-switch-input) {
+//   width: 120rpx;
+//   height: 64rpx;
+//   border-radius: 999rpx;
+//   background-color: #e1e7ef;
+//   border: none;
+//   transition: background 0.3s ease, box-shadow 0.3s ease;
+// }
+
+// :deep(.switch-gradient .wx-switch-input::after) {
+//   width: 56rpx;
+//   height: 56rpx;
+//   top: 4rpx;
+//   left: 4rpx;
+//   border-radius: 50%;
+//   box-shadow: 0 6rpx 16rpx rgba(15, 23, 42, 0.25);
+//   background: #fff;
+// }
+
 :deep(.switch-gradient.switch-gradient--on .wx-switch-input) {
-  background-image: linear-gradient(180deg, #1ec15f 0%, #22d78a 100%);
+  background: linear-gradient(180deg, #1ec15f 0%, #22d78a 100%);
+  box-shadow: 0 12rpx 26rpx rgba(17, 168, 70, 0.35);
+}
+
+.section-divider {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 12rpx 0 32rpx;
+  padding-bottom: 16rpx;
+  border-bottom: 1rpx dashed rgba(11, 23, 52, 0.08);
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.section-subtitle {
+  font-size: 24rpx;
+  color: $muted-text;
 }
 
 .picker-value,
 .form-input,
 .form-textarea {
   width: 100%;
-  background-color: #f5f8fb;
-  border-radius: 16rpx;
-  padding: 24rpx;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, #f8fbff 0%, #f1f6fb 100%);
+  border-radius: 20rpx;
+  padding: 26rpx;
   font-size: 28rpx;
   color: #1f2329;
+  border: 1rpx solid rgba(120, 146, 172, 0.18);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .form-input {
@@ -316,6 +400,13 @@ const handleSubmit = () => {
 
 .form-textarea {
   min-height: 160rpx;
+}
+
+.picker-value:focus,
+.form-input:focus,
+.form-textarea:focus {
+  border-color: rgba(17, 168, 70, 0.55);
+  box-shadow: 0 12rpx 28rpx rgba(17, 168, 70, 0.12);
 }
 
 .submit-btn {
