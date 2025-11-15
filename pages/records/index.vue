@@ -53,12 +53,8 @@
           @tap="toggleRecord(entry)"
         >
           <view class="record-card__top">
-            1111
             <view class="record-date">
               <text class="record-date__value">{{ entry.date }}</text>
-              <text v-if="entry.week" class="record-date__week">
-                {{ entry.week }}
-              </text>
             </view>
             <view class="record-consumption">
               <text class="record-consumption__value">{{
