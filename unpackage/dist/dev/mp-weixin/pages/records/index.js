@@ -7,46 +7,34 @@ const BottomActionBar = () => "../../components/BottomActionBar.js";
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "index",
   setup(__props) {
-    const yearOptions = ["2025年", "2024年", "2023年"];
+    const yearOptions = ["2025", "2024", "2023"];
     const selectedYearIndex = common_vendor.ref(0);
     const summarySnapshots = {
-      "2025年": {
-        totalAmount: "836.70元",
-        avgFuel: "5.71升/百公里",
-        pricePerLiter: "7.12元/升",
-        mileage: "1,577公里"
-      },
-      "2024年": {
-        totalAmount: "1,120.80元",
-        avgFuel: "6.04升/百公里",
-        pricePerLiter: "7.03元/升",
-        mileage: "2,318公里"
-      },
-      "2023年": {
-        totalAmount: "906.40元",
-        avgFuel: "5.83升/百公里",
-        pricePerLiter: "6.87元/升",
-        mileage: "1,980公里"
+      "2025": {
+        totalAmount: "836.70",
+        avgFuel: "5.71",
+        pricePerLiter: "7.12",
+        mileage: "1,577"
       }
     };
     const recordSnapshots = {
-      "2025年": [
+      "2025": [
         {
           type: "record",
           id: "2025-10-18",
           date: "10/18",
-          week: "周五",
+          week: "星期一",
           consumption: "4.80",
           mileage: "1587",
-          amount: "200.00元",
-          pricePerLiter: "7.12元/升",
-          deltaFuel: "+28.09升",
-          oilType: "92#汽油",
-          fillStatus: "加满",
+          amount: "200.00",
+          pricePerLiter: "7.12",
+          deltaFuel: "+28.09",
+          oilType: "92#",
+          fillStatus: "加油",
           fillStatusTone: "danger",
-          fuelConsumption: "-28.09升",
-          deltaMileage: "+585.00公里",
-          pricePerKm: "0.34元/公里"
+          fuelConsumption: "-28.09",
+          deltaMileage: "+585.00",
+          pricePerKm: "0.34"
         },
         {
           type: "record",
@@ -56,14 +44,14 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           mileage: "1002",
           highlight: "danger",
           compact: true,
-          amount: "186.00元",
-          pricePerLiter: "7.20元/升",
-          deltaFuel: "+25.80升",
-          oilType: "95#汽油",
-          fillStatus: "日常补油",
-          fuelConsumption: "-28.09升",
-          deltaMileage: "+585.00公里",
-          pricePerKm: "0.34元/公里"
+          amount: "186.00",
+          pricePerLiter: "7.20",
+          deltaFuel: "+25.80",
+          oilType: "95#",
+          fillStatus: "加油",
+          fuelConsumption: "-28.09",
+          deltaMileage: "+585.00",
+          pricePerKm: "0.34"
         },
         {
           type: "record",
@@ -72,14 +60,14 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           consumption: "4.72",
           mileage: "611",
           compact: true,
-          amount: "160.00元",
-          pricePerLiter: "6.90元/升",
-          deltaFuel: "+23.30升",
-          oilType: "92#汽油",
-          fillStatus: "加满",
-          fuelConsumption: "-28.09升",
-          deltaMileage: "+585.00公里",
-          pricePerKm: "0.34元/公里"
+          amount: "160.00",
+          pricePerLiter: "6.90",
+          deltaFuel: "+23.30",
+          oilType: "92#",
+          fillStatus: "加油",
+          fuelConsumption: "-28.09",
+          deltaMileage: "+585.00",
+          pricePerKm: "0.34"
         },
         {
           type: "record",
@@ -88,11 +76,11 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           consumption: "5.10",
           mileage: "510",
           compact: true,
-          amount: "120.00元",
-          pricePerLiter: "6.85元/升",
-          deltaFuel: "+17.51升",
-          oilType: "92#汽油",
-          fillStatus: "七成满"
+          amount: "120.00",
+          pricePerLiter: "6.85",
+          deltaFuel: "+17.51",
+          oilType: "92#",
+          fillStatus: "加油"
         },
         {
           type: "record",
@@ -101,11 +89,11 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           consumption: "5.10",
           mileage: "510",
           compact: true,
-          amount: "120.00元",
-          pricePerLiter: "6.85元/升",
-          deltaFuel: "+17.51升",
-          oilType: "92#汽油",
-          fillStatus: "七成满"
+          amount: "120.00",
+          pricePerLiter: "6.85",
+          deltaFuel: "+17.51",
+          oilType: "92#",
+          fillStatus: "加油"
         },
         {
           type: "record",
@@ -114,25 +102,25 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           consumption: "5.10",
           mileage: "510",
           compact: true,
-          amount: "120.00元",
-          pricePerLiter: "6.85元/升",
-          deltaFuel: "+17.51升",
-          oilType: "92#汽油",
-          fillStatus: "七成满"
+          amount: "120.00",
+          pricePerLiter: "6.85",
+          deltaFuel: "+17.51",
+          oilType: "92#",
+          fillStatus: "加油"
         }
       ],
-      "2024年": [
+      "2024": [
         {
           type: "record",
           id: "2024-12-22",
           date: "12/22",
           consumption: "5.02",
           mileage: "1320",
-          amount: "180.00元",
-          pricePerLiter: "6.90元/升",
-          deltaFuel: "+25.21升",
-          oilType: "95#汽油",
-          fillStatus: "七成满",
+          amount: "180.00",
+          pricePerLiter: "6.90",
+          deltaFuel: "+25.21",
+          oilType: "95#",
+          fillStatus: "加油",
           fillStatusTone: "accent"
         },
         {
@@ -142,14 +130,14 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           consumption: "6.40",
           mileage: "820",
           compact: true,
-          amount: "146.00元",
-          pricePerLiter: "6.80元/升",
-          deltaFuel: "+21.47升",
-          oilType: "92#汽油",
-          fillStatus: "加满"
+          amount: "146.00",
+          pricePerLiter: "6.80",
+          deltaFuel: "+21.47",
+          oilType: "92#",
+          fillStatus: "加油"
         }
       ],
-      "2023年": [
+      "2023": [
         {
           type: "record",
           id: "2023-07-03",
@@ -157,11 +145,11 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           consumption: "5.30",
           mileage: "730",
           compact: true,
-          amount: "138.00元",
-          pricePerLiter: "6.50元/升",
-          deltaFuel: "+21.23升",
-          oilType: "92#汽油",
-          fillStatus: "加满"
+          amount: "138.00",
+          pricePerLiter: "6.50",
+          deltaFuel: "+21.23",
+          oilType: "92#",
+          fillStatus: "加油"
         }
       ]
     };
