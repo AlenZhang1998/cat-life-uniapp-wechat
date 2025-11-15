@@ -5,16 +5,16 @@
   background: linear-gradient(180deg, #f8fbff 0%, #f2f4f9 100%);
   padding: 24rpx 32rpx 180rpx;
 }
-.summary-panel.data-v-f1512143 {
+.records-page .summary-panel.data-v-f1512143 {
   position: relative;
   overflow: hidden;
   padding: 32rpx;
+  margin-bottom: 32rpx;
   border-radius: 32rpx;
   background: linear-gradient(110deg, #cde6ff, #dfeeff 70%);
   box-shadow: 0 20rpx 40rpx rgba(0, 83, 156, 0.1);
-  margin-bottom: 32rpx;
 }
-.summary-panel__bg.data-v-f1512143 {
+.records-page .summary-panel .summary-panel__bg.data-v-f1512143 {
   position: absolute;
   width: 200rpx;
   height: 200rpx;
@@ -22,15 +22,15 @@
   background: rgba(255, 255, 255, 0.3);
   filter: blur(0.5px);
 }
-.summary-panel__bg--left.data-v-f1512143 {
+.records-page .summary-panel .summary-panel__bg--left.data-v-f1512143 {
   top: -40rpx;
   left: -40rpx;
 }
-.summary-panel__bg--right.data-v-f1512143 {
+.records-page .summary-panel .summary-panel__bg--right.data-v-f1512143 {
   bottom: -60rpx;
   right: -20rpx;
 }
-.summary-head.data-v-f1512143 {
+.records-page .summary-panel .summary-head.data-v-f1512143 {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -38,7 +38,7 @@
   position: relative;
   z-index: 1;
 }
-.summary-year.data-v-f1512143 {
+.records-page .summary-panel .summary-year.data-v-f1512143 {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -51,92 +51,87 @@
   font-weight: 600;
   background: rgba(255, 255, 255, 0.6);
 }
-.summary-year .icon-youjiantou.data-v-f1512143 {
+.records-page .summary-panel .summary-year .icon-youjiantou.data-v-f1512143 {
   font-size: 18rpx;
   transform: rotate(90deg);
   margin-top: 6rpx;
 }
-.summary-chip.data-v-f1512143 {
+.records-page .summary-panel .summary-chip.data-v-f1512143 {
   padding: 10rpx 20rpx;
   border-radius: 30rpx;
   font-size: 24rpx;
   color: #1f2329;
   background: rgba(255, 255, 255, 0.7);
 }
-.summary-total.data-v-f1512143 {
+.records-page .summary-panel .summary-total.data-v-f1512143 {
   position: relative;
   z-index: 1;
   margin-bottom: 28rpx;
 }
-.summary-total__value.data-v-f1512143 {
+.records-page .summary-panel .summary-total .summary-total__value.data-v-f1512143 {
   font-size: 48rpx;
   font-weight: 700;
 }
-.summary-total__label.data-v-f1512143 {
+.records-page .summary-panel .summary-total .summary-total__label.data-v-f1512143 {
   display: block;
   font-size: 24rpx;
   color: rgba(10, 41, 90, 0.7);
 }
-.summary-grid.data-v-f1512143 {
+.records-page .summary-panel .summary-grid.data-v-f1512143 {
   display: flex;
   justify-content: space-between;
   position: relative;
   z-index: 1;
 }
-.summary-stat.data-v-f1512143 {
+.records-page .summary-panel .summary-grid .summary-stat.data-v-f1512143 {
   flex: 1;
   color: #1f2329;
 }
-.summary-stat.data-v-f1512143:not(:last-child) {
-  border-right: 2rpx solid rgba(255, 255, 255, 0.4);
-  margin-right: 16rpx;
-  padding-right: 16rpx;
-}
-.summary-stat__label.data-v-f1512143 {
+.records-page .summary-panel .summary-grid .summary-stat .summary-stat__label.data-v-f1512143 {
   display: block;
   font-size: 24rpx;
   opacity: 0.8;
 }
-.summary-stat__value.data-v-f1512143 {
+.records-page .summary-panel .summary-grid .summary-stat .summary-stat__value.data-v-f1512143 {
   display: block;
   font-size: 28rpx;
   font-weight: 600;
 }
-.records-list.data-v-f1512143 {
+.records-page .summary-panel .summary-grid .summary-stat.data-v-f1512143:not(:last-child) {
+  border-right: 2rpx solid rgba(255, 255, 255, 0.4);
+  margin-right: 16rpx;
+  padding-right: 16rpx;
+}
+.records-page .records-list.data-v-f1512143 {
   display: flex;
   flex-direction: column;
   gap: 20rpx;
 }
-.record-card.data-v-f1512143 {
+.records-page .records-list .record-card.data-v-f1512143 {
   background: #fff;
   border-radius: 28rpx;
   padding: 28rpx;
   box-shadow: 0 12rpx 30rpx rgba(15, 114, 59, 0.08);
   transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
-.record-card--compact.data-v-f1512143 {
-  padding: 24rpx;
-}
-.record-card--alert .record-consumption__value.data-v-f1512143 {
-  color: #e64a3b;
-}
-.record-card__hover.data-v-f1512143 {
-  background: #fefefe;
-}
-.record-card--expanded.data-v-f1512143 {
-  box-shadow: 0 16rpx 38rpx rgba(13, 102, 53, 0.12);
-}
-.record-card__top.data-v-f1512143 {
+.records-page .records-list .record-card .record-card__top.data-v-f1512143 {
   display: flex;
-  align-items: flex-end;
-  gap: 12rpx;
+  align-items: center;
 }
-.record-date.data-v-f1512143 {
+.records-page .records-list .record-card .record-card__top .record-date.data-v-f1512143 {
   flex: 1;
   position: relative;
   padding-left: 20rpx;
 }
-.record-date.data-v-f1512143::before {
+.records-page .records-list .record-card .record-card__top .record-date .record-date__value.data-v-f1512143 {
+  font-size: 32rpx;
+}
+.records-page .records-list .record-card .record-card__top .record-date center .record-date__week.data-v-f1512143 {
+  display: block;
+  font-size: 22rpx;
+  color: #8a93a0;
+}
+.records-page .records-list .record-card .record-card__top .record-date.data-v-f1512143::before {
   content: "";
   position: absolute;
   left: 0;
@@ -146,98 +141,87 @@
   border-radius: 4rpx;
   background: linear-gradient(180deg, #00a3ff, #4bc9ff);
 }
-.record-date__value.data-v-f1512143 {
-  font-size: 32rpx;
-  font-weight: 700;
-}
-.record-date__week.data-v-f1512143 {
-  display: block;
-  font-size: 22rpx;
-  color: #8a93a0;
-}
-.record-consumption.data-v-f1512143 {
-  display: flex;
-  align-items: flex-end;
+.records-page .records-list .record-card .record-card__top .record-consumption.data-v-f1512143 {
   gap: 8rpx;
 }
-.record-consumption__value.data-v-f1512143 {
+.records-page .records-list .record-card .record-card__top .record-consumption .record-consumption__value.data-v-f1512143 {
   font-size: 40rpx;
-  font-weight: 700;
+  font-weight: 600;
   color: #0a9f47;
 }
-.record-consumption__unit.data-v-f1512143 {
-  font-size: 24rpx;
-  color: #8a93a0;
-}
-.record-mileage.data-v-f1512143 {
-  margin-left: auto;
-  text-align: right;
-}
-.record-mileage__value.data-v-f1512143 {
-  font-size: 32rpx;
-  font-weight: 600;
-}
-.record-mileage__unit.data-v-f1512143 {
-  display: block;
+.records-page .records-list .record-card .record-card__top .record-consumption .record-consumption__unit.data-v-f1512143 {
   font-size: 22rpx;
   color: #8a93a0;
 }
-.record-arrow.data-v-f1512143 {
-  font-size: 36rpx;
+.records-page .records-list .record-card .record-card__top .record-mileage.data-v-f1512143 {
+  margin-left: 30rpx;
+  text-align: right;
+}
+.records-page .records-list .record-card .record-card__top .record-mileage .record-mileage__value.data-v-f1512143 {
+  font-size: 40rpx;
+  font-weight: 600;
+}
+.records-page .records-list .record-card .record-card__top .record-mileage .record-mileage__unit.data-v-f1512143 {
+  font-size: 22rpx;
+  color: #8a93a0;
+}
+.records-page .records-list .record-card .record-card__top .record-arrow.data-v-f1512143 {
+  font-size: 20rpx;
   color: #8a93a0;
   padding-left: 12rpx;
+  display: inline-block;
   transition: transform 0.2s ease;
 }
-.record-arrow--expanded.data-v-f1512143 {
-  transform: rotate(180deg);
+.records-page .records-list .record-card .record-card__top .record-arrow--expanded.data-v-f1512143 {
+  transform: rotate(90deg);
 }
-.record-details.data-v-f1512143 {
+.records-page .records-list .record-card .record-details.data-v-f1512143 {
   margin-top: 20rpx;
   padding: 24rpx;
   border-radius: 20rpx;
   background: #fff;
   border: 2rpx solid rgba(31, 35, 41, 0.06);
 }
-.record-meta.data-v-f1512143 {
+.records-page .records-list .record-card .record-details .record-meta.data-v-f1512143 {
   display: flex;
   justify-content: space-between;
   margin-bottom: 20rpx;
   gap: 12rpx;
 }
-.record-meta__value.data-v-f1512143 {
+.records-page .records-list .record-card .record-details .record-meta .record-meta__value.data-v-f1512143 {
   flex: 1;
   text-align: center;
   font-size: 28rpx;
   font-weight: 600;
   color: #1f2329;
 }
-.record-remark.data-v-f1512143 {
+.records-page .records-list .record-card .record-details .record-remark.data-v-f1512143 {
   margin-top: 8rpx;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-.record-remark__text.data-v-f1512143 {
+.records-page .records-list .record-card .record-details .record-remark .record-remark__text.data-v-f1512143 {
   font-size: 24rpx;
   color: #8a93a0;
   display: flex;
   align-items: center;
   gap: 12rpx;
 }
-.record-remark__oil.data-v-f1512143 {
+.records-page .records-list .record-card .record-details .record-remark .record-remark__oil.data-v-f1512143 {
   font-weight: 600;
   color: #1f2329;
 }
-.record-remark__status.data-v-f1512143 {
+.records-page .records-list .record-card .record-details .record-remark .record-remark__status.data-v-f1512143 {
   font-weight: 600;
 }
-.record-remark__status--danger.data-v-f1512143 {
+.records-page .records-list .record-card .record-details .record-remark .record-remark__status--danger.data-v-f1512143 {
   color: #d44848;
 }
-.record-remark__status--accent.data-v-f1512143 {
+.records-page .records-list .record-card .record-details .record-remark .record-remark__status--accent.data-v-f1512143 {
   color: #0a9f47;
 }
-.record-edit.data-v-f1512143 {
+.records-page .records-list .record-card .record-details .record-remark .record-edit.data-v-f1512143 {
   width: 54rpx;
   height: 54rpx;
   border-radius: 18rpx;
@@ -248,7 +232,19 @@
   font-size: 30rpx;
   color: #1f2329;
 }
-.comparison-card.data-v-f1512143 {
+.records-page .records-list .record-card--compact.data-v-f1512143 {
+  padding: 24rpx;
+}
+.records-page .records-list .record-card--expanded.data-v-f1512143 {
+  box-shadow: 0 16rpx 38rpx rgba(13, 102, 53, 0.12);
+}
+.records-page .records-list .record-card__hover.data-v-f1512143 {
+  background: #fefefe;
+}
+.records-page .records-list .record-card--alert .record-consumption__value.data-v-f1512143 {
+  color: #e64a3b;
+}
+.records-page .records-list .comparison-card.data-v-f1512143 {
   background: #f5fbf6;
   border-radius: 28rpx;
   padding: 26rpx;
@@ -257,18 +253,18 @@
   gap: 16rpx;
   border: 2rpx solid rgba(30, 193, 95, 0.1);
 }
-.comparison-card--success.data-v-f1512143 {
-  background: rgba(30, 193, 95, 0.12);
-  border-color: rgba(30, 193, 95, 0.3);
-}
-.comparison-value.data-v-f1512143 {
+.records-page .records-list .comparison-card .comparison-value.data-v-f1512143 {
   flex: 1;
   font-size: 28rpx;
   font-weight: 600;
   color: #1f2329;
   text-align: center;
 }
-.comparison-arrow.data-v-f1512143 {
+.records-page .records-list .comparison-card .comparison-arrow.data-v-f1512143 {
   font-size: 32rpx;
   color: #8a93a0;
+}
+.records-page .records-list .comparison-card--success.data-v-f1512143 {
+  background: rgba(30, 193, 95, 0.12);
+  border-color: rgba(30, 193, 95, 0.3);
 }
