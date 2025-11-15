@@ -142,7 +142,7 @@
   background: linear-gradient(180deg, #00a3ff, #4bc9ff);
 }
 .records-page .records-list .record-card .record-card__top .record-consumption.data-v-f1512143 {
-  gap: 8rpx;
+  gap: 12rpx;
 }
 .records-page .records-list .record-card .record-card__top .record-consumption .record-consumption__value.data-v-f1512143 {
   font-size: 40rpx;
@@ -155,13 +155,13 @@
 }
 .records-page .records-list .record-card .record-card__top .record-mileage.data-v-f1512143 {
   margin-left: 30rpx;
-  text-align: right;
 }
 .records-page .records-list .record-card .record-card__top .record-mileage .record-mileage__value.data-v-f1512143 {
   font-size: 40rpx;
   font-weight: 600;
 }
 .records-page .records-list .record-card .record-card__top .record-mileage .record-mileage__unit.data-v-f1512143 {
+  margin-left: 12rpx;
   font-size: 22rpx;
   color: #8a93a0;
 }
@@ -171,9 +171,12 @@
   padding-left: 12rpx;
   display: inline-block;
   transition: transform 0.2s ease;
+  margin-top: 16rpx;
+  transform-origin: center;
 }
 .records-page .records-list .record-card .record-card__top .record-arrow--expanded.data-v-f1512143 {
   transform: rotate(90deg);
+  margin-top: 0;
 }
 .records-page .records-list .record-card .record-details.data-v-f1512143 {
   margin-top: 20rpx;

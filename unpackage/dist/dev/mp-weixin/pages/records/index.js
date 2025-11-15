@@ -221,8 +221,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             r: isExpanded(entry.id) ? 1 : "",
             s: common_vendor.o(($event) => toggleRecord(entry), entry.id)
           }) : {}, {
-            t: isExpanded(entry.id)
-          }, isExpanded(entry.id) ? {
+            t: isRecordItem(entry) && isExpanded(entry.id)
+          }, isRecordItem(entry) && isExpanded(entry.id) ? {
             v: common_vendor.t(isExpanded(entry.id)),
             w: common_vendor.t(entry.pricePerKm),
             x: common_vendor.t(entry.fuelConsumption),
