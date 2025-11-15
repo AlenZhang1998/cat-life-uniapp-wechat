@@ -71,17 +71,18 @@
               :class="{ 'record-arrow--expanded': isExpanded(entry.id) }"
             ></text>
           </view>
+
           <view class="record-details" v-show="isExpanded(entry.id)">
-            2222-{{ isExpanded(entry.id) }}
+            <!-- 2222-{{ isExpanded(entry.id) }} -->
             <view class="record-meta">
               <text class="record-meta__value">{{
-                entry.amount || '--'
+                entry.amount ? entry.amount + '元' : '--'
               }}</text>
               <text class="record-meta__value">{{
-                entry.pricePerLiter || '--'
+                entry.pricePerLiter ? entry.pricePerLiter + '元/升' : '--'
               }}</text>
               <text class="record-meta__value">{{
-                entry.deltaFuel || '--'
+                entry.deltaFuel ? entry.deltaFuel + '升' : '--'
               }}</text>
             </view>
             <view class="record-remark">
@@ -102,7 +103,7 @@
                   {{ entry.fillStatus }}
                 </text>
               </text>
-              <view class="record-edit"></view>
+              <view class="record-edit">✎</view>
             </view>
           </view>
         </view>
@@ -589,15 +590,17 @@ watch(
         .record-meta {
           display: flex;
           justify-content: space-between;
+        align-items: center;
           margin-bottom: 20rpx;
           gap: 12rpx;
 
           .record-meta__value {
             flex: 1;
-            text-align: center;
-            font-size: 28rpx;
+            text-align: left;
+            font-size: 26rpx;
             font-weight: 600;
             color: #1f2329;
+            white-space: nowrap;
           }
         }
 
@@ -605,11 +608,11 @@ watch(
           margin-top: 8rpx;
           display: flex;
           justify-content: space-between;
-          align-items: center;
+          align-items: flex-start;
 
           .record-remark__text {
-            font-size: 24rpx;
-            color: $muted-text;
+            font-size: 26rpx;
+            color: #1f2329;
             display: flex;
             align-items: center;
             gap: 12rpx;
@@ -633,15 +636,17 @@ watch(
           }
 
           .record-edit {
-            width: 54rpx;
-            height: 54rpx;
-            border-radius: 18rpx;
-            border: 2rpx solid rgba(31, 35, 41, 0.1);
+            width: 44rpx;
+            height: 44rpx;
+            border-radius: 14rpx;
+            background: rgba(30, 193, 95, 0.12);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 30rpx;
-            color: #1f2329;
+            font-size: 28rpx;
+            color: #1ec15f;
+            font-weight: 600;
+            align-self: flex-end;
           }
         }
       }

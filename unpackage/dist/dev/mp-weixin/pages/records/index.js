@@ -204,31 +204,30 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             c: common_vendor.t(entry.consumption),
             d: common_vendor.t(entry.mileage),
             e: isExpanded(entry.id) ? 1 : "",
-            f: common_vendor.t(isExpanded(entry.id)),
-            g: common_vendor.t(entry.amount || "--"),
-            h: common_vendor.t(entry.pricePerLiter || "--"),
-            i: common_vendor.t(entry.deltaFuel || "--"),
-            j: common_vendor.t(entry.oilType || "--"),
-            k: entry.fillStatus
+            f: common_vendor.t(entry.amount ? entry.amount + "元" : "--"),
+            g: common_vendor.t(entry.pricePerLiter ? entry.pricePerLiter + "元/升" : "--"),
+            h: common_vendor.t(entry.deltaFuel ? entry.deltaFuel + "升" : "--"),
+            i: common_vendor.t(entry.oilType || "--"),
+            j: entry.fillStatus
           }, entry.fillStatus ? {
-            l: common_vendor.t(entry.fillStatus),
-            m: entry.fillStatusTone === "danger" ? 1 : "",
-            n: entry.fillStatusTone === "accent" ? 1 : ""
+            k: common_vendor.t(entry.fillStatus),
+            l: entry.fillStatusTone === "danger" ? 1 : "",
+            m: entry.fillStatusTone === "accent" ? 1 : ""
           } : {}, {
-            o: isExpanded(entry.id),
-            p: entry.compact ? 1 : "",
-            q: entry.highlight === "danger" ? 1 : "",
-            r: isExpanded(entry.id) ? 1 : "",
-            s: common_vendor.o(($event) => toggleRecord(entry), entry.id)
+            n: isExpanded(entry.id),
+            o: entry.compact ? 1 : "",
+            p: entry.highlight === "danger" ? 1 : "",
+            q: isExpanded(entry.id) ? 1 : "",
+            r: common_vendor.o(($event) => toggleRecord(entry), entry.id)
           }) : {}, {
-            t: isRecordItem(entry) && isExpanded(entry.id)
+            s: isRecordItem(entry) && isExpanded(entry.id)
           }, isRecordItem(entry) && isExpanded(entry.id) ? {
-            v: common_vendor.t(isExpanded(entry.id)),
-            w: common_vendor.t(entry.pricePerKm),
-            x: common_vendor.t(entry.fuelConsumption),
-            y: common_vendor.t(entry.deltaMileage)
+            t: common_vendor.t(isExpanded(entry.id)),
+            v: common_vendor.t(entry.pricePerKm),
+            w: common_vendor.t(entry.fuelConsumption),
+            x: common_vendor.t(entry.deltaMileage)
           } : {}, {
-            z: entry.id
+            y: entry.id
           });
         }),
         j: common_vendor.p({
