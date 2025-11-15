@@ -108,11 +108,9 @@
         </view>
 
         <view
-          v-if="isExpanded(entry.id)"
+          v-if="isRecordItem(entry) && isExpanded(entry.id)"
           class="comparison-card"
-          :class="[
-            'comparison-card--success'
-          ]"
+          :class="['comparison-card--success']"
         >
           3333-{{ isExpanded(entry.id) }}
           <view class="comparison-value">{{ entry.pricePerKm }}</view>
@@ -534,7 +532,7 @@ watch(
         .record-consumption {
           // display: flex;
           // align-items: flex-end;
-          gap: 8rpx;
+          gap: 12rpx;
 
           .record-consumption__value {
             font-size: 40rpx;
@@ -550,7 +548,7 @@ watch(
 
         .record-mileage {
           margin-left: 30rpx;
-          text-align: right;
+          // text-align: right;
 
           .record-mileage__value {
             font-size: 40rpx;
@@ -559,6 +557,7 @@ watch(
 
           .record-mileage__unit {
             // display: block;
+            margin-left: 12rpx;
             font-size: 22rpx;
             color: $muted-text;
           }
@@ -570,10 +569,13 @@ watch(
           padding-left: 12rpx;
           display: inline-block;
           transition: transform 0.2s ease;
+          margin-top: 16rpx;
+          transform-origin: center;
         }
 
         .record-arrow--expanded {
           transform: rotate(90deg);
+          margin-top: 0;
         }
       }
 
