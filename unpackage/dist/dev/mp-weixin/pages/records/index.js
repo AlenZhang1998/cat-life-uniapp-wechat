@@ -213,38 +213,34 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             a: isRecordItem(entry)
           }, isRecordItem(entry) ? common_vendor.e({
             b: common_vendor.t(entry.date),
-            c: entry.week
-          }, entry.week ? {
-            d: common_vendor.t(entry.week)
-          } : {}, {
-            e: common_vendor.t(entry.consumption),
-            f: common_vendor.t(entry.mileage),
-            g: isExpanded(entry.id) ? 1 : "",
-            h: common_vendor.t(isExpanded(entry.id)),
-            i: common_vendor.t(entry.amount || "--"),
-            j: common_vendor.t(entry.pricePerLiter || "--"),
-            k: common_vendor.t(entry.deltaFuel || "--"),
-            l: common_vendor.t(entry.oilType || "--"),
-            m: entry.fillStatus
+            c: common_vendor.t(entry.consumption),
+            d: common_vendor.t(entry.mileage),
+            e: isExpanded(entry.id) ? 1 : "",
+            f: common_vendor.t(isExpanded(entry.id)),
+            g: common_vendor.t(entry.amount || "--"),
+            h: common_vendor.t(entry.pricePerLiter || "--"),
+            i: common_vendor.t(entry.deltaFuel || "--"),
+            j: common_vendor.t(entry.oilType || "--"),
+            k: entry.fillStatus
           }, entry.fillStatus ? {
-            n: common_vendor.t(entry.fillStatus),
-            o: entry.fillStatusTone === "danger" ? 1 : "",
-            p: entry.fillStatusTone === "accent" ? 1 : ""
+            l: common_vendor.t(entry.fillStatus),
+            m: entry.fillStatusTone === "danger" ? 1 : "",
+            n: entry.fillStatusTone === "accent" ? 1 : ""
           } : {}, {
-            q: isExpanded(entry.id),
-            r: entry.compact ? 1 : "",
-            s: entry.highlight === "danger" ? 1 : "",
-            t: isExpanded(entry.id) ? 1 : "",
-            v: common_vendor.o(($event) => toggleRecord(entry), entry.id)
+            o: isExpanded(entry.id),
+            p: entry.compact ? 1 : "",
+            q: entry.highlight === "danger" ? 1 : "",
+            r: isExpanded(entry.id) ? 1 : "",
+            s: common_vendor.o(($event) => toggleRecord(entry), entry.id)
           }) : {}, {
-            w: isExpanded(entry.id)
+            t: isExpanded(entry.id)
           }, isExpanded(entry.id) ? {
-            x: common_vendor.t(isExpanded(entry.id)),
-            y: common_vendor.t(entry.pricePerKm),
-            z: common_vendor.t(entry.fuelConsumption),
-            A: common_vendor.t(entry.deltaMileage)
+            v: common_vendor.t(isExpanded(entry.id)),
+            w: common_vendor.t(entry.pricePerKm),
+            x: common_vendor.t(entry.fuelConsumption),
+            y: common_vendor.t(entry.deltaMileage)
           } : {}, {
-            B: entry.id
+            z: entry.id
           });
         }),
         j: common_vendor.p({
