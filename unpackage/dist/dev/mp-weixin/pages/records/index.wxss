@@ -219,6 +219,7 @@
 }
 .records-page .records-list .record-card .record-details .record-remark .record-remark__status.data-v-f1512143 {
   font-weight: 600;
+  margin-left: 12rpx;
 }
 .records-page .records-list .record-card .record-details .record-remark .record-remark__status--danger.data-v-f1512143 {
   color: #d44848;
