@@ -191,8 +191,8 @@ const recordSnapshots: Record<string, FuelRecord[]> = {
       amount: '200.00',
       pricePerLiter: '7.12',
       deltaFuel: '+28.09',
-      oilType: '92#',
-      fillStatus: '加油',
+      oilType: '92#汽油',
+      fillStatus: '加满',
       fillStatusTone: 'danger',
       fuelConsumption:'-28.09',
       deltaMileage: '+585.00',
@@ -209,8 +209,8 @@ const recordSnapshots: Record<string, FuelRecord[]> = {
       amount: '186.00',
       pricePerLiter: '7.20',
       deltaFuel: '+25.80',
-      oilType: '95#',
-      fillStatus: '加油',
+      oilType: '95#汽油',
+      fillStatus: '加满',
       fuelConsumption:'-28.09',
       deltaMileage: '+585.00',
       pricePerKm: '0.34',
@@ -225,8 +225,8 @@ const recordSnapshots: Record<string, FuelRecord[]> = {
       amount: '160.00',
       pricePerLiter: '6.90',
       deltaFuel: '+23.30',
-      oilType: '92#',
-      fillStatus: '加油',
+      oilType: '92#汽油',
+      fillStatus: '加满',
       fuelConsumption:'-28.09',
       deltaMileage: '+585.00',
       pricePerKm: '0.34',
@@ -241,8 +241,8 @@ const recordSnapshots: Record<string, FuelRecord[]> = {
       amount: '120.00',
       pricePerLiter: '6.85',
       deltaFuel: '+17.51',
-      oilType: '92#',
-      fillStatus: '加油',
+      oilType: '92#汽油',
+      fillStatus: '加满',
     },
     {
       type: 'record',
@@ -254,8 +254,8 @@ const recordSnapshots: Record<string, FuelRecord[]> = {
       amount: '120.00',
       pricePerLiter: '6.85',
       deltaFuel: '+17.51',
-      oilType: '92#',
-      fillStatus: '加油',
+      oilType: '92#汽油',
+      fillStatus: '加满',
     },
     {
       type: 'record',
@@ -267,8 +267,8 @@ const recordSnapshots: Record<string, FuelRecord[]> = {
       amount: '120.00',
       pricePerLiter: '6.85',
       deltaFuel: '+17.51',
-      oilType: '92#',
-      fillStatus: '加油',
+      oilType: '92#汽油',
+      fillStatus: '加满',
     },{
       type: 'record',
       id: '2025-10-01B',
@@ -279,8 +279,8 @@ const recordSnapshots: Record<string, FuelRecord[]> = {
       amount: '120.00',
       pricePerLiter: '6.85',
       deltaFuel: '+17.51',
-      oilType: '92#',
-      fillStatus: '加油',
+      oilType: '92#汽油',
+      fillStatus: '加满',
     },{
       type: 'record',
       id: '2025-10-01B',
@@ -291,8 +291,8 @@ const recordSnapshots: Record<string, FuelRecord[]> = {
       amount: '120.00',
       pricePerLiter: '6.85',
       deltaFuel: '+17.51',
-      oilType: '92#',
-      fillStatus: '加油',
+      oilType: '92#汽油',
+      fillStatus: '加满',
     },
   ],
   '2024': [
@@ -305,8 +305,8 @@ const recordSnapshots: Record<string, FuelRecord[]> = {
       amount: '180.00',
       pricePerLiter: '6.90',
       deltaFuel: '+25.21',
-      oilType: '95#',
-      fillStatus: '加油',
+      oilType: '95#汽油',
+      fillStatus: '加满',
       fillStatusTone: 'accent'
     },
     {
@@ -319,8 +319,8 @@ const recordSnapshots: Record<string, FuelRecord[]> = {
       amount: '146.00',
       pricePerLiter: '6.80',
       deltaFuel: '+21.47',
-      oilType: '92#',
-      fillStatus: '加油'
+      oilType: '92#汽油',
+      fillStatus: '加满'
     }
   ],
   '2023': [
@@ -334,8 +334,8 @@ const recordSnapshots: Record<string, FuelRecord[]> = {
       amount: '138.00',
       pricePerLiter: '6.50',
       deltaFuel: '+21.23',
-      oilType: '92#',
-      fillStatus: '加油'
+      oilType: '92#汽油',
+      fillStatus: '加满'
     }
   ]
 }
@@ -649,6 +649,7 @@ watch(
 
           .record-remark__status {
             font-weight: 600;
+            margin-left: 12rpx;
           }
 
           .record-remark__status--danger {

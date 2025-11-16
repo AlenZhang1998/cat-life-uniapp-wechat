@@ -29,8 +29,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           amount: "200.00",
           pricePerLiter: "7.12",
           deltaFuel: "+28.09",
-          oilType: "92#",
-          fillStatus: "加油",
+          oilType: "92#汽油",
+          fillStatus: "加满",
           fillStatusTone: "danger",
           fuelConsumption: "-28.09",
           deltaMileage: "+585.00",
@@ -47,8 +47,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           amount: "186.00",
           pricePerLiter: "7.20",
           deltaFuel: "+25.80",
-          oilType: "95#",
-          fillStatus: "加油",
+          oilType: "95#汽油",
+          fillStatus: "加满",
           fuelConsumption: "-28.09",
           deltaMileage: "+585.00",
           pricePerKm: "0.34"
@@ -63,8 +63,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           amount: "160.00",
           pricePerLiter: "6.90",
           deltaFuel: "+23.30",
-          oilType: "92#",
-          fillStatus: "加油",
+          oilType: "92#汽油",
+          fillStatus: "加满",
           fuelConsumption: "-28.09",
           deltaMileage: "+585.00",
           pricePerKm: "0.34"
@@ -79,8 +79,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           amount: "120.00",
           pricePerLiter: "6.85",
           deltaFuel: "+17.51",
-          oilType: "92#",
-          fillStatus: "加油"
+          oilType: "92#汽油",
+          fillStatus: "加满"
         },
         {
           type: "record",
@@ -92,8 +92,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           amount: "120.00",
           pricePerLiter: "6.85",
           deltaFuel: "+17.51",
-          oilType: "92#",
-          fillStatus: "加油"
+          oilType: "92#汽油",
+          fillStatus: "加满"
         },
         {
           type: "record",
@@ -105,8 +105,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           amount: "120.00",
           pricePerLiter: "6.85",
           deltaFuel: "+17.51",
-          oilType: "92#",
-          fillStatus: "加油"
+          oilType: "92#汽油",
+          fillStatus: "加满"
         },
         {
           type: "record",
@@ -118,8 +118,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           amount: "120.00",
           pricePerLiter: "6.85",
           deltaFuel: "+17.51",
-          oilType: "92#",
-          fillStatus: "加油"
+          oilType: "92#汽油",
+          fillStatus: "加满"
         },
         {
           type: "record",
@@ -131,8 +131,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           amount: "120.00",
           pricePerLiter: "6.85",
           deltaFuel: "+17.51",
-          oilType: "92#",
-          fillStatus: "加油"
+          oilType: "92#汽油",
+          fillStatus: "加满"
         }
       ],
       "2024": [
@@ -145,8 +145,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           amount: "180.00",
           pricePerLiter: "6.90",
           deltaFuel: "+25.21",
-          oilType: "95#",
-          fillStatus: "加油",
+          oilType: "95#汽油",
+          fillStatus: "加满",
           fillStatusTone: "accent"
         },
         {
@@ -159,8 +159,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           amount: "146.00",
           pricePerLiter: "6.80",
           deltaFuel: "+21.47",
-          oilType: "92#",
-          fillStatus: "加油"
+          oilType: "92#汽油",
+          fillStatus: "加满"
         }
       ],
       "2023": [
@@ -174,8 +174,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           amount: "138.00",
           pricePerLiter: "6.50",
           deltaFuel: "+21.23",
-          oilType: "92#",
-          fillStatus: "加油"
+          oilType: "92#汽油",
+          fillStatus: "加满"
         }
       ]
     };
