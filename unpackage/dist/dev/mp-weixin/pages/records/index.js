@@ -97,7 +97,33 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         },
         {
           type: "record",
-          id: "2025-10-01C",
+          id: "2025-10-01B",
+          date: "10/01",
+          consumption: "5.10",
+          mileage: "510",
+          compact: true,
+          amount: "120.00",
+          pricePerLiter: "6.85",
+          deltaFuel: "+17.51",
+          oilType: "92#",
+          fillStatus: "加油"
+        },
+        {
+          type: "record",
+          id: "2025-10-01B",
+          date: "10/01",
+          consumption: "5.10",
+          mileage: "510",
+          compact: true,
+          amount: "120.00",
+          pricePerLiter: "6.85",
+          deltaFuel: "+17.51",
+          oilType: "92#",
+          fillStatus: "加油"
+        },
+        {
+          type: "record",
+          id: "2025-10-01B",
           date: "10/01",
           consumption: "5.10",
           mileage: "510",
@@ -222,12 +248,11 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           }) : {}, {
             s: isRecordItem(entry) && isExpanded(entry.id)
           }, isRecordItem(entry) && isExpanded(entry.id) ? {
-            t: common_vendor.t(isExpanded(entry.id)),
-            v: common_vendor.t(entry.pricePerKm),
-            w: common_vendor.t(entry.fuelConsumption),
-            x: common_vendor.t(entry.deltaMileage)
+            t: common_vendor.t(entry.pricePerKm ? entry.pricePerKm + "元/公里" : "--"),
+            v: common_vendor.t(entry.fuelConsumption ? entry.fuelConsumption + "升" : "--"),
+            w: common_vendor.t(entry.deltaMileage ? entry.deltaMileage + "公里" : "--")
           } : {}, {
-            y: entry.id
+            x: entry.id
           });
         }),
         j: common_vendor.p({
