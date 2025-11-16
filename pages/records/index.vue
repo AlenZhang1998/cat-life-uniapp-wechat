@@ -13,7 +13,7 @@
         >
           <view class="summary-year">
             <text>{{ currentYear }}</text>
-            <i class="iconfont icon-youjiantou"></i>
+            <text class="iconfont icon-youjiantou"></text>
             <!-- <text class="iconfont icon-youjiantou"></text> -->
           </view>
         </picker>
@@ -113,11 +113,11 @@
           class="comparison-card"
           :class="['comparison-card--success']"
         >
-          3333-{{ isExpanded(entry.id) }}
-          <view class="comparison-value">{{ entry.pricePerKm }}</view>
-          <view class="comparison-value">{{ entry.fuelConsumption }}</view>
-          <view class="comparison-value">{{ entry.deltaMileage }}</view>
-          <text class="comparison-arrow"></text>
+          <!-- 3333-{{ isExpanded(entry.id) }} -->
+          <view class="comparison-value">{{ entry.pricePerKm ? entry.pricePerKm + '元/公里' : '--' }}</view>
+          <view class="comparison-value">{{ entry.fuelConsumption ? entry.fuelConsumption + '升' : '--' }}</view>
+          <view class="comparison-value">{{ entry.deltaMileage ? entry.deltaMileage + '公里' : '--' }}</view>
+          <text class="comparison-arrow iconfont icon-xiangyou"></text>
         </view>
       </template>
     </view>
@@ -259,7 +259,7 @@ const recordSnapshots: Record<string, FuelRecord[]> = {
     },
     {
       type: 'record',
-      id: '2025-10-01C',
+      id: '2025-10-01B',
       date: '10/01',
       consumption: '5.10',
       mileage: '510',
@@ -269,7 +269,31 @@ const recordSnapshots: Record<string, FuelRecord[]> = {
       deltaFuel: '+17.51',
       oilType: '92#',
       fillStatus: '加油',
-    }
+    },{
+      type: 'record',
+      id: '2025-10-01B',
+      date: '10/01',
+      consumption: '5.10',
+      mileage: '510',
+      compact: true,
+      amount: '120.00',
+      pricePerLiter: '6.85',
+      deltaFuel: '+17.51',
+      oilType: '92#',
+      fillStatus: '加油',
+    },{
+      type: 'record',
+      id: '2025-10-01B',
+      date: '10/01',
+      consumption: '5.10',
+      mileage: '510',
+      compact: true,
+      amount: '120.00',
+      pricePerLiter: '6.85',
+      deltaFuel: '+17.51',
+      oilType: '92#',
+      fillStatus: '加油',
+    },
   ],
   '2024': [
     {
@@ -688,7 +712,7 @@ watch(
       }
 
       .comparison-arrow {
-        font-size: 32rpx;
+        font-size: 26rpx;
         color: $muted-text;
       }
     }
