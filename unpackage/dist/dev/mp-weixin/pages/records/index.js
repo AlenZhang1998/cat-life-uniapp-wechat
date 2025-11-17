@@ -74,14 +74,18 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           type: "record",
           id: "2025-10-01",
           date: "10/01",
-          consumption: "5.10",
-          mileage: "510",
+          consumption: "4.72",
+          mileage: "611",
           compact: true,
-          amount: "120.00",
-          pricePerLiter: "6.85",
-          deltaFuel: "+17.51",
+          amount: "160.00",
+          pricePerLiter: "6.90",
+          deltaFuel: "+23.30",
           oilType: "92#汽油",
-          fillStatus: "加满"
+          fillStatus: "加满",
+          fillStatusTone: "danger",
+          fuelConsumption: "-28.09",
+          deltaMileage: "+585.00",
+          pricePerKm: "0.34"
         },
         {
           type: "record",
@@ -104,14 +108,18 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           type: "record",
           id: "2025-09-15",
           date: "09/15",
-          consumption: "4.95",
-          mileage: "389",
+          consumption: "4.72",
+          mileage: "611",
           compact: true,
-          amount: "150.00",
-          pricePerLiter: "6.80",
-          deltaFuel: "+22.05",
+          amount: "160.00",
+          pricePerLiter: "6.90",
+          deltaFuel: "+23.30",
           oilType: "92#汽油",
-          fillStatus: "加满"
+          fillStatus: "加满",
+          fillStatusTone: "danger",
+          fuelConsumption: "-28.09",
+          deltaMileage: "+585.00",
+          pricePerKm: "0.34"
         },
         {
           type: "record",
@@ -230,6 +238,25 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const visibleRecords = common_vendor.computed(
       () => recordSnapshots[currentYear.value] || []
     );
+    const isPageAnimated = common_vendor.ref(false);
+    let enterAnimationTimer = null;
+    const runPageEnterAnimation = () => {
+      if (enterAnimationTimer) {
+        clearTimeout(enterAnimationTimer);
+        enterAnimationTimer = null;
+      }
+      isPageAnimated.value = false;
+      enterAnimationTimer = setTimeout(() => {
+        isPageAnimated.value = true;
+      }, 40);
+    };
+    const getListAnimatedStyle = (index, variant = "card") => {
+      const limitedIndex = Math.min(index, 6);
+      const baseOffset = variant === "comparison" ? 140 : 60;
+      return {
+        "--list-delay": `${limitedIndex * 70 + baseOffset}ms`
+      };
+    };
     const handleYearChange = (event) => {
       selectedYearIndex.value = Number(event.detail.value);
     };
@@ -245,6 +272,19 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     };
     common_vendor.watch(currentYear, () => {
       expandedRecordMap.value = {};
+      runPageEnterAnimation();
+    });
+    common_vendor.onShow(() => {
+      runPageEnterAnimation();
+    });
+    common_vendor.onMounted(() => {
+      runPageEnterAnimation();
+    });
+    common_vendor.onUnmounted(() => {
+      if (enterAnimationTimer) {
+        clearTimeout(enterAnimationTimer);
+        enterAnimationTimer = null;
+      }
     });
     return (_ctx, _cache) => {
       return {
@@ -256,7 +296,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         f: common_vendor.t(summaryCard.value.avgFuel),
         g: common_vendor.t(summaryCard.value.pricePerLiter),
         h: common_vendor.t(summaryCard.value.mileage),
-        i: common_vendor.f(visibleRecords.value, (entry, k0, i0) => {
+        i: isPageAnimated.value ? 1 : "",
+        j: common_vendor.f(visibleRecords.value, (entry, entryIndex, i0) => {
           return common_vendor.e({
             a: isRecordItem(entry)
           }, isRecordItem(entry) ? common_vendor.e({
@@ -275,21 +316,31 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             m: entry.fillStatusTone === "accent" ? 1 : ""
           } : {}, {
             n: isExpanded(entry.id),
-            o: entry.compact ? 1 : "",
-            p: entry.highlight === "danger" ? 1 : "",
-            q: isExpanded(entry.id) ? 1 : "",
+            o: common_vendor.n({
+              "list-animated--visible": isPageAnimated.value
+            }),
+            p: common_vendor.n({
+              "record-card--compact": entry.compact,
+              "record-card--alert": entry.highlight === "danger",
+              "record-card--expanded": isExpanded(entry.id)
+            }),
+            q: common_vendor.s(getListAnimatedStyle(entryIndex)),
             r: common_vendor.o(($event) => toggleRecord(entry), entry.id)
           }) : {}, {
             s: isRecordItem(entry) && isExpanded(entry.id)
           }, isRecordItem(entry) && isExpanded(entry.id) ? {
             t: common_vendor.t(entry.pricePerKm ? entry.pricePerKm + "元/公里" : "--"),
             v: common_vendor.t(entry.fuelConsumption ? entry.fuelConsumption + "升" : "--"),
-            w: common_vendor.t(entry.deltaMileage ? entry.deltaMileage + "公里" : "--")
+            w: common_vendor.t(entry.deltaMileage ? entry.deltaMileage + "公里" : "--"),
+            x: common_vendor.n({
+              "list-animated--visible": isPageAnimated.value
+            }),
+            y: common_vendor.s(getListAnimatedStyle(entryIndex, "comparison"))
           } : {}, {
-            x: entry.id
+            z: entry.id
           });
         }),
-        j: common_vendor.p({
+        k: common_vendor.p({
           active: "list"
         })
       };
