@@ -8,9 +8,10 @@ if (!Array) {
   _component_ec_canvas();
 }
 if (!Math) {
-  BottomActionBar();
+  (RangePickerOverlay + BottomActionBar)();
 }
 const BottomActionBar = () => "../../components/BottomActionBar.js";
+const RangePickerOverlay = () => "../../components/RangePickerOverlay.js";
 const DEFAULT_CITY = "深圳市";
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "index",
@@ -129,8 +130,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const closeRangePicker = () => {
       showRangePicker.value = false;
     };
-    const selectPendingRange = (option) => {
-      pendingRangeKey.value = option.key;
+    const handlePendingRangeChange = (value) => {
+      if (value) {
+        pendingRangeKey.value = value;
+      }
     };
     const confirmRangePicker = () => {
       const target = rangeOptions.find((option) => option.key === pendingRangeKey.value);
@@ -371,28 +374,19 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           ec: fuelTrendEc.value
         }),
         v: isPageAnimated.value ? 1 : "",
-        w: showRangePicker.value
-      }, showRangePicker.value ? {
-        x: common_vendor.f(rangeOptions, (option, k0, i0) => {
-          return {
-            a: common_vendor.t(option.label),
-            b: option.key,
-            c: option.key === pendingRangeKey.value ? 1 : "",
-            d: common_vendor.o(($event) => selectPendingRange(option), option.key)
-          };
+        w: common_vendor.o(handlePendingRangeChange),
+        x: common_vendor.o(closeRangePicker),
+        y: common_vendor.o(confirmRangePicker),
+        z: common_vendor.p({
+          visible: showRangePicker.value,
+          title: "请选择",
+          options: rangeOptions,
+          ["selected-key"]: pendingRangeKey.value
         }),
-        y: common_vendor.o(closeRangePicker),
-        z: common_vendor.o(confirmRangePicker),
-        A: common_vendor.o(() => {
-        }),
-        B: common_vendor.o(closeRangePicker),
-        C: common_vendor.o(() => {
-        })
-      } : {}, {
-        D: common_vendor.p({
+        A: common_vendor.p({
           active: "fuel"
         }),
-        E: showRangePicker.value ? 1 : ""
+        B: showRangePicker.value ? 1 : ""
       });
     };
   }

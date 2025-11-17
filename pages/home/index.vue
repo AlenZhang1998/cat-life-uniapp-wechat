@@ -152,33 +152,15 @@
       </view>
     </view>
 
-    <view
-      v-if="showRangePicker"
-      class="range-picker-overlay"
-      @tap="closeRangePicker"
-      @touchmove.stop.prevent
-    >
-      <view class="range-picker-dialog" @tap.stop>
-        <view class="range-picker-title">请选择</view>
-        <view class="range-options">
-          <view
-            v-for="option in rangeOptions"
-            :key="option.key"
-            class="range-option"
-            :class="{ active: option.key === pendingRangeKey }"
-            @tap="selectPendingRange(option)"
-          >
-            <text>{{ option.label }}</text>
-          </view>
-        </view>
-        <view class="range-actions">
-          <view class="range-button cancel" @tap="closeRangePicker">取消</view>
-          <view class="range-button confirm" @tap="confirmRangePicker">
-            确定
-          </view>
-        </view>
-      </view>
-    </view>
+    <RangePickerOverlay
+      :visible="showRangePicker"
+      title="请选择"
+      :options="rangeOptions"
+      :selected-key="pendingRangeKey"
+      @update:selected-key="handlePendingRangeChange"
+      @cancel="closeRangePicker"
+      @confirm="confirmRangePicker"
+    />
 
     <BottomActionBar active="fuel" />
   </view>
@@ -192,6 +174,7 @@ import { normalizeCityName } from '@/utils/location'
 import locationIcon from '@/static/icons/dingwei.png'
 import dingwei_right from '@/static/icons/dingwei_right.png'
 import BottomActionBar from '@/components/BottomActionBar.vue'
+import RangePickerOverlay from '@/components/RangePickerOverlay.vue'
 // uCharts 官方 ECharts 适配仅支持 CJS 导入，这里使用 require 方式以兼容编译到小程序端
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const echarts = require('../../wxcomponents/ec-canvas/echarts')
@@ -358,8 +341,10 @@ const closeRangePicker = () => {
   showRangePicker.value = false
 }
 
-const selectPendingRange = (option: RangeOption) => {
-  pendingRangeKey.value = option.key
+const handlePendingRangeChange = (value: RangeKey | null) => {
+  if (value) {
+    pendingRangeKey.value = value
+  }
 }
 
 const confirmRangePicker = () => {
@@ -985,85 +970,6 @@ onMounted(() => {
     opacity: 0.7;
   }
 
-  .range-picker-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.45);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 48rpx;
-    z-index: 1200;
-  }
-
-  .range-picker-dialog {
-    width: 100%;
-    background: #fff;
-    border-radius: 40rpx;
-    padding: 48rpx 40rpx 40rpx;
-    box-shadow: 0 30rpx 80rpx rgba(0, 0, 0, 0.12);
-    animation: pickerPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  }
-
-  .range-picker-title {
-    text-align: center;
-    font-size: 32rpx;
-    font-weight: 700;
-  }
-
-  .range-options {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 24rpx;
-    margin: 36rpx 0 12rpx;
-  }
-
-  .range-option {
-    flex: 1 1 calc(33% - 16rpx);
-    max-width: 30%;
-    border-radius: 999rpx;
-    border: 2rpx solid rgba(138, 147, 160, 0.35);
-    padding: 22rpx 0;
-    text-align: center;
-    color: $muted-text;
-    font-size: 26rpx;
-    font-weight: 600;
-    background: #fafbfd;
-  }
-
-  .range-option.active {
-    border-color: transparent;
-    background: linear-gradient(180deg, #1ec15f 0%, #22d78a 100%);
-    color: #fff;
-    box-shadow: 0 16rpx 36rpx rgba(18, 163, 74, 0.35);
-  }
-
-  .range-actions {
-    display: flex;
-    gap: 24rpx;
-    margin-top: 32rpx;
-  }
-
-  .range-button {
-    flex: 1;
-    border-radius: 999rpx;
-    text-align: center;
-    padding: 26rpx 0;
-    font-size: 28rpx;
-    font-weight: 600;
-  }
-
-  .range-button.cancel {
-    background: #f5f7fb;
-    color: #1c1f23;
-    border: 1rpx solid #e5e9f2;
-  }
-
-  .range-button.confirm {
-    color: #fff;
-    background: linear-gradient(180deg, #1ec15f 0%, #22d78a 100%);
-    box-shadow: 0 18rpx 32rpx rgba(30, 193, 95, 0.32);
-  }
 }
 
 @keyframes heroGradient {
@@ -1090,14 +996,4 @@ onMounted(() => {
   }
 }
 
-@keyframes pickerPop {
-  0% {
-    transform: translate3d(0, 24rpx, 0) scale(0.96);
-    opacity: 0;
-  }
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-    opacity: 1;
-  }
-}
 </style>
