@@ -249,7 +249,7 @@ const monthlySummary = computed(() => {
 })
 
 const HERO_DISTANCE = 1577
-const HERO_DAYS = 18
+const HERO_DAYS = 48
 const HERO_RANGE_OPTIONS = [
   { key: 'week', label: '一周' },
   { key: 'month', label: '一月' },
@@ -273,7 +273,7 @@ const heroOverview = computed(() => {
     fuel: fuelTotal.toFixed(1),
     other: otherTotal.toFixed(1),
     metrics: [
-      { key: 'perKm', label: '支出/公里', value: costPerKm.toFixed(2), unit: '元' },
+      { key: 'days', label: '爱车相伴', value: HERO_DAYS.toFixed(0), unit: '天' },
       { key: 'fuelKm', label: '油费/公里', value: fuelPerKm.toFixed(2), unit: '元' },
       { key: 'perDay', label: '成本/天', value: costPerDay.toFixed(2), unit: '元' }
     ]

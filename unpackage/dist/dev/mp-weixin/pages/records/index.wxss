@@ -37,7 +37,7 @@
   padding: 32rpx;
   margin-bottom: 32rpx;
   border-radius: 32rpx;
-  background: linear-gradient(110deg, #cde6ff, #dfeeff 70%);
+  background: linear-gradient(135deg, #ede6ff 0%, #f4f1ff 55%, #e9fdf2 100%);
   box-shadow: 0 20rpx 40rpx rgba(0, 83, 156, 0.1);
 }
 .records-page .summary-panel.data-v-f1512143::before, .records-page .summary-panel.data-v-f1512143::after {
