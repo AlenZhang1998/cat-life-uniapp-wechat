@@ -1,5 +1,5 @@
 {
-  "navigationBarTitleText": "加油记录",
+  "navigationBarTitleText": "费用",
   "usingComponents": {
     "bottom-action-bar": "../../components/BottomActionBar"
   }
