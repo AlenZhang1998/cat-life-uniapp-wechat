@@ -201,17 +201,9 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       };
       expandedRecordMap.value = next;
     };
-    common_vendor.watch(
-      currentYear,
-      () => {
-        const currentRecords = recordSnapshots[currentYear.value] || [];
-        const firstRecord = currentRecords.find(
-          (item) => item.type === "record"
-        );
-        expandedRecordMap.value = firstRecord ? { [firstRecord.id]: true } : {};
-      },
-      { immediate: true }
-    );
+    common_vendor.watch(currentYear, () => {
+      expandedRecordMap.value = {};
+    });
     return (_ctx, _cache) => {
       return {
         a: common_vendor.t(currentYear.value),

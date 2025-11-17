@@ -371,17 +371,9 @@ const toggleRecord = (entry: FuelRecordItem) => {
   expandedRecordMap.value = next
 }
 
-watch(
-  currentYear,
-  () => {
-    const currentRecords = recordSnapshots[currentYear.value] || []
-    const firstRecord = currentRecords.find(
-      (item): item is FuelRecordItem => item.type === 'record'
-    )
-    expandedRecordMap.value = firstRecord ? { [firstRecord.id]: true } : {}
-  },
-  { immediate: true }
-)
+watch(currentYear, () => {
+  expandedRecordMap.value = {}
+})
 </script>
 
 <style lang="scss" scoped>
@@ -725,8 +717,6 @@ watch(
   }
 }
 </style>
-
-
 
 
 
