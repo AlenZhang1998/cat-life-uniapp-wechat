@@ -6,7 +6,7 @@ if (!Math) {
 const BottomActionBar = () => "../../components/BottomActionBar.js";
 const MONTHLY_BUDGET = 2200;
 const HERO_DISTANCE = 1577;
-const HERO_DAYS = 18;
+const HERO_DAYS = 48;
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "index",
   setup(__props) {
@@ -107,7 +107,6 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       const fuelCategories = ["fuel", "charging"];
       const fuelTotal = expenseRecords.value.filter((item) => fuelCategories.includes(item.category)).reduce((sum, item) => sum + item.amount, 0);
       const otherTotal = Math.max(total - fuelTotal, 0);
-      const costPerKm = total / HERO_DISTANCE;
       const fuelPerKm = fuelTotal / HERO_DISTANCE;
       const costPerDay = total / HERO_DAYS;
       return {
@@ -115,7 +114,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         fuel: fuelTotal.toFixed(1),
         other: otherTotal.toFixed(1),
         metrics: [
-          { key: "perKm", label: "支出/公里", value: costPerKm.toFixed(2), unit: "元" },
+          { key: "days", label: "爱车相伴", value: HERO_DAYS.toFixed(0), unit: "天" },
           { key: "fuelKm", label: "油费/公里", value: fuelPerKm.toFixed(2), unit: "元" },
           { key: "perDay", label: "成本/天", value: costPerDay.toFixed(2), unit: "元" }
         ]
