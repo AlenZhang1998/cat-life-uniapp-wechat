@@ -31,7 +31,7 @@
 │   ├── home/                # 首页仪表盘（主要展示页面）
 │   ├── records/             # 油耗记录列表（占位）
 │   ├── add/                 # 添加记录表单（占位）
-│   ├── refuel/              # 加油记录（占位）
+│   ├── expense/             # 费用记录（占位）
 │   └── profile/             # 个人中心（占位）
 ├── unpackage/               # uni-app 编译输出
 └── uni.scss                 # 颜色、阴影等全局 SCSS 变量

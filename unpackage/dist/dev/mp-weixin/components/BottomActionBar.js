@@ -36,13 +36,13 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         path: "/pages/add/index"
       },
       {
-        key: "refuel",
+        key: "expense",
         label: "费用",
         icon: "💰",
         iconActive: "💵",
         iconType: "text",
         type: "text",
-        path: "/pages/refuel/index"
+        path: "/pages/expense/index"
       },
       {
         key: "profile",
