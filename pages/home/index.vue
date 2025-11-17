@@ -175,7 +175,6 @@
 <script setup lang="ts">
 import { onShow } from '@dcloudio/uni-app'
 import { onUnmounted, ref, watch } from 'vue'
-import type * as EChartsType from '@/wxcomponents/ec-canvas/echarts'
 import { STORAGE_KEYS } from '@/constants/storage'
 import { normalizeCityName } from '@/utils/location'
 import locationIcon from '@/static/icons/dingwei.png'
@@ -183,7 +182,7 @@ import dingwei_right from '@/static/icons/dingwei_right.png'
 import BottomActionBar from '@/components/BottomActionBar.vue'
 // uCharts 官方 ECharts 适配仅支持 CJS 导入，这里使用 require 方式以兼容编译到小程序端
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const echarts = require('../../wxcomponents/ec-canvas/echarts') as typeof EChartsType
+const echarts = require('../../wxcomponents/ec-canvas/echarts')
 
 // ================= 基础展示数据 =================
 const DEFAULT_CITY = '深圳市'
@@ -347,7 +346,7 @@ const confirmRangePicker = () => {
 }
 
 // ================ 油耗趋势图 ================
-const fuelTrendChart = ref<any>(null)
+let fuelTrendChart: any = null
 
 const buildTrendOption = () => {
   const categories = trendData.value.map((item) => item.day)
@@ -477,6 +476,9 @@ const initFuelTrendChart = (
   height: number,
   dpr: number
 ) => {
+  if (!canvas) {
+    return null
+  }
   const chart = echarts.init(canvas, null, {
     width,
     height,
@@ -484,7 +486,7 @@ const initFuelTrendChart = (
   })
   canvas.setChart?.(chart)
   chart.setOption(buildTrendOption())
-  fuelTrendChart.value = chart
+  fuelTrendChart = chart
   return chart
 }
 
@@ -494,8 +496,8 @@ const fuelTrendEc = ref({
 })
 
 const refreshFuelTrendChart = () => {
-  if (fuelTrendChart.value) {
-    fuelTrendChart.value.setOption(buildTrendOption(), true)
+  if (fuelTrendChart) {
+    fuelTrendChart.setOption(buildTrendOption(), true)
   }
 }
 
@@ -512,7 +514,8 @@ watch(city, () => {
 })
 
 onUnmounted(() => {
-  fuelTrendChart.value?.dispose()
+  fuelTrendChart?.dispose()
+  fuelTrendChart = null
 })
 
 /**

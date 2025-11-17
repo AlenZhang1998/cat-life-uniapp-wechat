@@ -128,7 +128,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }
       closeRangePicker();
     };
-    const fuelTrendChart = common_vendor.ref(null);
+    let fuelTrendChart = null;
     const buildTrendOption = () => {
       const categories = trendData.value.map((item) => item.day);
       const actualSeries = trendData.value.map((item) => item.value);
@@ -251,6 +251,9 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     };
     const initFuelTrendChart = (canvas, width, height, dpr) => {
       var _a;
+      if (!canvas) {
+        return null;
+      }
       const chart = echarts.init(canvas, null, {
         width,
         height,
@@ -258,7 +261,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       });
       (_a = canvas.setChart) == null ? void 0 : _a.call(canvas, chart);
       chart.setOption(buildTrendOption());
-      fuelTrendChart.value = chart;
+      fuelTrendChart = chart;
       return chart;
     };
     const fuelTrendEc = common_vendor.ref({
@@ -266,8 +269,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       onInit: initFuelTrendChart
     });
     const refreshFuelTrendChart = () => {
-      if (fuelTrendChart.value) {
-        fuelTrendChart.value.setOption(buildTrendOption(), true);
+      if (fuelTrendChart) {
+        fuelTrendChart.setOption(buildTrendOption(), true);
       }
     };
     common_vendor.watch(
@@ -281,8 +284,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       refreshFuelTrendChart();
     });
     common_vendor.onUnmounted(() => {
-      var _a;
-      (_a = fuelTrendChart.value) == null ? void 0 : _a.dispose();
+      fuelTrendChart == null ? void 0 : fuelTrendChart.dispose();
+      fuelTrendChart = null;
     });
     const handleNavigate = (actionKey) => {
       common_vendor.index.showToast({
