@@ -1,57 +1,31 @@
-<template>
+<!-- <template>
   <view class="expense-page">
     <view class="hero-card">
-      <view class="hero-card__title-row">
-        <text class="hero-card__title">统计</text>
-        <view class="hero-card__filter" @tap="handleHeroRangeTap">
-          <text>{{ heroRange.label }}</text>
-          <text class="hero-card__filter-icon">⇅</text>
+      <view class="hero-card__header">
+        <view>
+          <text class="hero-card__label">本月总费用</text>
+          <text class="hero-card__value">￥{{ monthlySummary.totalAmount }}</text>
+        </view>
+        <view
+          class="hero-card__trend"
+          :class="{ 'hero-card__trend--down': monthlySummary.trend === 'down' }"
+        >
+          <text>{{ monthlySummary.trendLabel }}</text>
         </view>
       </view>
-
-      <view class="hero-card__equation">
-        <view class="equation-block">
-          <view class="equation-label">
-            <text>总支出</text>
-            <text class="info-badge">?</text>
-          </view>
-          <view class="equation-value equation-value--accent">
-            <text class="equation-number">{{ heroOverview.total }}</text>
-            <text class="equation-unit">元</text>
-          </view>
-        </view>
-        <text class="equation-operator">=</text>
-        <view class="equation-block">
-          <view class="equation-label">
-            <text>油费总计</text>
-          </view>
-          <view class="equation-value">
-            <text class="equation-number">{{ heroOverview.fuel }}</text>
-            <text class="equation-unit">元</text>
-          </view>
-        </view>
-        <text class="equation-operator">+</text>
-        <view class="equation-block">
-          <view class="equation-label">
-            <text>支出总计</text>
-          </view>
-          <view class="equation-value">
-            <text class="equation-number">{{ heroOverview.other }}</text>
-            <text class="equation-unit">元</text>
-          </view>
-        </view>
-      </view>
-
-      <view class="hero-divider"></view>
-
-      <view class="hero-card__metrics">
-        <view class="hero-metric" v-for="metric in heroOverview.metrics" :key="metric.key">
-          <view class="equation-label">
-            <text>{{ metric.label }}</text>
-            <text class="info-badge">?</text>
-          </view>
-          <text class="hero-metric__value">{{ metric.value }}</text>
-          <text class="hero-metric__unit">{{ metric.unit }}</text>
+      <view class="hero-card__highlights">
+        <view
+          v-for="highlight in heroHighlights"
+          :key="highlight.key"
+          class="hero-highlight"
+        >
+          <text class="hero-highlight__label">{{ highlight.label }}</text>
+          <text class="hero-highlight__value">
+            {{ highlight.value }}
+            <text v-if="highlight.unit" class="hero-highlight__unit">
+              {{ highlight.unit }}
+            </text>
+          </text>
         </view>
       </view>
     </view>
@@ -248,44 +222,26 @@ const monthlySummary = computed(() => {
   }
 })
 
-const HERO_DISTANCE = 1577
-const HERO_DAYS = 18
-const HERO_RANGE_OPTIONS = [
-  { key: 'week', label: '一周' },
-  { key: 'month', label: '一月' },
-  { key: 'year', label: '一年' }
-]
-const heroRange = ref(HERO_RANGE_OPTIONS[2])
-
-const heroOverview = computed(() => {
-  const total = Number(monthlySummary.value.totalAmount)
-  const fuelCategories: ExpenseCategory[] = ['fuel', 'charging']
-  const fuelTotal = expenseRecords.value
-    .filter((item) => fuelCategories.includes(item.category))
-    .reduce((sum, item) => sum + item.amount, 0)
-  const otherTotal = Math.max(total - fuelTotal, 0)
-  const costPerKm = HERO_DISTANCE ? total / HERO_DISTANCE : 0
-  const fuelPerKm = HERO_DISTANCE ? fuelTotal / HERO_DISTANCE : 0
-  const costPerDay = HERO_DAYS ? total / HERO_DAYS : 0
-
-  return {
-    total: total.toFixed(1),
-    fuel: fuelTotal.toFixed(1),
-    other: otherTotal.toFixed(1),
-    metrics: [
-      { key: 'perKm', label: '支出/公里', value: costPerKm.toFixed(2), unit: '元' },
-      { key: 'fuelKm', label: '油费/公里', value: fuelPerKm.toFixed(2), unit: '元' },
-      { key: 'perDay', label: '成本/天', value: costPerDay.toFixed(2), unit: '元' }
-    ]
+const heroHighlights = computed(() => [
+  {
+    key: 'count',
+    label: '记录次数',
+    value: monthlySummary.value.count,
+    unit: '笔'
+  },
+  {
+    key: 'avg',
+    label: '单次成本',
+    value: monthlySummary.value.avgPerRecord,
+    unit: '元'
+  },
+  {
+    key: 'top',
+    label: '最高占比',
+    value: monthlySummary.value.topCategory,
+    unit: ''
   }
-})
-
-const handleHeroRangeTap = () => {
-  const currentIndex = HERO_RANGE_OPTIONS.findIndex((option) => option.key === heroRange.value.key)
-  const next = HERO_RANGE_OPTIONS[(currentIndex + 1) % HERO_RANGE_OPTIONS.length]
-  heroRange.value = next
-  uni.showToast({ title: `已切换到${next.label}`, icon: 'none' })
-}
+])
 
 const categoryBreakdown = computed(() => {
   const totalAmount = expenseRecords.value.reduce((sum, item) => sum + item.amount, 0)
@@ -355,164 +311,88 @@ const getCategoryMeta = (category: ExpenseCategory) => CATEGORY_META[category]
 }
 
 .hero-card {
-  // background: linear-gradient(135deg, #e9f7ff 0%, #f4f1ff 55%, #e9fdf2 100%);
   background: linear-gradient(135deg, #1ec15f 0%, #4ab3ff 100%);
-  border-radius: 32rpx;
-  padding: 32rpx;
-  box-shadow: 0 28rpx 60rpx rgba(34, 94, 175, 0.18);
+  border-radius: 40rpx;
+  padding: 40rpx;
+  color: #fff;
+  box-shadow: 0 24rpx 56rpx rgba(30, 112, 193, 0.25);
   margin-bottom: 32rpx;
-  display: flex;
-  flex-direction: column;
-  gap: 24rpx;
   position: relative;
   overflow: hidden;
 }
 
-
-.hero-card__title-row,
-.hero-card__equation,
-.hero-divider,
-.hero-card__metrics {
-  position: relative;
-  z-index: 1;
-}
-
-.hero-card::before,
 .hero-card::after {
   content: '';
   position: absolute;
   inset: 0;
+  background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.35), transparent 55%),
+    radial-gradient(circle at 80% 10%, rgba(255, 255, 255, 0.22), transparent 40%);
+  opacity: 0.7;
   pointer-events: none;
 }
 
-.hero-card::before {
-  background: radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.8), transparent 55%),
-    radial-gradient(circle at 85% 0%, rgba(255, 255, 255, 0.6), transparent 45%);
-  opacity: 0.8;
-}
-
-.hero-card::after {
-  inset: auto -50% -60% -50%;
-  height: 180rpx;
-  background: linear-gradient(120deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 255, 255, 0.05) 100%);
-  filter: blur(6rpx);
-}
-
-.hero-card__title-row {
+.hero-card__header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  position: relative;
+  z-index: 1;
 }
 
-.hero-card__title {
-  font-size: 34rpx;
+.hero-card__label {
+  font-size: 26rpx;
+  opacity: 0.9;
+}
+
+.hero-card__value {
+  font-size: 64rpx;
   font-weight: 700;
-}
-
-.hero-card__filter {
-  padding: 10rpx 20rpx;
-  border-radius: 999rpx;
-  border: 1rpx solid #e6e9f2;
-  font-size: 24rpx;
-  color: #1f2329;
-  display: flex;
-  align-items: center;
-  gap: 6rpx;
-}
-
-.hero-card__filter-icon {
-  font-size: 22rpx;
-}
-
-.hero-card__equation {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr auto 1fr;
-  align-items: center;
-  gap: 16rpx;
-}
-
-.equation-block {
-  background: rgba(255, 255, 255, 0.78);
-  border-radius: 24rpx;
-  padding: 18rpx;
-}
-
-.equation-label {
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-  font-size: 24rpx;
-  color: #5f6673;
-}
-
-.info-badge {
-  width: 28rpx;
-  height: 28rpx;
-  border-radius: 50%;
-  background: #eef1f5;
-  font-size: 20rpx;
-  color: #8a93a0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.equation-value {
-  display: flex;
-  align-items: baseline;
-  gap: 6rpx;
+  display: block;
   margin-top: 8rpx;
 }
 
-.equation-number {
-  font-size: 36rpx;
-  font-weight: 700;
-  color: #1f2329;
+.hero-card__trend {
+  padding: 12rpx 24rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.22);
+  font-size: 24rpx;
 }
 
-.equation-value--accent .equation-number {
-  color: #e64a3b;
+.hero-card__trend--down {
+  background: rgba(255, 255, 255, 0.32);
 }
 
-.equation-unit {
-  font-size: 22rpx;
-  color: #8a93a0;
+.hero-card__highlights {
+  margin-top: 32rpx;
+  display: flex;
+  gap: 16rpx;
+  position: relative;
+  z-index: 1;
 }
 
-.equation-operator {
-  font-size: 34rpx;
-  color: #81858f;
-}
-
-.hero-divider {
-  height: 1rpx;
-  background: #8a93a0;
-}
-
-.hero-card__metrics {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18rpx;
-}
-
-.hero-metric {
-  background: rgba(255, 255, 255, 0.78);
-  border-radius: 20rpx;
-  padding: 18rpx;
+.hero-highlight {
+  flex: 1;
+  border-radius: 24rpx;
+  background: rgba(255, 255, 255, 0.18);
+  padding: 20rpx;
   display: flex;
   flex-direction: column;
-  gap: 6rpx;
+  gap: 8rpx;
 }
 
-.hero-metric__value {
-  font-size: 32rpx;
+.hero-highlight__label {
+  font-size: 24rpx;
+  opacity: 0.9;
+}
+
+.hero-highlight__value {
+  font-size: 36rpx;
   font-weight: 700;
-  color: #1f2329;
 }
 
-.hero-metric__unit {
+.hero-highlight__unit {
   font-size: 22rpx;
-  color: #8a93a0;
+  margin-left: 4rpx;
 }
 
 .category-card,
@@ -724,4 +604,4 @@ const getCategoryMeta = (category: ExpenseCategory) => CATEGORY_META[category]
   font-size: 24rpx;
   color: #1f2329;
 }
-</style>
+</style> -->

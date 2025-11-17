@@ -5,6 +5,8 @@ if (!Math) {
 }
 const BottomActionBar = () => "../../components/BottomActionBar.js";
 const MONTHLY_BUDGET = 2200;
+const HERO_DISTANCE = 1577;
+const HERO_DAYS = 18;
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "index",
   setup(__props) {
@@ -94,26 +96,37 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         budgetLeft: Math.max(MONTHLY_BUDGET - totalAmount, 0).toFixed(0)
       };
     });
-    const heroHighlights = common_vendor.computed(() => [
-      {
-        key: "count",
-        label: "记录次数",
-        value: monthlySummary.value.count,
-        unit: "笔"
-      },
-      {
-        key: "avg",
-        label: "单次成本",
-        value: monthlySummary.value.avgPerRecord,
-        unit: "元"
-      },
-      {
-        key: "top",
-        label: "最高占比",
-        value: monthlySummary.value.topCategory,
-        unit: ""
-      }
-    ]);
+    const HERO_RANGE_OPTIONS = [
+      { key: "week", label: "一周" },
+      { key: "month", label: "一月" },
+      { key: "year", label: "一年" }
+    ];
+    const heroRange = common_vendor.ref(HERO_RANGE_OPTIONS[2]);
+    const heroOverview = common_vendor.computed(() => {
+      const total = Number(monthlySummary.value.totalAmount);
+      const fuelCategories = ["fuel", "charging"];
+      const fuelTotal = expenseRecords.value.filter((item) => fuelCategories.includes(item.category)).reduce((sum, item) => sum + item.amount, 0);
+      const otherTotal = Math.max(total - fuelTotal, 0);
+      const costPerKm = total / HERO_DISTANCE;
+      const fuelPerKm = fuelTotal / HERO_DISTANCE;
+      const costPerDay = total / HERO_DAYS;
+      return {
+        total: total.toFixed(1),
+        fuel: fuelTotal.toFixed(1),
+        other: otherTotal.toFixed(1),
+        metrics: [
+          { key: "perKm", label: "支出/公里", value: costPerKm.toFixed(2), unit: "元" },
+          { key: "fuelKm", label: "油费/公里", value: fuelPerKm.toFixed(2), unit: "元" },
+          { key: "perDay", label: "成本/天", value: costPerDay.toFixed(2), unit: "元" }
+        ]
+      };
+    });
+    const handleHeroRangeTap = () => {
+      const currentIndex = HERO_RANGE_OPTIONS.findIndex((option) => option.key === heroRange.value.key);
+      const next = HERO_RANGE_OPTIONS[(currentIndex + 1) % HERO_RANGE_OPTIONS.length];
+      heroRange.value = next;
+      common_vendor.index.showToast({ title: `已切换到${next.label}`, icon: "none" });
+    };
     const categoryBreakdown = common_vendor.computed(() => {
       const totalAmount = expenseRecords.value.reduce((sum, item) => sum + item.amount, 0);
       const grouped = expenseRecords.value.reduce((acc, item) => {
@@ -165,22 +178,21 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const getCategoryMeta = (category) => CATEGORY_META[category];
     return (_ctx, _cache) => {
       return {
-        a: common_vendor.t(monthlySummary.value.totalAmount),
-        b: common_vendor.t(monthlySummary.value.trendLabel),
-        c: monthlySummary.value.trend === "down" ? 1 : "",
-        d: common_vendor.f(heroHighlights.value, (highlight, k0, i0) => {
-          return common_vendor.e({
-            a: common_vendor.t(highlight.label),
-            b: common_vendor.t(highlight.value),
-            c: highlight.unit
-          }, highlight.unit ? {
-            d: common_vendor.t(highlight.unit)
-          } : {}, {
-            e: highlight.key
-          });
+        a: common_vendor.t(heroRange.value.label),
+        b: common_vendor.o(handleHeroRangeTap),
+        c: common_vendor.t(heroOverview.value.total),
+        d: common_vendor.t(heroOverview.value.fuel),
+        e: common_vendor.t(heroOverview.value.other),
+        f: common_vendor.f(heroOverview.value.metrics, (metric, k0, i0) => {
+          return {
+            a: common_vendor.t(metric.label),
+            b: common_vendor.t(metric.value),
+            c: common_vendor.t(metric.unit),
+            d: metric.key
+          };
         }),
-        e: common_vendor.t(common_vendor.unref(monthlyBudget)),
-        f: common_vendor.f(categoryBreakdown.value, (category, k0, i0) => {
+        g: common_vendor.t(common_vendor.unref(monthlyBudget)),
+        h: common_vendor.f(categoryBreakdown.value, (category, k0, i0) => {
           return {
             a: common_vendor.t(category.icon),
             b: category.badgeColor,
@@ -193,7 +205,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             i: category.key
           };
         }),
-        g: common_vendor.f(expenseInsights.value, (insight, k0, i0) => {
+        i: common_vendor.f(expenseInsights.value, (insight, k0, i0) => {
           return {
             a: common_vendor.t(insight.index),
             b: common_vendor.t(insight.label),
@@ -201,8 +213,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             d: insight.key
           };
         }),
-        h: common_vendor.t(expenseRecords.value.length),
-        i: common_vendor.f(expenseRecords.value, (item, k0, i0) => {
+        j: common_vendor.t(expenseRecords.value.length),
+        k: common_vendor.f(expenseRecords.value, (item, k0, i0) => {
           return common_vendor.e({
             a: getCategoryMeta(item.category).color,
             b: common_vendor.t(item.date),
@@ -223,7 +235,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             m: item.id
           });
         }),
-        j: common_vendor.p({
+        l: common_vendor.p({
           active: "expense"
         })
       };
