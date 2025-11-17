@@ -102,11 +102,15 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       };
     });
     const HERO_RANGE_OPTIONS = [
-      { key: "week", label: "一周" },
-      { key: "month", label: "一月" },
-      { key: "year", label: "一年" }
+      { key: "3m", label: "三个月" },
+      { key: "6m", label: "半年" },
+      { key: "1y", label: "一年" },
+      { key: "2y", label: "两年" },
+      { key: "all", label: "全部" }
     ];
     const heroRange = common_vendor.ref(HERO_RANGE_OPTIONS[2]);
+    const showHeroPicker = common_vendor.ref(false);
+    const pendingHeroRange = common_vendor.ref(heroRange.value.key);
     const heroOverview = common_vendor.computed(() => {
       const total = Number(monthlySummary.value.totalAmount);
       const fuelCategories = ["fuel", "charging"];
@@ -126,10 +130,19 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       };
     });
     const handleHeroRangeTap = () => {
-      const currentIndex = HERO_RANGE_OPTIONS.findIndex((option) => option.key === heroRange.value.key);
-      const next = HERO_RANGE_OPTIONS[(currentIndex + 1) % HERO_RANGE_OPTIONS.length];
-      heroRange.value = next;
-      common_vendor.index.showToast({ title: `已切换到${next.label}`, icon: "none" });
+      pendingHeroRange.value = heroRange.value.key;
+      showHeroPicker.value = true;
+    };
+    const closeHeroPicker = () => {
+      showHeroPicker.value = false;
+    };
+    const confirmHeroPicker = () => {
+      const target = HERO_RANGE_OPTIONS.find((option) => option.key === pendingHeroRange.value);
+      if (target) {
+        heroRange.value = target;
+        common_vendor.index.showToast({ title: `已切换到${target.label}`, icon: "none" });
+      }
+      closeHeroPicker();
     };
     const monthlyRangeOptions = [
       { key: "3m", label: "三个月" },
@@ -330,7 +343,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         }),
         g: common_vendor.t(monthlyRange.value.label),
         h: common_vendor.o(cycleMonthlyRange),
-        i: !showMonthlyPicker.value && !showYearlyPicker.value,
+        i: !showHeroPicker.value && !showMonthlyPicker.value && !showYearlyPicker.value,
         j: common_vendor.p({
           id: "monthlyExpenseChart",
           canvasId: "monthlyExpenseChart",
@@ -338,15 +351,33 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         }),
         k: common_vendor.t(yearlyRange.value.label),
         l: common_vendor.o(cycleYearlyRange),
-        m: !showMonthlyPicker.value && !showYearlyPicker.value,
+        m: !showHeroPicker.value && !showMonthlyPicker.value && !showYearlyPicker.value,
         n: common_vendor.p({
           id: "yearlyExpenseChart",
           canvasId: "yearlyExpenseChart",
           ec: yearlyExpenseEc.value
         }),
-        o: showMonthlyPicker.value
+        o: showHeroPicker.value
+      }, showHeroPicker.value ? {
+        p: common_vendor.f(HERO_RANGE_OPTIONS, (option, k0, i0) => {
+          return {
+            a: common_vendor.t(option.label),
+            b: option.key,
+            c: option.key === pendingHeroRange.value ? 1 : "",
+            d: common_vendor.o(() => pendingHeroRange.value = option.key, option.key)
+          };
+        }),
+        q: common_vendor.o(closeHeroPicker),
+        r: common_vendor.o(confirmHeroPicker),
+        s: common_vendor.o(() => {
+        }),
+        t: common_vendor.o(closeHeroPicker),
+        v: common_vendor.o(() => {
+        })
+      } : {}, {
+        w: showMonthlyPicker.value
       }, showMonthlyPicker.value ? {
-        p: common_vendor.f(monthlyRangeOptions, (option, k0, i0) => {
+        x: common_vendor.f(monthlyRangeOptions, (option, k0, i0) => {
           return {
             a: common_vendor.t(option.label),
             b: option.key,
@@ -354,17 +385,17 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             d: common_vendor.o(() => pendingMonthlyRange.value = option.key, option.key)
           };
         }),
-        q: common_vendor.o(closeMonthlyPicker),
-        r: common_vendor.o(confirmMonthlyPicker),
-        s: common_vendor.o(() => {
+        y: common_vendor.o(closeMonthlyPicker),
+        z: common_vendor.o(confirmMonthlyPicker),
+        A: common_vendor.o(() => {
         }),
-        t: common_vendor.o(closeMonthlyPicker),
-        v: common_vendor.o(() => {
+        B: common_vendor.o(closeMonthlyPicker),
+        C: common_vendor.o(() => {
         })
       } : {}, {
-        w: showYearlyPicker.value
+        D: showYearlyPicker.value
       }, showYearlyPicker.value ? {
-        x: common_vendor.f(yearlyRangeOptions, (option, k0, i0) => {
+        E: common_vendor.f(yearlyRangeOptions, (option, k0, i0) => {
           return {
             a: common_vendor.t(option.label),
             b: option.key,
@@ -372,16 +403,16 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             d: common_vendor.o(() => pendingYearlyRange.value = option.key, option.key)
           };
         }),
-        y: common_vendor.o(closeYearlyPicker),
-        z: common_vendor.o(confirmYearlyPicker),
-        A: common_vendor.o(() => {
+        F: common_vendor.o(closeYearlyPicker),
+        G: common_vendor.o(confirmYearlyPicker),
+        H: common_vendor.o(() => {
         }),
-        B: common_vendor.o(closeYearlyPicker),
-        C: common_vendor.o(() => {
+        I: common_vendor.o(closeYearlyPicker),
+        J: common_vendor.o(() => {
         })
       } : {}, {
-        D: common_vendor.t(expenseRecords.value.length),
-        E: common_vendor.f(expenseRecords.value, (item, k0, i0) => {
+        K: common_vendor.t(expenseRecords.value.length),
+        L: common_vendor.f(expenseRecords.value, (item, k0, i0) => {
           return common_vendor.e({
             a: getCategoryMeta(item.category).color,
             b: common_vendor.t(item.date),
@@ -402,8 +433,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             m: item.id
           });
         }),
-        F: showMonthlyPicker.value || showYearlyPicker.value ? 1 : "",
-        G: common_vendor.p({
+        M: showHeroPicker.value || showMonthlyPicker.value || showYearlyPicker.value ? 1 : "",
+        N: common_vendor.p({
           active: "expense"
         })
       });
