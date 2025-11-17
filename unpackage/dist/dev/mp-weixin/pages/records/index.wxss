@@ -117,6 +117,7 @@
 .records-page .records-list .record-card .record-card__top.data-v-f1512143 {
   display: flex;
   align-items: center;
+  justify-content: space-between;
 }
 .records-page .records-list .record-card .record-card__top .record-date.data-v-f1512143 {
   flex: 1;
@@ -142,6 +143,7 @@
   background: linear-gradient(180deg, #00a3ff, #4bc9ff);
 }
 .records-page .records-list .record-card .record-card__top .record-consumption.data-v-f1512143 {
+  flex: 1;
   gap: 12rpx;
 }
 .records-page .records-list .record-card .record-card__top .record-consumption .record-consumption__value.data-v-f1512143 {

@@ -516,6 +516,7 @@ watch(currentYear, () => {
       .record-card__top {
         display: flex;
         align-items: center;
+        justify-content: space-between;
         // gap: 24rpx;
 
         .record-date {
@@ -547,6 +548,7 @@ watch(currentYear, () => {
         }
 
         .record-consumption {
+          flex: 1;
           // display: flex;
           // align-items: flex-end;
           gap: 12rpx;
@@ -564,6 +566,7 @@ watch(currentYear, () => {
         }
 
         .record-mileage {
+          // flex: 1;
           margin-left: 30rpx;
           // text-align: right;
 
