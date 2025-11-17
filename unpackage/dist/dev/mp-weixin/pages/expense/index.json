@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "费用",
+  "usingComponents": {
+    "bottom-action-bar": "../../components/BottomActionBar"
+  }
+}

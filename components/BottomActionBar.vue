@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-type ActionKey = 'fuel' | 'list' | 'add' | 'refuel' | 'profile'
+type ActionKey = 'fuel' | 'list' | 'add' | 'expense' | 'profile'
 
 const props = defineProps<{
   active?: ActionKey
@@ -71,13 +71,13 @@ const actions: Array<{
     path: '/pages/add/index'
   },
   {
-    key: 'refuel',
+    key: 'expense',
     label: '费用',
     icon: '💰',
     iconActive: '💵',
     iconType: 'text',
     type: 'text',
-    path: '/pages/refuel/index'
+    path: '/pages/expense/index'
   },
   {
     key: 'profile',

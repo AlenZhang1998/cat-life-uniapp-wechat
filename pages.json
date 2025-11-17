@@ -31,7 +31,7 @@
       }
     },
     {
-      "path": "pages/refuel/index",
+      "path": "pages/expense/index",
       "style": {
         "navigationBarTitleText": "费用"
       }

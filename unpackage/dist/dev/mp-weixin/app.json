@@ -4,7 +4,7 @@
     "pages/city/index",
     "pages/records/index",
     "pages/add/index",
-    "pages/refuel/index",
+    "pages/expense/index",
     "pages/profile/index"
   ],
   "window": {

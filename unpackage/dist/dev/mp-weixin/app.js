@@ -6,7 +6,7 @@ if (!Math) {
   "./pages/city/index.js";
   "./pages/records/index.js";
   "./pages/add/index.js";
-  "./pages/refuel/index.js";
+  "./pages/expense/index.js";
   "./pages/profile/index.js";
 }
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
