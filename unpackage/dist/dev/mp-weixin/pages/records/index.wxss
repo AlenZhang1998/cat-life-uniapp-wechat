@@ -5,6 +5,32 @@
   background: linear-gradient(180deg, #f8fbff 0%, #f2f4f9 100%);
   padding: 24rpx 32rpx 180rpx;
 }
+.records-page .animated-block.data-v-f1512143 {
+  opacity: 0;
+  transform: translate3d(0, 40rpx, 0) scale(0.98);
+  transition-property: opacity, transform;
+  transition-duration: 0.55s, 0.65s;
+  transition-timing-function: ease, cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: opacity, transform;
+}
+.records-page .animated-block--visible.data-v-f1512143 {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+.records-page .animated-block--delay-0.data-v-f1512143 {
+  transition-delay: 80ms;
+}
+.records-page .list-animated.data-v-f1512143 {
+  opacity: 0;
+  transform: translate3d(0, 32rpx, 0);
+  transition: opacity 0.45s ease, transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+  transition-delay: var(--list-delay, 0ms);
+  will-change: opacity, transform;
+}
+.records-page .list-animated--visible.data-v-f1512143 {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
 .records-page .summary-panel.data-v-f1512143 {
   position: relative;
   overflow: hidden;
@@ -13,6 +39,24 @@
   border-radius: 32rpx;
   background: linear-gradient(110deg, #cde6ff, #dfeeff 70%);
   box-shadow: 0 20rpx 40rpx rgba(0, 83, 156, 0.1);
+}
+.records-page .summary-panel.data-v-f1512143::before, .records-page .summary-panel.data-v-f1512143::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.records-page .summary-panel.data-v-f1512143::before {
+  background: radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.7), transparent 45%), radial-gradient(circle at 100% 20%, rgba(255, 255, 255, 0.35), transparent 40%);
+  opacity: 0.65;
+  mix-blend-mode: screen;
+  animation: summaryGlow-f1512143 12s ease-in-out infinite alternate;
+}
+.records-page .summary-panel.data-v-f1512143::after {
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.5) 45%, rgba(255, 255, 255, 0) 80%);
+  transform: translateX(-60%);
+  animation: summarySweep-f1512143 6s linear infinite;
+  opacity: 0.4;
 }
 .records-page .summary-panel .summary-panel__bg.data-v-f1512143 {
   position: absolute;
@@ -112,7 +156,30 @@
   border-radius: 28rpx;
   padding: 28rpx;
   box-shadow: 0 12rpx 30rpx rgba(15, 114, 59, 0.08);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition: box-shadow 0.35s ease, transform 0.35s ease;
+  position: relative;
+  overflow: hidden;
+  border: 1rpx solid rgba(15, 114, 59, 0.1);
+}
+.records-page .records-list .record-card.data-v-f1512143::before, .records-page .records-list .record-card.data-v-f1512143::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+}
+.records-page .records-list .record-card.data-v-f1512143::before {
+  background: linear-gradient(135deg, rgba(64, 160, 255, 0.08), rgba(30, 193, 95, 0.12));
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.records-page .records-list .record-card.data-v-f1512143::after {
+  inset: -60% -30% auto -30%;
+  height: 140rpx;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0));
+  transform: translate3d(0, -50%, 0) rotate(-8deg);
+  animation: cardShimmer-f1512143 7s linear infinite;
+  opacity: 0.2;
 }
 .records-page .records-list .record-card .record-card__top.data-v-f1512143 {
   display: flex;
@@ -246,7 +313,11 @@
   padding: 24rpx;
 }
 .records-page .records-list .record-card--expanded.data-v-f1512143 {
-  box-shadow: 0 16rpx 38rpx rgba(13, 102, 53, 0.12);
+  transform: translateY(-6rpx);
+  box-shadow: 0 18rpx 46rpx rgba(13, 102, 53, 0.18);
+}
+.records-page .records-list .record-card--expanded.data-v-f1512143::before {
+  opacity: 1;
 }
 .records-page .records-list .record-card__hover.data-v-f1512143 {
   background: #fefefe;
@@ -262,6 +333,18 @@
   align-items: center;
   gap: 16rpx;
   border: 2rpx solid rgba(30, 193, 95, 0.1);
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+.records-page .records-list .comparison-card.data-v-f1512143::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+  animation: comparisonSweep-f1512143 6s linear infinite;
+  opacity: 0.6;
+  pointer-events: none;
 }
 .records-page .records-list .comparison-card .comparison-value.data-v-f1512143 {
   flex: 1;
@@ -277,4 +360,44 @@
 .records-page .records-list .comparison-card--success.data-v-f1512143 {
   background: rgba(30, 193, 95, 0.12);
   border-color: rgba(30, 193, 95, 0.3);
+  box-shadow: 0 18rpx 36rpx rgba(30, 193, 95, 0.18);
+}
+@keyframes summaryGlow-f1512143 {
+0% {
+    transform: scale(1);
+    opacity: 0.4;
+}
+100% {
+    transform: scale(1.04);
+    opacity: 0.7;
+}
+}
+@keyframes summarySweep-f1512143 {
+0% {
+    transform: translateX(-80%);
+}
+100% {
+    transform: translateX(120%);
+}
+}
+@keyframes cardShimmer-f1512143 {
+0% {
+    transform: translate3d(-20%, -50%, 0) rotate(-8deg);
+    opacity: 0;
+}
+40% {
+    opacity: 0.25;
+}
+100% {
+    transform: translate3d(140%, -50%, 0) rotate(-8deg);
+    opacity: 0;
+}
+}
+@keyframes comparisonSweep-f1512143 {
+0% {
+    transform: translateX(-120%);
+}
+100% {
+    transform: translateX(120%);
+}
 }

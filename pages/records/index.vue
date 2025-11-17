@@ -1,6 +1,9 @@
-﻿<template>
+<template>
   <view class="records-page">
-    <view class="summary-panel">
+    <view
+      class="summary-panel animated-block animated-block--delay-0"
+      :class="{ 'animated-block--visible': isPageAnimated }"
+    >
       <!-- <view class="summary-panel__bg summary-panel__bg--left"></view>
       <view class="summary-panel__bg summary-panel__bg--right"></view> -->
       <view class="summary-head">
@@ -40,16 +43,21 @@
     </view>
 
     <view class="records-list">
-      <template v-for="entry in visibleRecords" :key="entry.id">
+      <template v-for="(entry, entryIndex) in visibleRecords" :key="entry.id">
         <view
           v-if="isRecordItem(entry)"
-          class="record-card"
           hover-class="record-card__hover"
-          :class="{
-            'record-card--compact': entry.compact,
-            'record-card--alert': entry.highlight === 'danger',
-            'record-card--expanded': isExpanded(entry.id)
-          }"
+          :class="[
+            'record-card',
+            'list-animated',
+            { 'list-animated--visible': isPageAnimated },
+            {
+              'record-card--compact': entry.compact,
+              'record-card--alert': entry.highlight === 'danger',
+              'record-card--expanded': isExpanded(entry.id)
+            }
+          ]"
+          :style="getListAnimatedStyle(entryIndex)"
           @tap="toggleRecord(entry)"
         >
           <view class="record-card__top">
@@ -110,8 +118,13 @@
 
         <view
           v-if="isRecordItem(entry) && isExpanded(entry.id)"
-          class="comparison-card"
-          :class="['comparison-card--success']"
+          :class="[
+            'comparison-card',
+            'comparison-card--success',
+            'list-animated',
+            { 'list-animated--visible': isPageAnimated }
+          ]"
+          :style="getListAnimatedStyle(entryIndex, 'comparison')"
         >
           <!-- 3333-{{ isExpanded(entry.id) }} -->
           <view class="comparison-value">{{ entry.pricePerKm ? entry.pricePerKm + '元/公里' : '--' }}</view>
@@ -126,7 +139,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import BottomActionBar from '@/components/BottomActionBar.vue'
 
 type FuelRecordItem = {
@@ -236,14 +250,18 @@ const recordSnapshots: Record<string, FuelRecord[]> = {
       type: 'record',
       id: '2025-10-01',
       date: '10/01',
-      consumption: '5.10',
-      mileage: '510',
+      consumption: '4.72',
+      mileage: '611',
       compact: true,
-      amount: '120.00',
-      pricePerLiter: '6.85',
-      deltaFuel: '+17.51',
+      amount: '160.00',
+      pricePerLiter: '6.90',
+      deltaFuel: '+23.30',
       oilType: '92#汽油',
-      fillStatus: '加满'
+      fillStatus: '加满',
+      fillStatusTone: 'danger',
+      fuelConsumption:'-28.09',
+      deltaMileage: '+585.00',
+      pricePerKm: '0.34',
     },
     {
       type: 'record',
@@ -266,14 +284,18 @@ const recordSnapshots: Record<string, FuelRecord[]> = {
       type: 'record',
       id: '2025-09-15',
       date: '09/15',
-      consumption: '4.95',
-      mileage: '389',
+      consumption: '4.72',
+      mileage: '611',
       compact: true,
-      amount: '150.00',
-      pricePerLiter: '6.80',
-      deltaFuel: '+22.05',
+      amount: '160.00',
+      pricePerLiter: '6.90',
+      deltaFuel: '+23.30',
       oilType: '92#汽油',
-      fillStatus: '加满'
+      fillStatus: '加满',
+      fillStatusTone: 'danger',
+      fuelConsumption:'-28.09',
+      deltaMileage: '+585.00',
+      pricePerKm: '0.34',
     },
     {
       type: 'record',
@@ -396,6 +418,31 @@ const visibleRecords = computed(
   () => recordSnapshots[currentYear.value] || []
 )
 
+const isPageAnimated = ref(false)
+let enterAnimationTimer: ReturnType<typeof setTimeout> | null = null
+
+const runPageEnterAnimation = () => {
+  if (enterAnimationTimer) {
+    clearTimeout(enterAnimationTimer)
+    enterAnimationTimer = null
+  }
+  isPageAnimated.value = false
+  enterAnimationTimer = setTimeout(() => {
+    isPageAnimated.value = true
+  }, 40)
+}
+
+const getListAnimatedStyle = (
+  index: number,
+  variant: 'card' | 'comparison' = 'card'
+) => {
+  const limitedIndex = Math.min(index, 6)
+  const baseOffset = variant === 'comparison' ? 140 : 60
+  return {
+    '--list-delay': `${limitedIndex * 70 + baseOffset}ms`
+  }
+}
+
 const handleYearChange = (event: { detail: { value: number } }) => {
   selectedYearIndex.value = Number(event.detail.value)
 }
@@ -417,6 +464,22 @@ const toggleRecord = (entry: FuelRecordItem) => {
 
 watch(currentYear, () => {
   expandedRecordMap.value = {}
+  runPageEnterAnimation()
+})
+
+onShow(() => {
+  runPageEnterAnimation()
+})
+
+onMounted(() => {
+  runPageEnterAnimation()
+})
+
+onUnmounted(() => {
+  if (enterAnimationTimer) {
+    clearTimeout(enterAnimationTimer)
+    enterAnimationTimer = null
+  }
 })
 </script>
 
@@ -428,6 +491,37 @@ watch(currentYear, () => {
   background: linear-gradient(180deg, #f8fbff 0%, #f2f4f9 100%);
   padding: 24rpx 32rpx 180rpx;
 
+  .animated-block {
+    opacity: 0;
+    transform: translate3d(0, 40rpx, 0) scale(0.98);
+    transition-property: opacity, transform;
+    transition-duration: 0.55s, 0.65s;
+    transition-timing-function: ease, cubic-bezier(0.22, 0.61, 0.36, 1);
+    will-change: opacity, transform;
+  }
+
+  .animated-block--visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  .animated-block--delay-0 {
+    transition-delay: 80ms;
+  }
+
+  .list-animated {
+    opacity: 0;
+    transform: translate3d(0, 32rpx, 0);
+    transition: opacity 0.45s ease, transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+    transition-delay: var(--list-delay, 0ms);
+    will-change: opacity, transform;
+  }
+
+  .list-animated--visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+
   .summary-panel {
     position: relative;
     overflow: hidden;
@@ -436,6 +530,29 @@ watch(currentYear, () => {
     border-radius: 32rpx;
     background: linear-gradient(110deg, #cde6ff, #dfeeff 70%);
     box-shadow: 0 20rpx 40rpx rgba(0, 83, 156, 0.1);
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    &::before {
+      background: radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.7), transparent 45%),
+        radial-gradient(circle at 100% 20%, rgba(255, 255, 255, 0.35), transparent 40%);
+      opacity: 0.65;
+      mix-blend-mode: screen;
+      animation: summaryGlow 12s ease-in-out infinite alternate;
+    }
+
+    &::after {
+      background: linear-gradient(120deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.5) 45%, rgba(255, 255, 255, 0) 80%);
+      transform: translateX(-60%);
+      animation: summarySweep 6s linear infinite;
+      opacity: 0.4;
+    }
 
     .summary-panel__bg {
       position: absolute;
@@ -555,7 +672,34 @@ watch(currentYear, () => {
       border-radius: 28rpx;
       padding: 28rpx;
       box-shadow: 0 12rpx 30rpx rgba(15, 114, 59, 0.08);
-      transition: box-shadow 0.2s ease, transform 0.2s ease;
+      transition: box-shadow 0.35s ease, transform 0.35s ease;
+      position: relative;
+      overflow: hidden;
+      border: 1rpx solid rgba(15, 114, 59, 0.1);
+
+      &::before,
+      &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        border-radius: inherit;
+      }
+
+      &::before {
+        background: linear-gradient(135deg, rgba(64, 160, 255, 0.08), rgba(30, 193, 95, 0.12));
+        opacity: 0;
+        transition: opacity 0.35s ease;
+      }
+
+      &::after {
+        inset: -60% -30% auto -30%;
+        height: 140rpx;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0));
+        transform: translate3d(0, -50%, 0) rotate(-8deg);
+        animation: cardShimmer 7s linear infinite;
+        opacity: 0.2;
+      }
 
       .record-card__top {
         display: flex;
@@ -721,7 +865,12 @@ watch(currentYear, () => {
     }
 
     .record-card--expanded {
-      box-shadow: 0 16rpx 38rpx rgba(13, 102, 53, 0.12);
+      transform: translateY(-6rpx);
+      box-shadow: 0 18rpx 46rpx rgba(13, 102, 53, 0.18);
+
+      &::before {
+        opacity: 1;
+      }
     }
 
     .record-card__hover {
@@ -742,6 +891,19 @@ watch(currentYear, () => {
       align-items: center;
       gap: 16rpx;
       border: 2rpx solid rgba(30, 193, 95, 0.1);
+      position: relative;
+      overflow: hidden;
+      transition: box-shadow 0.3s ease;
+
+      &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+        animation: comparisonSweep 6s linear infinite;
+        opacity: 0.6;
+        pointer-events: none;
+      }
 
       .comparison-value {
         flex: 1;
@@ -760,9 +922,51 @@ watch(currentYear, () => {
     .comparison-card--success {
       background: rgba(30, 193, 95, 0.12);
       border-color: rgba(30, 193, 95, 0.3);
+      box-shadow: 0 18rpx 36rpx rgba(30, 193, 95, 0.18);
     }
   }
 }
+
+@keyframes summaryGlow {
+  0% {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(1.04);
+    opacity: 0.7;
+  }
+}
+
+@keyframes summarySweep {
+  0% {
+    transform: translateX(-80%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes cardShimmer {
+  0% {
+    transform: translate3d(-20%, -50%, 0) rotate(-8deg);
+    opacity: 0;
+  }
+  40% {
+    opacity: 0.25;
+  }
+  100% {
+    transform: translate3d(140%, -50%, 0) rotate(-8deg);
+    opacity: 0;
+  }
+}
+
+@keyframes comparisonSweep {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
 </style>
-
-
