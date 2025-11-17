@@ -1,7 +1,7 @@
 <template>
   <view
     class="expense-page"
-    :class="{ 'expense-page--locked': showMonthlyPicker || showYearlyPicker }"
+    :class="{ 'expense-page--locked': showHeroPicker || showMonthlyPicker || showYearlyPicker }"
   >
     <view class="hero-card">
       <view class="hero-card__title-row">
@@ -70,7 +70,7 @@
       <view class="chart-body">
         <!-- #ifdef MP-WEIXIN -->
         <ec-canvas
-          v-show="!showMonthlyPicker && !showYearlyPicker"
+          v-show="!showHeroPicker && !showMonthlyPicker && !showYearlyPicker"
           id="monthlyExpenseChart"
           canvas-id="monthlyExpenseChart"
           class="chart-canvas"
@@ -95,7 +95,7 @@
       <view class="chart-body">
         <!-- #ifdef MP-WEIXIN -->
         <ec-canvas
-          v-show="!showMonthlyPicker && !showYearlyPicker"
+          v-show="!showHeroPicker && !showMonthlyPicker && !showYearlyPicker"
           id="yearlyExpenseChart"
           canvas-id="yearlyExpenseChart"
           class="chart-canvas"
@@ -106,6 +106,32 @@
         <!-- #ifndef MP-WEIXIN -->
         <view class="chart-placeholder">请在微信小程序端查看油耗年度统计图</view>
         <!-- #endif -->
+      </view>
+    </view>
+
+    <view
+      v-if="showHeroPicker"
+      class="range-picker-overlay"
+      @tap="closeHeroPicker"
+      @touchmove.stop.prevent
+    >
+      <view class="range-picker-dialog" @tap.stop>
+        <view class="range-picker-title">选择统计范围</view>
+        <view class="range-options">
+          <view
+            class="range-option"
+            v-for="option in HERO_RANGE_OPTIONS"
+            :key="option.key"
+            :class="{ active: option.key === pendingHeroRange }"
+            @tap="() => (pendingHeroRange = option.key)"
+          >
+            <text>{{ option.label }}</text>
+          </view>
+        </view>
+        <view class="range-actions">
+          <view class="range-button cancel" @tap="closeHeroPicker">取消</view>
+          <view class="range-button confirm" @tap="confirmHeroPicker">确定</view>
+        </view>
       </view>
     </view>
 
@@ -318,11 +344,15 @@ const monthlySummary = computed(() => {
 const HERO_DISTANCE = 1577
 const HERO_DAYS = 48
 const HERO_RANGE_OPTIONS = [
-  { key: 'week', label: '一周' },
-  { key: 'month', label: '一月' },
-  { key: 'year', label: '一年' }
+  { key: '3m', label: '三个月' },
+  { key: '6m', label: '半年' },
+  { key: '1y', label: '一年' },
+  { key: '2y', label: '两年' },
+  { key: 'all', label: '全部' }
 ]
 const heroRange = ref(HERO_RANGE_OPTIONS[2])
+const showHeroPicker = ref(false)
+const pendingHeroRange = ref(heroRange.value.key)
 
 const heroOverview = computed(() => {
   const total = Number(monthlySummary.value.totalAmount)
@@ -348,10 +378,21 @@ const heroOverview = computed(() => {
 })
 
 const handleHeroRangeTap = () => {
-  const currentIndex = HERO_RANGE_OPTIONS.findIndex((option) => option.key === heroRange.value.key)
-  const next = HERO_RANGE_OPTIONS[(currentIndex + 1) % HERO_RANGE_OPTIONS.length]
-  heroRange.value = next
-  uni.showToast({ title: `已切换到${next.label}`, icon: 'none' })
+  pendingHeroRange.value = heroRange.value.key
+  showHeroPicker.value = true
+}
+
+const closeHeroPicker = () => {
+  showHeroPicker.value = false
+}
+
+const confirmHeroPicker = () => {
+  const target = HERO_RANGE_OPTIONS.find((option) => option.key === pendingHeroRange.value)
+  if (target) {
+    heroRange.value = target
+    uni.showToast({ title: `已切换到${target.label}`, icon: 'none' })
+  }
+  closeHeroPicker()
 }
 
 const monthlyRangeOptions = [
