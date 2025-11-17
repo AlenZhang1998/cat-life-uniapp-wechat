@@ -187,7 +187,7 @@
       </view>
     </view>
 
-    <view class="timeline">
+    <!-- <view class="timeline">
       <view class="section-header">
         <text class="section-title">费用时间线</text>
         <text class="section-subtitle">近 {{ expenseRecords.length }} 笔</text>
@@ -217,7 +217,7 @@
           <text class="timeline-remark" v-if="item.remark">{{ item.remark }}</text>
         </view>
       </view>
-    </view>
+    </view> -->
   </view>
   <BottomActionBar active="expense" />
 </template>
@@ -910,98 +910,98 @@ const getCategoryMeta = (category: ExpenseCategory) => CATEGORY_META[category]
   box-shadow: 0 18rpx 32rpx rgba(30, 193, 95, 0.32);
 }
 
-.timeline {
-  position: relative;
-  padding-top: 16rpx;
-}
+// .timeline {
+//   position: relative;
+//   padding-top: 16rpx;
+// }
 
-.timeline-track {
-  position: absolute;
-  top: 80rpx;
-  bottom: 32rpx;
-  left: 46rpx;
-  width: 4rpx;
-  background: linear-gradient(180deg, #d1d6e6 0%, rgba(209, 214, 230, 0) 100%);
-}
+// .timeline-track {
+//   position: absolute;
+//   top: 80rpx;
+//   bottom: 32rpx;
+//   left: 46rpx;
+//   width: 4rpx;
+//   background: linear-gradient(180deg, #d1d6e6 0%, rgba(209, 214, 230, 0) 100%);
+// }
 
-.timeline-item {
-  position: relative;
-  padding-left: 60rpx;
-  margin-bottom: 32rpx;
-}
+// .timeline-item {
+//   position: relative;
+//   padding-left: 60rpx;
+//   margin-bottom: 32rpx;
+// }
 
-.timeline-marker {
-  position: absolute;
-  left: 24rpx;
-  top: 16rpx;
-  width: 36rpx;
-  height: 36rpx;
-  border-radius: 50%;
-  border-width: 6rpx;
-  border-style: solid;
-  background: #fff;
-}
+// .timeline-marker {
+//   position: absolute;
+//   left: 24rpx;
+//   top: 16rpx;
+//   width: 36rpx;
+//   height: 36rpx;
+//   border-radius: 50%;
+//   border-width: 6rpx;
+//   border-style: solid;
+//   background: #fff;
+// }
 
-.timeline-content {
-  background: #fff;
-  border-radius: 28rpx;
-  padding: 24rpx;
-  box-shadow: 0 20rpx 32rpx rgba(15, 25, 80, 0.08);
-  border: 1rpx solid #eef1f5;
-}
+// .timeline-content {
+//   background: #fff;
+//   border-radius: 28rpx;
+//   padding: 24rpx;
+//   box-shadow: 0 20rpx 32rpx rgba(15, 25, 80, 0.08);
+//   border: 1rpx solid #eef1f5;
+// }
 
-.timeline-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+// .timeline-row {
+//   display: flex;
+//   justify-content: space-between;
+//   align-items: center;
+// }
 
-.timeline-date {
-  font-size: 30rpx;
-  font-weight: 600;
-}
+// .timeline-date {
+//   font-size: 30rpx;
+//   font-weight: 600;
+// }
 
-.timeline-amount {
-  font-size: 32rpx;
-  font-weight: 700;
-}
+// .timeline-amount {
+//   font-size: 32rpx;
+//   font-weight: 700;
+// }
 
-.timeline-tag {
-  margin-top: 12rpx;
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-  font-size: 26rpx;
-}
+// .timeline-tag {
+//   margin-top: 12rpx;
+//   display: flex;
+//   align-items: center;
+//   gap: 12rpx;
+//   font-size: 26rpx;
+// }
 
-.timeline-tag__icon {
-  font-size: 28rpx;
-}
+// .timeline-tag__icon {
+//   font-size: 28rpx;
+// }
 
-.timeline-tag__status {
-  margin-left: auto;
-  font-size: 22rpx;
-  padding: 6rpx 18rpx;
-  border-radius: 999rpx;
-  background: rgba(30, 193, 95, 0.1);
-  color: #1ec15f;
-}
+// .timeline-tag__status {
+//   margin-left: auto;
+//   font-size: 22rpx;
+//   padding: 6rpx 18rpx;
+//   border-radius: 999rpx;
+//   background: rgba(30, 193, 95, 0.1);
+//   color: #1ec15f;
+// }
 
-.timeline-meta {
-  margin-top: 12rpx;
-  display: flex;
-  justify-content: space-between;
-  font-size: 24rpx;
-  color: $muted-text;
-}
+// .timeline-meta {
+//   margin-top: 12rpx;
+//   display: flex;
+//   justify-content: space-between;
+//   font-size: 24rpx;
+//   color: $muted-text;
+// }
 
-.timeline-meta text:last-child {
-  text-align: right;
-}
+// .timeline-meta text:last-child {
+//   text-align: right;
+// }
 
-.timeline-remark {
-  margin-top: 12rpx;
-  font-size: 24rpx;
-  color: #1f2329;
-}
+// .timeline-remark {
+//   margin-top: 12rpx;
+//   font-size: 24rpx;
+//   color: #1f2329;
+// }
 </style>
