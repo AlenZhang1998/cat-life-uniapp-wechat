@@ -1,5 +1,9 @@
 "use strict";
 const common_vendor = require("../../common/vendor.js");
+if (!Array) {
+  const _component_ec_canvas = common_vendor.resolveComponent("ec-canvas");
+  _component_ec_canvas();
+}
 if (!Math) {
   BottomActionBar();
 }
@@ -10,6 +14,7 @@ const HERO_DAYS = 48;
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "index",
   setup(__props) {
+    const echarts = require("../../wxcomponents/ec-canvas/echarts");
     const CATEGORY_META = {
       fuel: { label: "加油", icon: "⛽", color: "#1EC15F", badgeBg: "#E4FAED" },
       maintenance: { label: "保养", icon: "🛠️", color: "#3A7AFE", badgeBg: "#E2EAFF" },
@@ -126,57 +131,179 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       heroRange.value = next;
       common_vendor.index.showToast({ title: `已切换到${next.label}`, icon: "none" });
     };
-    const categoryBreakdown = common_vendor.computed(() => {
-      const totalAmount = expenseRecords.value.reduce((sum, item) => sum + item.amount, 0);
-      const grouped = expenseRecords.value.reduce((acc, item) => {
-        acc[item.category] = (acc[item.category] || 0) + item.amount;
-        return acc;
-      }, {});
-      return Object.entries(grouped).sort((a, b) => b[1] - a[1]).map(([key, amount]) => {
-        const meta = CATEGORY_META[key];
-        const percent = totalAmount ? Math.round(amount / totalAmount * 100) : 0;
-        return {
-          key,
-          label: meta.label,
-          icon: meta.icon,
-          badgeColor: meta.badgeBg,
-          amount: amount.toFixed(0),
-          percent,
-          color: meta.color
-        };
-      });
-    });
-    const expenseInsights = common_vendor.computed(() => {
-      const highlightCategory = categoryBreakdown.value[0];
-      const recentCount = expenseRecords.value.filter((item) => item.day >= 10).length;
-      return [
-        {
-          key: "budget",
-          index: 1,
-          label: "预算余量",
-          desc: `剩余 ${monthlySummary.value.budgetLeft} 元，可覆盖约 ${Math.max(
-            Number(monthlySummary.value.budgetLeft) / 150,
-            0
-          ).toFixed(1)} 次通勤`
+    const monthlyRangeOptions = [
+      { key: "3m", label: "三个月" },
+      { key: "6m", label: "半年" },
+      { key: "1y", label: "一年" },
+      { key: "all", label: "全部" }
+    ];
+    const monthlyRange = common_vendor.ref(monthlyRangeOptions[1]);
+    const showMonthlyPicker = common_vendor.ref(false);
+    const pendingMonthlyRange = common_vendor.ref(monthlyRangeOptions[1].key);
+    const monthlyChartData = common_vendor.ref([
+      { month: "7月", value: 412 },
+      { month: "8月", value: 536 },
+      { month: "9月", value: 623 },
+      { month: "10月", value: 836 }
+    ]);
+    const monthlyBaseline = common_vendor.computed(() => Number(monthlySummary.value.totalAmount).toFixed(1));
+    const yearlyChartRangeOptions = [
+      { key: "2y", label: "两年" },
+      { key: "5y", label: "五年" }
+    ];
+    const yearlyRange = common_vendor.ref(yearlyChartRangeOptions[0]);
+    const yearlyChartData = common_vendor.ref([
+      { month: "6月", value: 6.2 },
+      { month: "7月", value: 5.8 },
+      { month: "8月", value: 4.9 },
+      { month: "9月", value: 5.1 }
+    ]);
+    let monthlyExpenseChart = null;
+    let yearlyExpenseChart = null;
+    const buildMonthlyOption = () => {
+      const categories = monthlyChartData.value.map((item) => item.month);
+      const seriesData = monthlyChartData.value.map((item) => item.value);
+      return {
+        grid: { left: 28, right: 16, top: 32, bottom: 32 },
+        tooltip: { trigger: "axis" },
+        xAxis: {
+          type: "category",
+          data: categories,
+          axisLine: { lineStyle: { color: "#d0d7e3" } },
+          axisTick: { show: false },
+          axisLabel: { color: "#5f6673", fontSize: 12 }
         },
-        {
-          key: "category",
-          index: 2,
-          label: "最高占比",
-          desc: highlightCategory ? `${highlightCategory.label} 占比 ${highlightCategory.percent}%` : "等待记录更新"
+        yAxis: {
+          type: "value",
+          splitLine: { lineStyle: { color: "#eef1f5", type: "dashed" } },
+          axisLine: { show: false },
+          axisTick: { show: false },
+          axisLabel: { color: "#8a93a0", fontSize: 12 }
         },
-        {
-          key: "recent",
-          index: 3,
-          label: "近期支出",
-          desc: `近 7 天记录 ${recentCount} 笔，可考虑错峰充电/加油`
-        }
-      ];
+        series: [
+          {
+            name: "油费",
+            type: "bar",
+            data: seriesData,
+            barWidth: 26,
+            label: {
+              show: true,
+              position: "top",
+              color: "#1f2329",
+              fontSize: 12
+            },
+            itemStyle: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: "#3a7afe" },
+                { offset: 1, color: "#8db8ff" }
+              ])
+            },
+            markLine: {
+              data: [
+                {
+                  yAxis: Number(monthlyBaseline.value),
+                  lineStyle: { type: "dashed", color: "#ff6b6b" },
+                  label: { formatter: `${monthlyBaseline.value} 元`, color: "#ff6b6b" }
+                }
+              ]
+            }
+          }
+        ]
+      };
+    };
+    const buildYearlyOption = () => {
+      const categories = yearlyChartData.value.map((item) => item.month);
+      const seriesData = yearlyChartData.value.map((item) => item.value);
+      return {
+        grid: { left: 28, right: 20, top: 32, bottom: 28 },
+        tooltip: { trigger: "axis" },
+        xAxis: {
+          type: "category",
+          data: categories,
+          axisLine: { lineStyle: { color: "#d0d7e3" } },
+          axisTick: { show: false },
+          axisLabel: { color: "#5f6673", fontSize: 12 }
+        },
+        yAxis: {
+          type: "value",
+          min: 4,
+          max: 9,
+          splitNumber: 5,
+          splitLine: { lineStyle: { color: "#eef1f5", type: "dashed" } },
+          axisLine: { show: false },
+          axisTick: { show: false },
+          axisLabel: { color: "#8a93a0", fontSize: 12 }
+        },
+        series: [
+          {
+            name: "油耗",
+            type: "line",
+            data: seriesData,
+            smooth: true,
+            showSymbol: true,
+            symbolSize: 6,
+            itemStyle: { color: "#3a7afe" }
+          }
+        ]
+      };
+    };
+    const initMonthlyExpenseChart = (canvas, width, height, dpr) => {
+      var _a;
+      const chart = echarts.init(canvas, null, { width, height, devicePixelRatio: dpr });
+      (_a = canvas.setChart) == null ? void 0 : _a.call(canvas, chart);
+      chart.setOption(buildMonthlyOption());
+      monthlyExpenseChart = chart;
+      return chart;
+    };
+    const initYearlyExpenseChart = (canvas, width, height, dpr) => {
+      var _a;
+      const chart = echarts.init(canvas, null, { width, height, devicePixelRatio: dpr });
+      (_a = canvas.setChart) == null ? void 0 : _a.call(canvas, chart);
+      chart.setOption(buildYearlyOption());
+      yearlyExpenseChart = chart;
+      return chart;
+    };
+    const refreshMonthlyExpenseChart = () => {
+      monthlyExpenseChart == null ? void 0 : monthlyExpenseChart.setOption(buildMonthlyOption(), true);
+    };
+    const refreshYearlyExpenseChart = () => {
+      yearlyExpenseChart == null ? void 0 : yearlyExpenseChart.setOption(buildYearlyOption(), true);
+    };
+    const cycleMonthlyRange = () => {
+      pendingMonthlyRange.value = monthlyRange.value.key;
+      showMonthlyPicker.value = true;
+    };
+    const closeMonthlyPicker = () => {
+      showMonthlyPicker.value = false;
+    };
+    const confirmMonthlyPicker = () => {
+      const target = monthlyRangeOptions.find((option) => option.key === pendingMonthlyRange.value);
+      if (target) {
+        monthlyRange.value = target;
+        common_vendor.index.showToast({ title: `已切换到${target.label}`, icon: "none" });
+        refreshMonthlyExpenseChart();
+      }
+      closeMonthlyPicker();
+    };
+    const cycleYearlyRange = () => {
+      const currentIndex = yearlyChartRangeOptions.findIndex(
+        (option) => option.key === yearlyRange.value.key
+      );
+      yearlyRange.value = yearlyChartRangeOptions[(currentIndex + 1) % yearlyChartRangeOptions.length];
+      common_vendor.index.showToast({ title: `已切换到${yearlyRange.value.label}`, icon: "none" });
+      refreshYearlyExpenseChart();
+    };
+    const monthlyExpenseEc = common_vendor.ref({ lazyLoad: false, onInit: initMonthlyExpenseChart });
+    const yearlyExpenseEc = common_vendor.ref({ lazyLoad: false, onInit: initYearlyExpenseChart });
+    common_vendor.onUnmounted(() => {
+      monthlyExpenseChart == null ? void 0 : monthlyExpenseChart.dispose();
+      yearlyExpenseChart == null ? void 0 : yearlyExpenseChart.dispose();
+      monthlyExpenseChart = null;
+      yearlyExpenseChart = null;
     });
-    const monthlyBudget = MONTHLY_BUDGET;
     const getCategoryMeta = (category) => CATEGORY_META[category];
     return (_ctx, _cache) => {
-      return {
+      return common_vendor.e({
         a: common_vendor.t(heroRange.value.label),
         b: common_vendor.o(handleHeroRangeTap),
         c: common_vendor.t(heroOverview.value.total),
@@ -190,30 +317,42 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             d: metric.key
           };
         }),
-        g: common_vendor.t(common_vendor.unref(monthlyBudget)),
-        h: common_vendor.f(categoryBreakdown.value, (category, k0, i0) => {
+        g: common_vendor.t(monthlyRange.value.label),
+        h: common_vendor.o(cycleMonthlyRange),
+        i: !showMonthlyPicker.value,
+        j: common_vendor.p({
+          id: "monthlyExpenseChart",
+          canvasId: "monthlyExpenseChart",
+          ec: monthlyExpenseEc.value
+        }),
+        k: common_vendor.t(yearlyRange.value.label),
+        l: common_vendor.o(cycleYearlyRange),
+        m: !showMonthlyPicker.value,
+        n: common_vendor.p({
+          id: "yearlyExpenseChart",
+          canvasId: "yearlyExpenseChart",
+          ec: yearlyExpenseEc.value
+        }),
+        o: showMonthlyPicker.value
+      }, showMonthlyPicker.value ? {
+        p: common_vendor.f(monthlyRangeOptions, (option, k0, i0) => {
           return {
-            a: common_vendor.t(category.icon),
-            b: category.badgeColor,
-            c: category.color,
-            d: common_vendor.t(category.label),
-            e: common_vendor.t(category.amount),
-            f: category.percent + "%",
-            g: category.color,
-            h: common_vendor.t(category.percent),
-            i: category.key
+            a: common_vendor.t(option.label),
+            b: option.key,
+            c: option.key === pendingMonthlyRange.value ? 1 : "",
+            d: common_vendor.o(() => pendingMonthlyRange.value = option.key, option.key)
           };
         }),
-        i: common_vendor.f(expenseInsights.value, (insight, k0, i0) => {
-          return {
-            a: common_vendor.t(insight.index),
-            b: common_vendor.t(insight.label),
-            c: common_vendor.t(insight.desc),
-            d: insight.key
-          };
+        q: common_vendor.o(closeMonthlyPicker),
+        r: common_vendor.o(confirmMonthlyPicker),
+        s: common_vendor.o(() => {
         }),
-        j: common_vendor.t(expenseRecords.value.length),
-        k: common_vendor.f(expenseRecords.value, (item, k0, i0) => {
+        t: common_vendor.o(closeMonthlyPicker),
+        v: common_vendor.o(() => {
+        })
+      } : {}, {
+        w: common_vendor.t(expenseRecords.value.length),
+        x: common_vendor.f(expenseRecords.value, (item, k0, i0) => {
           return common_vendor.e({
             a: getCategoryMeta(item.category).color,
             b: common_vendor.t(item.date),
@@ -234,10 +373,11 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             m: item.id
           });
         }),
-        l: common_vendor.p({
+        y: showMonthlyPicker.value ? 1 : "",
+        z: common_vendor.p({
           active: "expense"
         })
-      };
+      });
     };
   }
 });

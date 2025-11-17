@@ -33,7 +33,10 @@
     {
       "path": "pages/expense/index",
       "style": {
-        "navigationBarTitleText": "费用"
+        "navigationBarTitleText": "费用",
+        "usingComponents": {
+          "ec-canvas": "/wxcomponents/ec-canvas/ec-canvas"
+        }
       }
     },
     {

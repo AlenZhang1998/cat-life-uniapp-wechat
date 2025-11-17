@@ -1,5 +1,5 @@
 <template>
-  <view class="expense-page">
+  <view class="expense-page" :class="{ 'expense-page--locked': showMonthlyPicker }">
     <view class="hero-card">
       <view class="hero-card__title-row">
         <text class="hero-card__title">统计</text>
@@ -56,43 +56,78 @@
       </view>
     </view>
 
-    <view class="category-card">
+    <view class="chart-card">
       <view class="section-header">
-        <text class="section-title">费用构成</text>
-        <text class="section-subtitle">预算 {{ monthlyBudget }} 元</text>
+        <text class="section-title">油费月度统计</text>
+        <view class="chart-filter" @tap="cycleMonthlyRange">
+          <text>{{ monthlyRange.label }}</text>
+          <text class="chart-filter__icon">⇅</text>
+        </view>
       </view>
-      <view class="category-row" v-for="category in categoryBreakdown" :key="category.key">
-        <view
-          class="category-row__badge"
-          :style="{ background: category.badgeColor, color: category.color }"
-        >
-          <text>{{ category.icon }}</text>
-        </view>
-        <view class="category-row__meta">
-          <text class="category-row__label">{{ category.label }}</text>
-          <text class="category-row__value">￥{{ category.amount }}</text>
-        </view>
-        <view class="category-row__bar">
-          <view
-            class="category-row__fill"
-            :style="{ width: category.percent + '%', background: category.color }"
-          ></view>
-        </view>
-        <text class="category-row__percent">{{ category.percent }}%</text>
+      <view class="chart-body">
+        <!-- #ifdef MP-WEIXIN -->
+        <ec-canvas
+          v-show="!showMonthlyPicker"
+          id="monthlyExpenseChart"
+          canvas-id="monthlyExpenseChart"
+          class="chart-canvas"
+          style="width: 100%; height: 320rpx"
+          :ec="monthlyExpenseEc"
+        ></ec-canvas>
+        <!-- #endif -->
+        <!-- #ifndef MP-WEIXIN -->
+        <view class="chart-placeholder">请在微信小程序端查看油费月度统计图</view>
+        <!-- #endif -->
       </view>
     </view>
 
-    <view class="insight-card">
+    <view class="chart-card">
       <view class="section-header">
-        <text class="section-title">智能提示</text>
+        <text class="section-title">油耗年度对比统计</text>
+        <view class="chart-filter" @tap="cycleYearlyRange">
+          <text>{{ yearlyRange.label }}</text>
+          <text class="chart-filter__icon">⇅</text>
+        </view>
       </view>
-      <view class="insight-list">
-        <view class="insight-item" v-for="insight in expenseInsights" :key="insight.key">
-          <text class="insight-index">0{{ insight.index }}</text>
-          <view class="insight-content">
-            <text class="insight-label">{{ insight.label }}</text>
-            <text class="insight-desc">{{ insight.desc }}</text>
+      <view class="chart-body">
+        <!-- #ifdef MP-WEIXIN -->
+        <ec-canvas
+          v-show="!showMonthlyPicker"
+          id="yearlyExpenseChart"
+          canvas-id="yearlyExpenseChart"
+          class="chart-canvas"
+          style="width: 100%; height: 320rpx"
+          :ec="yearlyExpenseEc"
+        ></ec-canvas>
+        <!-- #endif -->
+        <!-- #ifndef MP-WEIXIN -->
+        <view class="chart-placeholder">请在微信小程序端查看油耗年度统计图</view>
+        <!-- #endif -->
+      </view>
+    </view>
+
+    <view
+      v-if="showMonthlyPicker"
+      class="range-picker-overlay"
+      @tap="closeMonthlyPicker"
+      @touchmove.stop.prevent
+    >
+      <view class="range-picker-dialog" @tap.stop>
+        <view class="range-picker-title">选择统计范围</view>
+        <view class="range-options">
+          <view
+            class="range-option"
+            v-for="option in monthlyRangeOptions"
+            :key="option.key"
+            :class="{ active: option.key === pendingMonthlyRange }"
+            @tap="() => (pendingMonthlyRange = option.key)"
+          >
+            <text>{{ option.label }}</text>
           </view>
+        </view>
+        <view class="range-actions">
+          <view class="range-button cancel" @tap="closeMonthlyPicker">取消</view>
+          <view class="range-button confirm" @tap="confirmMonthlyPicker">确定</view>
         </view>
       </view>
     </view>
@@ -133,8 +168,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onUnmounted, ref } from 'vue'
 import BottomActionBar from '@/components/BottomActionBar.vue'
+// uCharts 官方 ECharts 适配仅支持 CJS 导入，这里使用 require 方式以兼容编译到小程序端
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const echarts = require('../../wxcomponents/ec-canvas/echarts')
 
 type ExpenseCategory = 'fuel' | 'maintenance' | 'parking' | 'charging' | 'insurance' | 'wash'
 
@@ -287,61 +325,189 @@ const handleHeroRangeTap = () => {
   uni.showToast({ title: `已切换到${next.label}`, icon: 'none' })
 }
 
-const categoryBreakdown = computed(() => {
-  const totalAmount = expenseRecords.value.reduce((sum, item) => sum + item.amount, 0)
-  const grouped = expenseRecords.value.reduce((acc, item) => {
-    acc[item.category] = (acc[item.category] || 0) + item.amount
-    return acc
-  }, {} as Record<ExpenseCategory, number>)
+const monthlyRangeOptions = [
+  { key: '3m', label: '三个月' },
+  { key: '6m', label: '半年' },
+  { key: '1y', label: '一年' },
+  { key: 'all', label: '全部' }
+]
+const monthlyRange = ref(monthlyRangeOptions[1])
+const showMonthlyPicker = ref(false)
+const pendingMonthlyRange = ref(monthlyRangeOptions[1].key)
+const monthlyChartData = ref([
+  { month: '7月', value: 412 },
+  { month: '8月', value: 536 },
+  { month: '9月', value: 623 },
+  { month: '10月', value: 836 }
+])
+const monthlyBaseline = computed(() => Number(monthlySummary.value.totalAmount).toFixed(1))
 
-  return (Object.entries(grouped) as Array<[ExpenseCategory, number]>)
-    .sort((a, b) => b[1] - a[1])
-    .map(([key, amount]) => {
-      const meta = CATEGORY_META[key]
-      const percent = totalAmount ? Math.round((amount / totalAmount) * 100) : 0
-      return {
-        key,
-        label: meta.label,
-        icon: meta.icon,
-        badgeColor: meta.badgeBg,
-        amount: amount.toFixed(0),
-        percent,
-        color: meta.color
+const yearlyChartRangeOptions = [
+  { key: '2y', label: '两年' },
+  { key: '5y', label: '五年' }
+]
+const yearlyRange = ref(yearlyChartRangeOptions[0])
+const yearlyChartData = ref([
+  { month: '6月', value: 6.2 },
+  { month: '7月', value: 5.8 },
+  { month: '8月', value: 4.9 },
+  { month: '9月', value: 5.1 }
+])
+
+let monthlyExpenseChart: any = null
+let yearlyExpenseChart: any = null
+
+const buildMonthlyOption = () => {
+  const categories = monthlyChartData.value.map((item) => item.month)
+  const seriesData = monthlyChartData.value.map((item) => item.value)
+  return {
+    grid: { left: 28, right: 16, top: 32, bottom: 32 },
+    tooltip: { trigger: 'axis' },
+    xAxis: {
+      type: 'category',
+      data: categories,
+      axisLine: { lineStyle: { color: '#d0d7e3' } },
+      axisTick: { show: false },
+      axisLabel: { color: '#5f6673', fontSize: 12 }
+    },
+    yAxis: {
+      type: 'value',
+      splitLine: { lineStyle: { color: '#eef1f5', type: 'dashed' } },
+      axisLine: { show: false },
+      axisTick: { show: false },
+      axisLabel: { color: '#8a93a0', fontSize: 12 }
+    },
+    series: [
+      {
+        name: '油费',
+        type: 'bar',
+        data: seriesData,
+        barWidth: 26,
+        label: {
+          show: true,
+          position: 'top',
+          color: '#1f2329',
+          fontSize: 12
+        },
+        itemStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: '#3a7afe' },
+            { offset: 1, color: '#8db8ff' }
+          ])
+        },
+        markLine: {
+          data: [
+            {
+              yAxis: Number(monthlyBaseline.value),
+              lineStyle: { type: 'dashed', color: '#ff6b6b' },
+              label: { formatter: `${monthlyBaseline.value} 元`, color: '#ff6b6b' }
+            }
+          ]
+        }
       }
-    })
-})
+    ]
+  }
+}
 
-const expenseInsights = computed(() => {
-  const highlightCategory = categoryBreakdown.value[0]
-  const recentCount = expenseRecords.value.filter((item) => item.day >= 10).length
-  return [
-    {
-      key: 'budget',
-      index: 1,
-      label: '预算余量',
-      desc: `剩余 ${monthlySummary.value.budgetLeft} 元，可覆盖约 ${Math.max(
-        Number(monthlySummary.value.budgetLeft) / 150,
-        0
-      ).toFixed(1)} 次通勤`
+const buildYearlyOption = () => {
+  const categories = yearlyChartData.value.map((item) => item.month)
+  const seriesData = yearlyChartData.value.map((item) => item.value)
+  return {
+    grid: { left: 28, right: 20, top: 32, bottom: 28 },
+    tooltip: { trigger: 'axis' },
+    xAxis: {
+      type: 'category',
+      data: categories,
+      axisLine: { lineStyle: { color: '#d0d7e3' } },
+      axisTick: { show: false },
+      axisLabel: { color: '#5f6673', fontSize: 12 }
     },
-    {
-      key: 'category',
-      index: 2,
-      label: '最高占比',
-      desc: highlightCategory
-        ? `${highlightCategory.label} 占比 ${highlightCategory.percent}%`
-        : '等待记录更新'
+    yAxis: {
+      type: 'value',
+      min: 4,
+      max: 9,
+      splitNumber: 5,
+      splitLine: { lineStyle: { color: '#eef1f5', type: 'dashed' } },
+      axisLine: { show: false },
+      axisTick: { show: false },
+      axisLabel: { color: '#8a93a0', fontSize: 12 }
     },
-    {
-      key: 'recent',
-      index: 3,
-      label: '近期支出',
-      desc: `近 7 天记录 ${recentCount} 笔，可考虑错峰充电/加油`
-    }
-  ]
-})
+    series: [
+      {
+        name: '油耗',
+        type: 'line',
+        data: seriesData,
+        smooth: true,
+        showSymbol: true,
+        symbolSize: 6,
+        itemStyle: { color: '#3a7afe' }
+      }
+    ]
+  }
+}
 
-const monthlyBudget = MONTHLY_BUDGET
+const initMonthlyExpenseChart = (canvas: any, width: number, height: number, dpr: number) => {
+  const chart = echarts.init(canvas, null, { width, height, devicePixelRatio: dpr })
+  canvas.setChart?.(chart)
+  chart.setOption(buildMonthlyOption())
+  monthlyExpenseChart = chart
+  return chart
+}
+
+const initYearlyExpenseChart = (canvas: any, width: number, height: number, dpr: number) => {
+  const chart = echarts.init(canvas, null, { width, height, devicePixelRatio: dpr })
+  canvas.setChart?.(chart)
+  chart.setOption(buildYearlyOption())
+  yearlyExpenseChart = chart
+  return chart
+}
+
+const refreshMonthlyExpenseChart = () => {
+  monthlyExpenseChart?.setOption(buildMonthlyOption(), true)
+}
+
+const refreshYearlyExpenseChart = () => {
+  yearlyExpenseChart?.setOption(buildYearlyOption(), true)
+}
+
+const cycleMonthlyRange = () => {
+  pendingMonthlyRange.value = monthlyRange.value.key
+  showMonthlyPicker.value = true
+}
+
+const closeMonthlyPicker = () => {
+  showMonthlyPicker.value = false
+}
+
+const confirmMonthlyPicker = () => {
+  const target = monthlyRangeOptions.find((option) => option.key === pendingMonthlyRange.value)
+  if (target) {
+    monthlyRange.value = target
+    uni.showToast({ title: `已切换到${target.label}`, icon: 'none' })
+    refreshMonthlyExpenseChart()
+  }
+  closeMonthlyPicker()
+}
+
+const cycleYearlyRange = () => {
+  const currentIndex = yearlyChartRangeOptions.findIndex(
+    (option) => option.key === yearlyRange.value.key
+  )
+  yearlyRange.value =
+    yearlyChartRangeOptions[(currentIndex + 1) % yearlyChartRangeOptions.length]
+  uni.showToast({ title: `已切换到${yearlyRange.value.label}`, icon: 'none' })
+  refreshYearlyExpenseChart()
+}
+
+const monthlyExpenseEc = ref({ lazyLoad: false, onInit: initMonthlyExpenseChart })
+const yearlyExpenseEc = ref({ lazyLoad: false, onInit: initYearlyExpenseChart })
+
+onUnmounted(() => {
+  monthlyExpenseChart?.dispose()
+  yearlyExpenseChart?.dispose()
+  monthlyExpenseChart = null
+  yearlyExpenseChart = null
+})
 
 const getCategoryMeta = (category: ExpenseCategory) => CATEGORY_META[category]
 </script>
@@ -352,6 +518,11 @@ const getCategoryMeta = (category: ExpenseCategory) => CATEGORY_META[category]
 .expense-page {
   padding: 32rpx 32rpx calc(200rpx + env(safe-area-inset-bottom, 0px));
   background: linear-gradient(180deg, #f9fbff 0%, #f2f4f8 100%);
+}
+
+.expense-page--locked {
+  height: 100vh;
+  overflow: hidden;
 }
 
 .hero-card {
@@ -515,8 +686,7 @@ const getCategoryMeta = (category: ExpenseCategory) => CATEGORY_META[category]
   color: #8a93a0;
 }
 
-.category-card,
-.insight-card,
+.chart-card,
 .timeline {
   background: #fff;
   border-radius: 32rpx;
@@ -542,92 +712,120 @@ const getCategoryMeta = (category: ExpenseCategory) => CATEGORY_META[category]
   color: $muted-text;
 }
 
-.category-row {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-rows: auto auto;
-  grid-column-gap: 16rpx;
-  grid-row-gap: 12rpx;
-  padding: 18rpx 0;
-  border-bottom: 1rpx solid #f0f3f7;
+.chart-filter {
+  padding: 10rpx 18rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid #e0e6ef;
+  font-size: 24rpx;
+  color: #5f6673;
+  display: flex;
   align-items: center;
+  gap: 6rpx;
 }
 
-.category-row:last-child {
-  border-bottom: none;
+.chart-filter__icon {
+  font-size: 22rpx;
+  color: #94a2b8;
 }
 
-.category-row__badge {
-  grid-row: span 2;
-  width: 64rpx;
-  height: 64rpx;
-  border-radius: 20rpx;
+.chart-body {
+  margin-top: 12rpx;
+  min-height: 300rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 30rpx;
 }
 
-.category-row__meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.category-row__label {
-  font-size: 28rpx;
-}
-
-.category-row__value {
-  font-size: 28rpx;
-  font-weight: 700;
-}
-
-.category-row__bar {
+.chart-canvas {
   width: 100%;
-  height: 10rpx;
-  border-radius: 999rpx;
-  background: #eef1f5;
-  overflow: hidden;
+  height: 320rpx;
 }
 
-.category-row__fill {
-  height: 100%;
-  border-radius: inherit;
+.chart-placeholder {
+  width: 100%;
+  text-align: center;
+  color: #8a93a0;
+  font-size: 26rpx;
+  padding: 60rpx 0;
 }
 
-.category-row__percent {
-  justify-self: end;
-  font-size: 24rpx;
-  color: $muted-text;
-}
-
-.insight-list {
+.range-picker-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
-  flex-direction: column;
-  gap: 18rpx;
+  align-items: center;
+  justify-content: center;
+  padding: 0 48rpx;
+  z-index: 1200;
 }
 
-.insight-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 16rpx;
+.range-picker-dialog {
+  width: 100%;
+  background: #fff;
+  border-radius: 40rpx;
+  padding: 48rpx 40rpx 40rpx;
+  box-shadow: 0 30rpx 80rpx rgba(0, 0, 0, 0.12);
 }
 
-.insight-index {
+.range-picker-title {
+  text-align: center;
   font-size: 32rpx;
   font-weight: 700;
-  color: #1ec15f;
 }
 
-.insight-label {
+.range-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24rpx;
+  margin: 36rpx 0 12rpx;
+}
+
+.range-option {
+  flex: 1 1 calc(33% - 16rpx);
+  max-width: 30%;
+  border-radius: 999rpx;
+  border: 2rpx solid rgba(138, 147, 160, 0.35);
+  padding: 22rpx 0;
+  text-align: center;
+  color: $muted-text;
+  font-size: 26rpx;
+  font-weight: 600;
+  background: #fafbfd;
+}
+
+.range-option.active {
+  border-color: transparent;
+  background: linear-gradient(180deg, #1ec15f 0%, #22d78a 100%);
+  color: #fff;
+  box-shadow: 0 16rpx 36rpx rgba(18, 163, 74, 0.35);
+}
+
+.range-actions {
+  display: flex;
+  gap: 24rpx;
+  margin-top: 32rpx;
+}
+
+.range-button {
+  flex: 1;
+  border-radius: 999rpx;
+  text-align: center;
+  padding: 26rpx 0;
   font-size: 28rpx;
   font-weight: 600;
 }
 
-.insight-desc {
-  font-size: 24rpx;
-  color: $muted-text;
+.range-button.cancel {
+  background: #f5f7fb;
+  color: #1c1f23;
+  border: 1rpx solid #e5e9f2;
+}
+
+.range-button.confirm {
+  color: #fff;
+  background: linear-gradient(180deg, #1ec15f 0%, #22d78a 100%);
+  box-shadow: 0 18rpx 32rpx rgba(30, 193, 95, 0.32);
 }
 
 .timeline {
