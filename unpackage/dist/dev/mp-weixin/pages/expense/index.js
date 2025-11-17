@@ -325,7 +325,6 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       monthlyExpenseChart = null;
       yearlyExpenseChart = null;
     });
-    const getCategoryMeta = (category) => CATEGORY_META[category];
     return (_ctx, _cache) => {
       return common_vendor.e({
         a: common_vendor.t(heroRange.value.label),
@@ -411,30 +410,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         J: common_vendor.o(() => {
         })
       } : {}, {
-        K: common_vendor.t(expenseRecords.value.length),
-        L: common_vendor.f(expenseRecords.value, (item, k0, i0) => {
-          return common_vendor.e({
-            a: getCategoryMeta(item.category).color,
-            b: common_vendor.t(item.date),
-            c: common_vendor.t(item.amount),
-            d: common_vendor.t(getCategoryMeta(item.category).icon),
-            e: common_vendor.t(getCategoryMeta(item.category).label),
-            f: common_vendor.t(item.title),
-            g: item.tag
-          }, item.tag ? {
-            h: common_vendor.t(item.tag)
-          } : {}, {
-            i: common_vendor.t(item.location),
-            j: common_vendor.t(item.detail),
-            k: item.remark
-          }, item.remark ? {
-            l: common_vendor.t(item.remark)
-          } : {}, {
-            m: item.id
-          });
-        }),
-        M: showHeroPicker.value || showMonthlyPicker.value || showYearlyPicker.value ? 1 : "",
-        N: common_vendor.p({
+        K: showHeroPicker.value || showMonthlyPicker.value || showYearlyPicker.value ? 1 : "",
+        L: common_vendor.p({
           active: "expense"
         })
       });
