@@ -9,6 +9,30 @@
   height: 100vh;
   overflow: hidden;
 }
+.home-page .animated-block.data-v-4978fed5 {
+  opacity: 0;
+  transform: translate3d(0, 36rpx, 0) scale(0.98);
+  transition-property: opacity, transform;
+  transition-duration: 0.55s, 0.65s;
+  transition-timing-function: ease, cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: opacity, transform;
+}
+.home-page .animated-block--visible.data-v-4978fed5 {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+.home-page .animated-block--delay-0.data-v-4978fed5 {
+  transition-delay: 0ms;
+}
+.home-page .animated-block--delay-1.data-v-4978fed5 {
+  transition-delay: 120ms;
+}
+.home-page .animated-block--delay-2.data-v-4978fed5 {
+  transition-delay: 200ms;
+}
+.home-page .animated-block--delay-3.data-v-4978fed5 {
+  transition-delay: 280ms;
+}
 .home-page .header-card.data-v-4978fed5 {
   background: linear-gradient(180deg, #58b1ff 0%, #1ec15f 100%);
   border-radius: 48rpx 48rpx 32rpx 32rpx;
@@ -16,6 +40,20 @@
   color: #fff;
   box-shadow: 0 24rpx 40rpx rgba(24, 160, 88, 0.25);
   margin-bottom: 32rpx;
+  position: relative;
+  overflow: hidden;
+  background-size: 240% 240%;
+  animation: heroGradient-4978fed5 10s ease-in-out infinite alternate;
+}
+.home-page .header-card.data-v-4978fed5::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.3), transparent 45%), radial-gradient(circle at 80% 0%, rgba(255, 255, 255, 0.2), transparent 40%);
+  opacity: 0.35;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  animation: heroGlow-4978fed5 12s linear infinite;
 }
 .home-page .header-card .header-meta.data-v-4978fed5 {
   display: flex;
@@ -290,6 +328,7 @@
   border-radius: 40rpx;
   padding: 48rpx 40rpx 40rpx;
   box-shadow: 0 30rpx 80rpx rgba(0, 0, 0, 0.12);
+  animation: pickerPop-4978fed5 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 .home-page .range-picker-title.data-v-4978fed5 {
   text-align: center;
@@ -342,4 +381,36 @@
   color: #fff;
   background: linear-gradient(180deg, #1ec15f 0%, #22d78a 100%);
   box-shadow: 0 18rpx 32rpx rgba(30, 193, 95, 0.32);
+}
+@keyframes heroGradient-4978fed5 {
+0% {
+    background-position: 0% 0%;
+}
+100% {
+    background-position: 100% 100%;
+}
+}
+@keyframes heroGlow-4978fed5 {
+0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.35;
+}
+50% {
+    transform: translate3d(-2%, 4%, 0) scale(1.05);
+    opacity: 0.5;
+}
+100% {
+    transform: translate3d(2%, -3%, 0) scale(1.02);
+    opacity: 0.35;
+}
+}
+@keyframes pickerPop-4978fed5 {
+0% {
+    transform: translate3d(0, 24rpx, 0) scale(0.96);
+    opacity: 0;
+}
+100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 1;
+}
 }

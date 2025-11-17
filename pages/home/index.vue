@@ -1,7 +1,10 @@
 <template>
   <view class="home-page" :class="{ 'home-page--locked': showRangePicker }">
     <!-- 顶部卡片：展示城市、车辆概况和提醒 -->
-    <view class="header-card">
+    <view
+      class="header-card animated-block animated-block--delay-0"
+      :class="{ 'animated-block--visible': isPageAnimated }"
+    >
       <view class="header-meta">
         <view
           class="location-row"
@@ -51,7 +54,10 @@
     </view>
 
     <!-- 最新油耗和能耗评级 -->
-    <view class="latest-card">
+    <view
+      class="latest-card animated-block animated-block--delay-1"
+      :class="{ 'animated-block--visible': isPageAnimated }"
+    >
       <view class="latest-title">
         <text class="label">最新油耗</text>
         <text class="link" @tap="handleNavigate('trend')">查看更多</text>
@@ -80,7 +86,10 @@
     </view>
 
     <!-- 统计区块 -->
-    <view class="stats-card">
+    <view
+      class="stats-card animated-block animated-block--delay-2"
+      :class="{ 'animated-block--visible': isPageAnimated }"
+    >
       <view class="stats-header">
         <text class="label">统计</text>
         <view
@@ -104,7 +113,10 @@
     </view>
 
     <!-- 油耗变化趋势 -->
-    <view class="trend-card">
+    <view
+      class="trend-card animated-block animated-block--delay-3"
+      :class="{ 'animated-block--visible': isPageAnimated }"
+    >
       <view class="trend-header">
         <text class="label">油耗变化趋势</text>
         <view
@@ -174,7 +186,7 @@
 
 <script setup lang="ts">
 import { onShow } from '@dcloudio/uni-app'
-import { onUnmounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { STORAGE_KEYS } from '@/constants/storage'
 import { normalizeCityName } from '@/utils/location'
 import locationIcon from '@/static/icons/dingwei.png'
@@ -318,9 +330,23 @@ const trendRange = ref<RangeOption>(rangeOptions[3])
 const showRangePicker = ref(false)
 const pendingRangeKey = ref<RangeKey>(rangeOptions[3].key)
 const activeRangeTarget = ref<RangeTarget>('stats')
+const isPageAnimated = ref(false)
+let enterAnimationTimer: ReturnType<typeof setTimeout> | null = null
 
 const resolveTargetRange = (target: RangeTarget) =>
   target === 'stats' ? statsRange : trendRange
+
+const runPageEnterAnimation = () => {
+  if (enterAnimationTimer) {
+    clearTimeout(enterAnimationTimer)
+    enterAnimationTimer = null
+  }
+  // Reset visible state before re-triggering the transition
+  isPageAnimated.value = false
+  enterAnimationTimer = setTimeout(() => {
+    isPageAnimated.value = true
+  }, 30)
+}
 
 const openRangePicker = (target: RangeTarget) => {
   activeRangeTarget.value = target
@@ -516,6 +542,10 @@ watch(city, () => {
 onUnmounted(() => {
   fuelTrendChart?.dispose()
   fuelTrendChart = null
+  if (enterAnimationTimer) {
+    clearTimeout(enterAnimationTimer)
+    enterAnimationTimer = null
+  }
 })
 
 /**
@@ -544,6 +574,11 @@ const navigateToCity = () => {
 
 onShow(() => {
   syncSelectedCity()
+  runPageEnterAnimation()
+})
+
+onMounted(() => {
+  runPageEnterAnimation()
 })
 
 </script>
@@ -562,6 +597,38 @@ onShow(() => {
     overflow: hidden;
   }
 
+  // Shared entry animation for the main hero cards
+  .animated-block {
+    opacity: 0;
+    transform: translate3d(0, 36rpx, 0) scale(0.98);
+    transition-property: opacity, transform;
+    transition-duration: 0.55s, 0.65s;
+    transition-timing-function: ease, cubic-bezier(0.22, 0.61, 0.36, 1);
+    will-change: opacity, transform;
+  }
+
+  .animated-block--visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  .animated-block--delay-0 {
+    transition-delay: 0ms;
+  }
+
+  .animated-block--delay-1 {
+    transition-delay: 120ms;
+  }
+
+  .animated-block--delay-2 {
+    transition-delay: 200ms;
+  }
+
+  .animated-block--delay-3 {
+    transition-delay: 280ms;
+  }
+
+  // Soft animated gradient hero card
   .header-card {
     background: linear-gradient(180deg, #58b1ff 0%, #1ec15f 100%);
     border-radius: 48rpx 48rpx 32rpx 32rpx;
@@ -569,6 +636,30 @@ onShow(() => {
     color: #fff;
     box-shadow: 0 24rpx 40rpx rgba(24, 160, 88, 0.25);
     margin-bottom: 32rpx;
+    position: relative;
+    overflow: hidden;
+    background-size: 240% 240%;
+    animation: heroGradient 10s ease-in-out infinite alternate;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(
+          circle at 20% 20%,
+          rgba(255, 255, 255, 0.3),
+          transparent 45%
+        ),
+        radial-gradient(
+          circle at 80% 0%,
+          rgba(255, 255, 255, 0.2),
+          transparent 40%
+        );
+      opacity: 0.35;
+      pointer-events: none;
+      mix-blend-mode: screen;
+      animation: heroGlow 12s linear infinite;
+    }
 
     .header-meta {
       display: flex;
@@ -911,6 +1002,7 @@ onShow(() => {
     border-radius: 40rpx;
     padding: 48rpx 40rpx 40rpx;
     box-shadow: 0 30rpx 80rpx rgba(0, 0, 0, 0.12);
+    animation: pickerPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   }
 
   .range-picker-title {
@@ -971,6 +1063,41 @@ onShow(() => {
     color: #fff;
     background: linear-gradient(180deg, #1ec15f 0%, #22d78a 100%);
     box-shadow: 0 18rpx 32rpx rgba(30, 193, 95, 0.32);
+  }
+}
+
+@keyframes heroGradient {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 100% 100%;
+  }
+}
+
+@keyframes heroGlow {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translate3d(-2%, 4%, 0) scale(1.05);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate3d(2%, -3%, 0) scale(1.02);
+    opacity: 0.35;
+  }
+}
+
+@keyframes pickerPop {
+  0% {
+    transform: translate3d(0, 24rpx, 0) scale(0.96);
+    opacity: 0;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 1;
   }
 }
 </style>
