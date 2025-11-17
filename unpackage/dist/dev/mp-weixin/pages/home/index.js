@@ -108,7 +108,19 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const showRangePicker = common_vendor.ref(false);
     const pendingRangeKey = common_vendor.ref(rangeOptions[3].key);
     const activeRangeTarget = common_vendor.ref("stats");
+    const isPageAnimated = common_vendor.ref(false);
+    let enterAnimationTimer = null;
     const resolveTargetRange = (target) => target === "stats" ? statsRange : trendRange;
+    const runPageEnterAnimation = () => {
+      if (enterAnimationTimer) {
+        clearTimeout(enterAnimationTimer);
+        enterAnimationTimer = null;
+      }
+      isPageAnimated.value = false;
+      enterAnimationTimer = setTimeout(() => {
+        isPageAnimated.value = true;
+      }, 30);
+    };
     const openRangePicker = (target) => {
       activeRangeTarget.value = target;
       pendingRangeKey.value = resolveTargetRange(target).value.key;
@@ -286,6 +298,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     common_vendor.onUnmounted(() => {
       fuelTrendChart == null ? void 0 : fuelTrendChart.dispose();
       fuelTrendChart = null;
+      if (enterAnimationTimer) {
+        clearTimeout(enterAnimationTimer);
+        enterAnimationTimer = null;
+      }
     });
     const handleNavigate = (actionKey) => {
       common_vendor.index.showToast({
@@ -307,6 +323,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     };
     common_vendor.onShow(() => {
       syncSelectedCity();
+      runPageEnterAnimation();
+    });
+    common_vendor.onMounted(() => {
+      runPageEnterAnimation();
     });
     return (_ctx, _cache) => {
       return common_vendor.e({
@@ -319,9 +339,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         g: common_vendor.t(carInfo.value.trim),
         h: !hasRecentRefuel.value
       }, !hasRecentRefuel.value ? {} : {}, {
-        i: common_vendor.o(($event) => handleNavigate("trend")),
-        j: common_vendor.t(latestFuel.value),
-        k: common_vendor.f(efficiencyLevels.value, (level, k0, i0) => {
+        i: isPageAnimated.value ? 1 : "",
+        j: common_vendor.o(($event) => handleNavigate("trend")),
+        k: common_vendor.t(latestFuel.value),
+        l: common_vendor.f(efficiencyLevels.value, (level, k0, i0) => {
           return {
             a: common_vendor.t(level.label),
             b: level.label,
@@ -329,9 +350,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             d: common_vendor.s(getBadgeStyle(level))
           };
         }),
-        l: common_vendor.t(statsRange.value.label),
-        m: common_vendor.o(($event) => openRangePicker("stats")),
-        n: common_vendor.f(stats.value, (item, k0, i0) => {
+        m: isPageAnimated.value ? 1 : "",
+        n: common_vendor.t(statsRange.value.label),
+        o: common_vendor.o(($event) => openRangePicker("stats")),
+        p: common_vendor.f(stats.value, (item, k0, i0) => {
           return {
             a: common_vendor.t(item.label),
             b: common_vendor.t(item.value),
@@ -340,16 +362,18 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             e: item.key
           };
         }),
-        o: common_vendor.t(trendRange.value.label),
-        p: common_vendor.o(($event) => openRangePicker("trend")),
-        q: common_vendor.p({
+        q: isPageAnimated.value ? 1 : "",
+        r: common_vendor.t(trendRange.value.label),
+        s: common_vendor.o(($event) => openRangePicker("trend")),
+        t: common_vendor.p({
           id: "fuelTrendChart",
           canvasId: "fuelTrendChart",
           ec: fuelTrendEc.value
         }),
-        r: showRangePicker.value
+        v: isPageAnimated.value ? 1 : "",
+        w: showRangePicker.value
       }, showRangePicker.value ? {
-        s: common_vendor.f(rangeOptions, (option, k0, i0) => {
+        x: common_vendor.f(rangeOptions, (option, k0, i0) => {
           return {
             a: common_vendor.t(option.label),
             b: option.key,
@@ -357,18 +381,18 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             d: common_vendor.o(($event) => selectPendingRange(option), option.key)
           };
         }),
-        t: common_vendor.o(closeRangePicker),
-        v: common_vendor.o(confirmRangePicker),
-        w: common_vendor.o(() => {
+        y: common_vendor.o(closeRangePicker),
+        z: common_vendor.o(confirmRangePicker),
+        A: common_vendor.o(() => {
         }),
-        x: common_vendor.o(closeRangePicker),
-        y: common_vendor.o(() => {
+        B: common_vendor.o(closeRangePicker),
+        C: common_vendor.o(() => {
         })
       } : {}, {
-        z: common_vendor.p({
+        D: common_vendor.p({
           active: "fuel"
         }),
-        A: showRangePicker.value ? 1 : ""
+        E: showRangePicker.value ? 1 : ""
       });
     };
   }

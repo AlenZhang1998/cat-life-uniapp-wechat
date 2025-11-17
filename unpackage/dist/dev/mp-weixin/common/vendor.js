@@ -8028,6 +8028,7 @@ exports.n = n;
 exports.nextTick$1 = nextTick$1;
 exports.o = o;
 exports.onLoad = onLoad;
+exports.onMounted = onMounted;
 exports.onReady = onReady;
 exports.onShow = onShow;
 exports.onUnmounted = onUnmounted;
