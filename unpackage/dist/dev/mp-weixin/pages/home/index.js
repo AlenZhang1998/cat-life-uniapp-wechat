@@ -140,6 +140,11 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       if (target) {
         const rangeRef = resolveTargetRange(activeRangeTarget.value);
         rangeRef.value = target;
+        const targetLabel = activeRangeTarget.value === "stats" ? "统计" : "趋势";
+        common_vendor.index.showToast({
+          title: `${targetLabel}已切换到${target.label}`,
+          icon: "none"
+        });
       }
       closeRangePicker();
     };

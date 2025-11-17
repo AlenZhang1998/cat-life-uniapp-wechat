@@ -352,6 +352,11 @@ const confirmRangePicker = () => {
   if (target) {
     const rangeRef = resolveTargetRange(activeRangeTarget.value)
     rangeRef.value = target
+    const targetLabel = activeRangeTarget.value === 'stats' ? '统计' : '趋势'
+    uni.showToast({
+      title: `${targetLabel}已切换到${target.label}`,
+      icon: 'none'
+    })
   }
   closeRangePicker()
 }
