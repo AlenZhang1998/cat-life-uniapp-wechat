@@ -109,83 +109,35 @@
       </view>
     </view>
 
-    <view
-      v-if="showHeroPicker"
-      class="range-picker-overlay"
-      @tap="closeHeroPicker"
-      @touchmove.stop.prevent
-    >
-      <view class="range-picker-dialog" @tap.stop>
-        <view class="range-picker-title">选择统计范围</view>
-        <view class="range-options">
-          <view
-            class="range-option"
-            v-for="option in HERO_RANGE_OPTIONS"
-            :key="option.key"
-            :class="{ active: option.key === pendingHeroRange }"
-            @tap="() => (pendingHeroRange = option.key)"
-          >
-            <text>{{ option.label }}</text>
-          </view>
-        </view>
-        <view class="range-actions">
-          <view class="range-button cancel" @tap="closeHeroPicker">取消</view>
-          <view class="range-button confirm" @tap="confirmHeroPicker">确定</view>
-        </view>
-      </view>
-    </view>
+    <RangePickerOverlay
+      :visible="showHeroPicker"
+      title="选择统计范围"
+      :options="HERO_RANGE_OPTIONS"
+      :selected-key="pendingHeroRange"
+      @update:selected-key="handleHeroRangeSelection"
+      @cancel="closeHeroPicker"
+      @confirm="confirmHeroPicker"
+    />
 
-    <view
-      v-if="showMonthlyPicker"
-      class="range-picker-overlay"
-      @tap="closeMonthlyPicker"
-      @touchmove.stop.prevent
-    >
-      <view class="range-picker-dialog" @tap.stop>
-        <view class="range-picker-title">选择统计范围</view>
-        <view class="range-options">
-          <view
-            class="range-option"
-            v-for="option in monthlyRangeOptions"
-            :key="option.key"
-            :class="{ active: option.key === pendingMonthlyRange }"
-            @tap="() => (pendingMonthlyRange = option.key)"
-          >
-            <text>{{ option.label }}</text>
-          </view>
-        </view>
-        <view class="range-actions">
-          <view class="range-button cancel" @tap="closeMonthlyPicker">取消</view>
-          <view class="range-button confirm" @tap="confirmMonthlyPicker">确定</view>
-        </view>
-      </view>
-    </view>
+    <RangePickerOverlay
+      :visible="showMonthlyPicker"
+      title="选择统计范围"
+      :options="monthlyRangeOptions"
+      :selected-key="pendingMonthlyRange"
+      @update:selected-key="handleMonthlyRangeSelection"
+      @cancel="closeMonthlyPicker"
+      @confirm="confirmMonthlyPicker"
+    />
 
-    <view
-      v-if="showYearlyPicker"
-      class="range-picker-overlay"
-      @tap="closeYearlyPicker"
-      @touchmove.stop.prevent
-    >
-      <view class="range-picker-dialog" @tap.stop>
-        <view class="range-picker-title">选择对比区间</view>
-        <view class="range-options">
-          <view
-            class="range-option"
-            v-for="option in yearlyRangeOptions"
-            :key="option.key"
-            :class="{ active: option.key === pendingYearlyRange }"
-            @tap="() => (pendingYearlyRange = option.key)"
-          >
-            <text>{{ option.label }}</text>
-          </view>
-        </view>
-        <view class="range-actions">
-          <view class="range-button cancel" @tap="closeYearlyPicker">取消</view>
-          <view class="range-button confirm" @tap="confirmYearlyPicker">确定</view>
-        </view>
-      </view>
-    </view>
+    <RangePickerOverlay
+      :visible="showYearlyPicker"
+      title="选择对比区间"
+      :options="yearlyRangeOptions"
+      :selected-key="pendingYearlyRange"
+      @update:selected-key="handleYearlyRangeSelection"
+      @cancel="closeYearlyPicker"
+      @confirm="confirmYearlyPicker"
+    />
 
     <!-- <view class="timeline">
       <view class="section-header">
@@ -225,6 +177,7 @@
 <script setup lang="ts">
 import { computed, onUnmounted, ref } from 'vue'
 import BottomActionBar from '@/components/BottomActionBar.vue'
+import RangePickerOverlay from '@/components/RangePickerOverlay.vue'
 // uCharts 官方 ECharts 适配仅支持 CJS 导入，这里使用 require 方式以兼容编译到小程序端
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const echarts = require('../../wxcomponents/ec-canvas/echarts')
@@ -384,6 +337,12 @@ const handleHeroRangeTap = () => {
 
 const closeHeroPicker = () => {
   showHeroPicker.value = false
+}
+
+const handleHeroRangeSelection = (value: string | null) => {
+  if (value) {
+    pendingHeroRange.value = value
+  }
 }
 
 const confirmHeroPicker = () => {
@@ -552,6 +511,12 @@ const closeMonthlyPicker = () => {
   showMonthlyPicker.value = false
 }
 
+const handleMonthlyRangeSelection = (value: string | null) => {
+  if (value) {
+    pendingMonthlyRange.value = value
+  }
+}
+
 const confirmMonthlyPicker = () => {
   const target = monthlyRangeOptions.find((option) => option.key === pendingMonthlyRange.value)
   if (target) {
@@ -569,6 +534,12 @@ const cycleYearlyRange = () => {
 
 const closeYearlyPicker = () => {
   showYearlyPicker.value = false
+}
+
+const handleYearlyRangeSelection = (value: string | null) => {
+  if (value) {
+    pendingYearlyRange.value = value
+  }
 }
 
 const confirmYearlyPicker = () => {
@@ -829,85 +800,6 @@ const getCategoryMeta = (category: ExpenseCategory) => CATEGORY_META[category]
   color: #8a93a0;
   font-size: 26rpx;
   padding: 60rpx 0;
-}
-
-.range-picker-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 48rpx;
-  z-index: 1200;
-}
-
-.range-picker-dialog {
-  width: 100%;
-  background: #fff;
-  border-radius: 40rpx;
-  padding: 48rpx 40rpx 40rpx;
-  box-shadow: 0 30rpx 80rpx rgba(0, 0, 0, 0.12);
-}
-
-.range-picker-title {
-  text-align: center;
-  font-size: 32rpx;
-  font-weight: 700;
-}
-
-.range-options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24rpx;
-  margin: 36rpx 0 12rpx;
-}
-
-.range-option {
-  flex: 1 1 calc(33% - 16rpx);
-  max-width: 30%;
-  border-radius: 999rpx;
-  border: 2rpx solid rgba(138, 147, 160, 0.35);
-  padding: 22rpx 0;
-  text-align: center;
-  color: $muted-text;
-  font-size: 26rpx;
-  font-weight: 600;
-  background: #fafbfd;
-}
-
-.range-option.active {
-  border-color: transparent;
-  background: linear-gradient(180deg, #1ec15f 0%, #22d78a 100%);
-  color: #fff;
-  box-shadow: 0 16rpx 36rpx rgba(18, 163, 74, 0.35);
-}
-
-.range-actions {
-  display: flex;
-  gap: 24rpx;
-  margin-top: 32rpx;
-}
-
-.range-button {
-  flex: 1;
-  border-radius: 999rpx;
-  text-align: center;
-  padding: 26rpx 0;
-  font-size: 28rpx;
-  font-weight: 600;
-}
-
-.range-button.cancel {
-  background: #f5f7fb;
-  color: #1c1f23;
-  border: 1rpx solid #e5e9f2;
-}
-
-.range-button.confirm {
-  color: #fff;
-  background: linear-gradient(180deg, #1ec15f 0%, #22d78a 100%);
-  box-shadow: 0 18rpx 32rpx rgba(30, 193, 95, 0.32);
 }
 
 // .timeline {

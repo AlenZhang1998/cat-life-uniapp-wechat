@@ -312,76 +312,6 @@
 .home-page .filter.filter__hover.data-v-4978fed5 {
   opacity: 0.7;
 }
-.home-page .range-picker-overlay.data-v-4978fed5 {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 48rpx;
-  z-index: 1200;
-}
-.home-page .range-picker-dialog.data-v-4978fed5 {
-  width: 100%;
-  background: #fff;
-  border-radius: 40rpx;
-  padding: 48rpx 40rpx 40rpx;
-  box-shadow: 0 30rpx 80rpx rgba(0, 0, 0, 0.12);
-  animation: pickerPop-4978fed5 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-}
-.home-page .range-picker-title.data-v-4978fed5 {
-  text-align: center;
-  font-size: 32rpx;
-  font-weight: 700;
-}
-.home-page .range-options.data-v-4978fed5 {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24rpx;
-  margin: 36rpx 0 12rpx;
-}
-.home-page .range-option.data-v-4978fed5 {
-  flex: 1 1 calc(33% - 16rpx);
-  max-width: 30%;
-  border-radius: 999rpx;
-  border: 2rpx solid rgba(138, 147, 160, 0.35);
-  padding: 22rpx 0;
-  text-align: center;
-  color: #8a93a0;
-  font-size: 26rpx;
-  font-weight: 600;
-  background: #fafbfd;
-}
-.home-page .range-option.active.data-v-4978fed5 {
-  border-color: transparent;
-  background: linear-gradient(180deg, #1ec15f 0%, #22d78a 100%);
-  color: #fff;
-  box-shadow: 0 16rpx 36rpx rgba(18, 163, 74, 0.35);
-}
-.home-page .range-actions.data-v-4978fed5 {
-  display: flex;
-  gap: 24rpx;
-  margin-top: 32rpx;
-}
-.home-page .range-button.data-v-4978fed5 {
-  flex: 1;
-  border-radius: 999rpx;
-  text-align: center;
-  padding: 26rpx 0;
-  font-size: 28rpx;
-  font-weight: 600;
-}
-.home-page .range-button.cancel.data-v-4978fed5 {
-  background: #f5f7fb;
-  color: #1c1f23;
-  border: 1rpx solid #e5e9f2;
-}
-.home-page .range-button.confirm.data-v-4978fed5 {
-  color: #fff;
-  background: linear-gradient(180deg, #1ec15f 0%, #22d78a 100%);
-  box-shadow: 0 18rpx 32rpx rgba(30, 193, 95, 0.32);
-}
 @keyframes heroGradient-4978fed5 {
 0% {
     background-position: 0% 0%;
@@ -402,15 +332,5 @@
 100% {
     transform: translate3d(2%, -3%, 0) scale(1.02);
     opacity: 0.35;
-}
-}
-@keyframes pickerPop-4978fed5 {
-0% {
-    transform: translate3d(0, 24rpx, 0) scale(0.96);
-    opacity: 0;
-}
-100% {
-    transform: translate3d(0, 0, 0) scale(1);
-    opacity: 1;
 }
 }

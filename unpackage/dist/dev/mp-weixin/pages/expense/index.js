@@ -5,9 +5,10 @@ if (!Array) {
   _component_ec_canvas();
 }
 if (!Math) {
-  BottomActionBar();
+  (RangePickerOverlay + BottomActionBar)();
 }
 const BottomActionBar = () => "../../components/BottomActionBar.js";
+const RangePickerOverlay = () => "../../components/RangePickerOverlay.js";
 const MONTHLY_BUDGET = 2200;
 const HERO_DISTANCE = 1577;
 const HERO_DAYS = 48;
@@ -135,6 +136,11 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     };
     const closeHeroPicker = () => {
       showHeroPicker.value = false;
+    };
+    const handleHeroRangeSelection = (value) => {
+      if (value) {
+        pendingHeroRange.value = value;
+      }
     };
     const confirmHeroPicker = () => {
       const target = HERO_RANGE_OPTIONS.find((option) => option.key === pendingHeroRange.value);
@@ -292,6 +298,11 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const closeMonthlyPicker = () => {
       showMonthlyPicker.value = false;
     };
+    const handleMonthlyRangeSelection = (value) => {
+      if (value) {
+        pendingMonthlyRange.value = value;
+      }
+    };
     const confirmMonthlyPicker = () => {
       const target = monthlyRangeOptions.find((option) => option.key === pendingMonthlyRange.value);
       if (target) {
@@ -307,6 +318,11 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     };
     const closeYearlyPicker = () => {
       showYearlyPicker.value = false;
+    };
+    const handleYearlyRangeSelection = (value) => {
+      if (value) {
+        pendingYearlyRange.value = value;
+      }
     };
     const confirmYearlyPicker = () => {
       const target = yearlyRangeOptions.find((option) => option.key === pendingYearlyRange.value);
@@ -326,7 +342,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       yearlyExpenseChart = null;
     });
     return (_ctx, _cache) => {
-      return common_vendor.e({
+      return {
         a: common_vendor.t(heroRange.value.label),
         b: common_vendor.o(handleHeroRangeTap),
         c: common_vendor.t(heroOverview.value.total),
@@ -356,65 +372,38 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           canvasId: "yearlyExpenseChart",
           ec: yearlyExpenseEc.value
         }),
-        o: showHeroPicker.value
-      }, showHeroPicker.value ? {
-        p: common_vendor.f(HERO_RANGE_OPTIONS, (option, k0, i0) => {
-          return {
-            a: common_vendor.t(option.label),
-            b: option.key,
-            c: option.key === pendingHeroRange.value ? 1 : "",
-            d: common_vendor.o(() => pendingHeroRange.value = option.key, option.key)
-          };
+        o: common_vendor.o(handleHeroRangeSelection),
+        p: common_vendor.o(closeHeroPicker),
+        q: common_vendor.o(confirmHeroPicker),
+        r: common_vendor.p({
+          visible: showHeroPicker.value,
+          title: "选择统计范围",
+          options: HERO_RANGE_OPTIONS,
+          ["selected-key"]: pendingHeroRange.value
         }),
-        q: common_vendor.o(closeHeroPicker),
-        r: common_vendor.o(confirmHeroPicker),
-        s: common_vendor.o(() => {
+        s: common_vendor.o(handleMonthlyRangeSelection),
+        t: common_vendor.o(closeMonthlyPicker),
+        v: common_vendor.o(confirmMonthlyPicker),
+        w: common_vendor.p({
+          visible: showMonthlyPicker.value,
+          title: "选择统计范围",
+          options: monthlyRangeOptions,
+          ["selected-key"]: pendingMonthlyRange.value
         }),
-        t: common_vendor.o(closeHeroPicker),
-        v: common_vendor.o(() => {
-        })
-      } : {}, {
-        w: showMonthlyPicker.value
-      }, showMonthlyPicker.value ? {
-        x: common_vendor.f(monthlyRangeOptions, (option, k0, i0) => {
-          return {
-            a: common_vendor.t(option.label),
-            b: option.key,
-            c: option.key === pendingMonthlyRange.value ? 1 : "",
-            d: common_vendor.o(() => pendingMonthlyRange.value = option.key, option.key)
-          };
+        x: common_vendor.o(handleYearlyRangeSelection),
+        y: common_vendor.o(closeYearlyPicker),
+        z: common_vendor.o(confirmYearlyPicker),
+        A: common_vendor.p({
+          visible: showYearlyPicker.value,
+          title: "选择对比区间",
+          options: yearlyRangeOptions,
+          ["selected-key"]: pendingYearlyRange.value
         }),
-        y: common_vendor.o(closeMonthlyPicker),
-        z: common_vendor.o(confirmMonthlyPicker),
-        A: common_vendor.o(() => {
-        }),
-        B: common_vendor.o(closeMonthlyPicker),
-        C: common_vendor.o(() => {
-        })
-      } : {}, {
-        D: showYearlyPicker.value
-      }, showYearlyPicker.value ? {
-        E: common_vendor.f(yearlyRangeOptions, (option, k0, i0) => {
-          return {
-            a: common_vendor.t(option.label),
-            b: option.key,
-            c: option.key === pendingYearlyRange.value ? 1 : "",
-            d: common_vendor.o(() => pendingYearlyRange.value = option.key, option.key)
-          };
-        }),
-        F: common_vendor.o(closeYearlyPicker),
-        G: common_vendor.o(confirmYearlyPicker),
-        H: common_vendor.o(() => {
-        }),
-        I: common_vendor.o(closeYearlyPicker),
-        J: common_vendor.o(() => {
-        })
-      } : {}, {
-        K: showHeroPicker.value || showMonthlyPicker.value || showYearlyPicker.value ? 1 : "",
-        L: common_vendor.p({
+        B: showHeroPicker.value || showMonthlyPicker.value || showYearlyPicker.value ? 1 : "",
+        C: common_vendor.p({
           active: "expense"
         })
-      });
+      };
     };
   }
 });

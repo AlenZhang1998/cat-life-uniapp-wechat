@@ -3,6 +3,7 @@
   "navigationStyle": "custom",
   "usingComponents": {
     "ec-canvas": "../../wxcomponents/ec-canvas/ec-canvas",
-    "bottom-action-bar": "../../components/BottomActionBar"
+    "bottom-action-bar": "../../components/BottomActionBar",
+    "range-picker-overlay": "../../components/RangePickerOverlay"
   }
 }
