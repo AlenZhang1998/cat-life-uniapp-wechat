@@ -1,5 +1,8 @@
 <template>
-  <view class="expense-page" :class="{ 'expense-page--locked': showMonthlyPicker }">
+  <view
+    class="expense-page"
+    :class="{ 'expense-page--locked': showMonthlyPicker || showYearlyPicker }"
+  >
     <view class="hero-card">
       <view class="hero-card__title-row">
         <text class="hero-card__title">统计</text>
@@ -67,7 +70,7 @@
       <view class="chart-body">
         <!-- #ifdef MP-WEIXIN -->
         <ec-canvas
-          v-show="!showMonthlyPicker"
+          v-show="!showMonthlyPicker && !showYearlyPicker"
           id="monthlyExpenseChart"
           canvas-id="monthlyExpenseChart"
           class="chart-canvas"
@@ -92,7 +95,7 @@
       <view class="chart-body">
         <!-- #ifdef MP-WEIXIN -->
         <ec-canvas
-          v-show="!showMonthlyPicker"
+          v-show="!showMonthlyPicker && !showYearlyPicker"
           id="yearlyExpenseChart"
           canvas-id="yearlyExpenseChart"
           class="chart-canvas"
@@ -128,6 +131,32 @@
         <view class="range-actions">
           <view class="range-button cancel" @tap="closeMonthlyPicker">取消</view>
           <view class="range-button confirm" @tap="confirmMonthlyPicker">确定</view>
+        </view>
+      </view>
+    </view>
+
+    <view
+      v-if="showYearlyPicker"
+      class="range-picker-overlay"
+      @tap="closeYearlyPicker"
+      @touchmove.stop.prevent
+    >
+      <view class="range-picker-dialog" @tap.stop>
+        <view class="range-picker-title">选择对比区间</view>
+        <view class="range-options">
+          <view
+            class="range-option"
+            v-for="option in yearlyRangeOptions"
+            :key="option.key"
+            :class="{ active: option.key === pendingYearlyRange }"
+            @tap="() => (pendingYearlyRange = option.key)"
+          >
+            <text>{{ option.label }}</text>
+          </view>
+        </view>
+        <view class="range-actions">
+          <view class="range-button cancel" @tap="closeYearlyPicker">取消</view>
+          <view class="range-button confirm" @tap="confirmYearlyPicker">确定</view>
         </view>
       </view>
     </view>
@@ -342,11 +371,14 @@ const monthlyChartData = ref([
 ])
 const monthlyBaseline = computed(() => Number(monthlySummary.value.totalAmount).toFixed(1))
 
-const yearlyChartRangeOptions = [
+const yearlyRangeOptions = [
+  { key: '1y', label: '一年' },
   { key: '2y', label: '两年' },
-  { key: '5y', label: '五年' }
+  { key: '3y', label: '三年' }
 ]
-const yearlyRange = ref(yearlyChartRangeOptions[0])
+const yearlyRange = ref(yearlyRangeOptions[0])
+const showYearlyPicker = ref(false)
+const pendingYearlyRange = ref(yearlyRangeOptions[0].key)
 const yearlyChartData = ref([
   { month: '6月', value: 6.2 },
   { month: '7月', value: 5.8 },
@@ -490,13 +522,22 @@ const confirmMonthlyPicker = () => {
 }
 
 const cycleYearlyRange = () => {
-  const currentIndex = yearlyChartRangeOptions.findIndex(
-    (option) => option.key === yearlyRange.value.key
-  )
-  yearlyRange.value =
-    yearlyChartRangeOptions[(currentIndex + 1) % yearlyChartRangeOptions.length]
-  uni.showToast({ title: `已切换到${yearlyRange.value.label}`, icon: 'none' })
-  refreshYearlyExpenseChart()
+  pendingYearlyRange.value = yearlyRange.value.key
+  showYearlyPicker.value = true
+}
+
+const closeYearlyPicker = () => {
+  showYearlyPicker.value = false
+}
+
+const confirmYearlyPicker = () => {
+  const target = yearlyRangeOptions.find((option) => option.key === pendingYearlyRange.value)
+  if (target) {
+    yearlyRange.value = target
+    uni.showToast({ title: `已切换到${target.label}`, icon: 'none' })
+    refreshYearlyExpenseChart()
+  }
+  closeYearlyPicker()
 }
 
 const monthlyExpenseEc = ref({ lazyLoad: false, onInit: initMonthlyExpenseChart })

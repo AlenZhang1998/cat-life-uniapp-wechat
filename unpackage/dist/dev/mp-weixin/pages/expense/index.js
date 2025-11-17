@@ -147,11 +147,14 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       { month: "10月", value: 836 }
     ]);
     const monthlyBaseline = common_vendor.computed(() => Number(monthlySummary.value.totalAmount).toFixed(1));
-    const yearlyChartRangeOptions = [
+    const yearlyRangeOptions = [
+      { key: "1y", label: "一年" },
       { key: "2y", label: "两年" },
-      { key: "5y", label: "五年" }
+      { key: "3y", label: "三年" }
     ];
-    const yearlyRange = common_vendor.ref(yearlyChartRangeOptions[0]);
+    const yearlyRange = common_vendor.ref(yearlyRangeOptions[0]);
+    const showYearlyPicker = common_vendor.ref(false);
+    const pendingYearlyRange = common_vendor.ref(yearlyRangeOptions[0].key);
     const yearlyChartData = common_vendor.ref([
       { month: "6月", value: 6.2 },
       { month: "7月", value: 5.8 },
@@ -286,12 +289,20 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       closeMonthlyPicker();
     };
     const cycleYearlyRange = () => {
-      const currentIndex = yearlyChartRangeOptions.findIndex(
-        (option) => option.key === yearlyRange.value.key
-      );
-      yearlyRange.value = yearlyChartRangeOptions[(currentIndex + 1) % yearlyChartRangeOptions.length];
-      common_vendor.index.showToast({ title: `已切换到${yearlyRange.value.label}`, icon: "none" });
-      refreshYearlyExpenseChart();
+      pendingYearlyRange.value = yearlyRange.value.key;
+      showYearlyPicker.value = true;
+    };
+    const closeYearlyPicker = () => {
+      showYearlyPicker.value = false;
+    };
+    const confirmYearlyPicker = () => {
+      const target = yearlyRangeOptions.find((option) => option.key === pendingYearlyRange.value);
+      if (target) {
+        yearlyRange.value = target;
+        common_vendor.index.showToast({ title: `已切换到${target.label}`, icon: "none" });
+        refreshYearlyExpenseChart();
+      }
+      closeYearlyPicker();
     };
     const monthlyExpenseEc = common_vendor.ref({ lazyLoad: false, onInit: initMonthlyExpenseChart });
     const yearlyExpenseEc = common_vendor.ref({ lazyLoad: false, onInit: initYearlyExpenseChart });
@@ -319,7 +330,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         }),
         g: common_vendor.t(monthlyRange.value.label),
         h: common_vendor.o(cycleMonthlyRange),
-        i: !showMonthlyPicker.value,
+        i: !showMonthlyPicker.value && !showYearlyPicker.value,
         j: common_vendor.p({
           id: "monthlyExpenseChart",
           canvasId: "monthlyExpenseChart",
@@ -327,7 +338,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         }),
         k: common_vendor.t(yearlyRange.value.label),
         l: common_vendor.o(cycleYearlyRange),
-        m: !showMonthlyPicker.value,
+        m: !showMonthlyPicker.value && !showYearlyPicker.value,
         n: common_vendor.p({
           id: "yearlyExpenseChart",
           canvasId: "yearlyExpenseChart",
@@ -351,8 +362,26 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         v: common_vendor.o(() => {
         })
       } : {}, {
-        w: common_vendor.t(expenseRecords.value.length),
-        x: common_vendor.f(expenseRecords.value, (item, k0, i0) => {
+        w: showYearlyPicker.value
+      }, showYearlyPicker.value ? {
+        x: common_vendor.f(yearlyRangeOptions, (option, k0, i0) => {
+          return {
+            a: common_vendor.t(option.label),
+            b: option.key,
+            c: option.key === pendingYearlyRange.value ? 1 : "",
+            d: common_vendor.o(() => pendingYearlyRange.value = option.key, option.key)
+          };
+        }),
+        y: common_vendor.o(closeYearlyPicker),
+        z: common_vendor.o(confirmYearlyPicker),
+        A: common_vendor.o(() => {
+        }),
+        B: common_vendor.o(closeYearlyPicker),
+        C: common_vendor.o(() => {
+        })
+      } : {}, {
+        D: common_vendor.t(expenseRecords.value.length),
+        E: common_vendor.f(expenseRecords.value, (item, k0, i0) => {
           return common_vendor.e({
             a: getCategoryMeta(item.category).color,
             b: common_vendor.t(item.date),
@@ -373,8 +402,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             m: item.id
           });
         }),
-        y: showMonthlyPicker.value ? 1 : "",
-        z: common_vendor.p({
+        F: showMonthlyPicker.value || showYearlyPicker.value ? 1 : "",
+        G: common_vendor.p({
           active: "expense"
         })
       });
