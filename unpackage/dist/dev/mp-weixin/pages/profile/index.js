@@ -7,6 +7,7 @@ const BottomActionBar = () => "../../components/BottomActionBar.js";
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "index",
   setup(__props) {
+    const isLoggedIn = common_vendor.ref(false);
     const user = common_vendor.ref({
       name: "Alen",
       initial: "熊",
@@ -41,19 +42,43 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         desc: "订阅提醒、隐私偏好、一键反馈"
       }
     ]);
+    const handleAvatarTap = () => {
+      if (isLoggedIn.value) {
+        return;
+      }
+      common_vendor.index.showModal({
+        title: "提示",
+        content: "模拟微信一键登录成功",
+        success: (res) => {
+          if (res.confirm) {
+            isLoggedIn.value = true;
+          }
+        }
+      });
+    };
     return (_ctx, _cache) => {
-      return {
-        a: common_vendor.t(user.value.initial),
-        b: common_vendor.t(user.value.name),
-        c: common_vendor.t(user.value.joinDate),
-        d: common_vendor.f(user.value.tags, (tag, k0, i0) => {
+      return common_vendor.e({
+        a: isLoggedIn.value
+      }, isLoggedIn.value ? {
+        b: common_vendor.t(user.value.initial)
+      } : {}, {
+        c: common_vendor.o(handleAvatarTap),
+        d: isLoggedIn.value
+      }, isLoggedIn.value ? {
+        e: common_vendor.t(user.value.name),
+        f: common_vendor.t(user.value.joinDate),
+        g: common_vendor.f(user.value.tags, (tag, k0, i0) => {
           return {
             a: common_vendor.t(tag),
             b: tag
           };
-        }),
-        e: common_vendor.t(user.value.motto),
-        f: common_vendor.f(features.value, (item, k0, i0) => {
+        })
+      } : {}, {
+        h: isLoggedIn.value
+      }, isLoggedIn.value ? {
+        i: common_vendor.t(user.value.motto)
+      } : {}, {
+        j: common_vendor.f(features.value, (item, k0, i0) => {
           return {
             a: common_vendor.t(item.icon),
             b: common_vendor.t(item.title),
@@ -61,10 +86,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             d: item.key
           };
         }),
-        g: common_vendor.p({
+        k: common_vendor.p({
           active: "profile"
         })
-      };
+      });
     };
   }
 });

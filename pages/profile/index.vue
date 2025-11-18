@@ -3,10 +3,13 @@
     <view class="identity-card">
       <view class="identity-glow"></view>
       <view class="identity-header">
-        <view class="avatar-ring">
-          <view class="avatar-core">{{ user.initial }}</view>
+        <view class="avatar-ring" @tap="handleAvatarTap">
+          <view class="avatar-core">
+            <text v-if="isLoggedIn">{{ user.initial }}</text>
+            <text v-else class="avatar-placeholder">点我登录</text>
+          </view>
         </view>
-        <view class="identity-meta">
+        <view class="identity-meta" v-if="isLoggedIn">
           <text class="identity-label">驾驶档案</text>
           <text class="user-name">{{ user.name }}</text>
           <text class="user-subtitle">加入于 {{ user.joinDate }}</text>
@@ -14,8 +17,13 @@
             <text class="user-tag" v-for="tag in user.tags" :key="tag">{{ tag }}</text>
           </view>
         </view>
+        <view class="identity-meta identity-meta--placeholder" v-else>
+          <text class="identity-label">欢迎来到驾驶档案</text>
+          <text class="user-name">点击头像微信一键登录</text>
+          <text class="user-subtitle">解锁个性化数据与服务</text>
+        </view>
       </view>
-      <view class="identity-motto-card">
+      <view class="identity-motto-card" v-if="isLoggedIn">
         <text class="motto-label">今日心情</text>
         <text class="motto-text">{{ user.motto }}</text>
       </view>
@@ -45,6 +53,7 @@
 import { ref } from 'vue'
 import BottomActionBar from '@/components/BottomActionBar.vue'
 
+const isLoggedIn = ref(false)
 const user = ref({
   name: 'Alen',
   initial: '熊',
@@ -80,6 +89,22 @@ const features = ref([
     desc: '订阅提醒、隐私偏好、一键反馈'
   }
 ])
+
+const handleAvatarTap = () => {
+  if (isLoggedIn.value) {
+    return
+  }
+  // 模拟微信一键登录入口
+  uni.showModal({
+    title: '提示',
+    content: '模拟微信一键登录成功',
+    success: (res) => {
+      if (res.confirm) {
+        isLoggedIn.value = true
+      }
+    }
+  })
+}
 </script>
 
 <style lang="scss" scoped>
@@ -144,6 +169,11 @@ const features = ref([
   box-shadow: inset 0 0 18rpx rgba(0, 0, 0, 0.06);
 }
 
+.avatar-placeholder {
+  color: #94a2b8;
+  font-size: 28rpx;
+}
+
 .identity-meta {
   flex: 1;
   display: flex;
@@ -192,7 +222,17 @@ const features = ref([
 //   color: #2a61d1;
 // }
 
- .identity-motto-card {
+.identity-meta--placeholder {
+  align-items: flex-start;
+  gap: 8rpx;
+}
+
+.identity-meta--placeholder .user-name {
+  font-size: 32rpx;
+  color: #2a61d1;
+}
+
+.identity-motto-card {
   margin-top: 24rpx;
   padding: 24rpx;
   border-radius: 28rpx;
