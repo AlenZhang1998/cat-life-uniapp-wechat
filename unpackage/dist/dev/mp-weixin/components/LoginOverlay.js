@@ -36,9 +36,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       });
     };
     const handleWeChatLogin = () => {
-      if (isSubmitting.value) {
+      if (isSubmitting.value)
         return;
-      }
       if (!hasAgreed.value) {
         common_vendor.index.showToast({
           title: "请勾选协议后再登录",
@@ -51,13 +50,13 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         desc: "用于完善个人信息",
         success: (profileRes) => {
           const userInfo = profileRes.userInfo;
+          common_vendor.index.__f__("log", "at components/LoginOverlay.vue:98", 98, "getUserProfile userInfo = ", userInfo);
           common_vendor.index.login({
             provider: "weixin",
             success: (loginRes) => {
               const code = loginRes.code;
               common_vendor.index.request({
                 url: "http://10.48.75.101:3000/api/auth/login",
-                // 10.48.75.101      192.168.60.58
                 method: "POST",
                 header: {
                   "Content-Type": "application/json"
@@ -65,6 +64,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
                 data: {
                   code,
                   userInfo
+                  // ✅ 和后端 app.js 解构字段对上
                 },
                 success: (res) => {
                   isSubmitting.value = false;
@@ -73,15 +73,15 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
                     return;
                   }
                   const { token, user } = res.data;
-                  if (token) {
-                    common_vendor.index.setStorageSync("token", token);
+                  if (!token || !user) {
+                    common_vendor.index.showToast({ title: "登录数据异常", icon: "none" });
+                    return;
                   }
-                  if (user) {
-                    common_vendor.index.setStorageSync("userInfo", user);
-                  }
+                  common_vendor.index.setStorageSync("token", token);
+                  common_vendor.index.setStorageSync("userProfile", user);
                   refreshLoginState();
                   common_vendor.index.showToast({ title: "登录成功", icon: "success" });
-                  emit("login-success");
+                  emit("login-success", { token, user });
                   emit("update:visible", false);
                 },
                 fail: () => {
@@ -98,7 +98,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         },
         fail: (err) => {
           isSubmitting.value = false;
-          common_vendor.index.__f__("log", "at components/LoginOverlay.vue:144", "getUserProfile fail", err);
+          common_vendor.index.__f__("log", "at components/LoginOverlay.vue:159", "getUserProfile fail", err);
           common_vendor.index.showToast({ title: "需要授权头像信息", icon: "none" });
         }
       });

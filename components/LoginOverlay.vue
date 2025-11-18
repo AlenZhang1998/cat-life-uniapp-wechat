@@ -43,7 +43,8 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
-  (e: 'login-success'): void
+  // 带上登录结果
+  (e: 'login-success', payload: { token: string; user: Record<string, any> }): void
 }>()
 
 const hasAgreed = ref(false)
@@ -77,9 +78,8 @@ const openAgreement = (type: 'user' | 'privacy') => {
 }
 
 const handleWeChatLogin = () => {
-  if (isSubmitting.value) {
-    return
-  }
+  if (isSubmitting.value) return
+
   if (!hasAgreed.value) {
     uni.showToast({
       title: '请勾选协议后再登录',
@@ -89,42 +89,57 @@ const handleWeChatLogin = () => {
   }
 
   isSubmitting.value = true
+
+  // 👇 这里是按钮 @tap 的同步回调 → 可以正常调用 getUserProfile
   uni.getUserProfile({
     desc: '用于完善个人信息',
     success: (profileRes) => {
       const userInfo = profileRes.userInfo
+      console.log(98, 'getUserProfile userInfo = ', userInfo)
+
       uni.login({
         provider: 'weixin',
         success: (loginRes) => {
           const code = loginRes.code
+
           uni.request({
-            url: 'http://10.48.75.101:3000/api/auth/login', // 10.48.75.101      192.168.60.58
+            url: 'http://10.48.75.101:3000/api/auth/login',
             method: 'POST',
             header: {
               'Content-Type': 'application/json'
             },
             data: {
               code,
-              userInfo
+              userInfo   // ✅ 和后端 app.js 解构字段对上
             },
             success: (res) => {
               isSubmitting.value = false
+
               if (res.statusCode !== 200) {
                 uni.showToast({ title: '登录失败', icon: 'none' })
                 return
               }
 
-              const { token, user } = res.data as { token?: string; user?: Record<string, any> }
-              if (token) {
-                uni.setStorageSync('token', token)
+              const { token, user } = res.data as {
+                token?: string
+                user?: Record<string, any>
               }
-              if (user) {
-                uni.setStorageSync('userInfo', user)
+
+              if (!token || !user) {
+                uni.showToast({ title: '登录数据异常', icon: 'none' })
+                return
               }
+
+              // 这里可以顺手存一份 raw 数据（可选）
+              uni.setStorageSync('token', token)
+              uni.setStorageSync('userProfile', user)  // ✅ 统一用 userProfile
 
               refreshLoginState()
               uni.showToast({ title: '登录成功', icon: 'success' })
-              emit('login-success')
+
+              // 把结果抛给父组件，让父组件决定怎么展示 profile
+              emit('login-success', { token, user })
+
               emit('update:visible', false)
             },
             fail: () => {

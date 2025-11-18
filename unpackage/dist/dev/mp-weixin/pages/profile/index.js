@@ -80,47 +80,19 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }
       showLoginSheet.value = true;
     };
-    const handleLoginSuccess = async () => {
-      try {
-        const profileRes = await common_vendor.index.getUserProfile({
-          desc: "用于完善个人资料"
-        });
-        common_vendor.index.__f__("log", "at pages/profile/index.vue:148", 148, "getUserProfile userInfo = ", profileRes.userInfo);
-        const loginRes = await common_vendor.index.login();
-        const backendRes = await common_vendor.index.request({
-          url: "http://10.48.75.101:3000/api/auth/login",
-          // 10.48.75.101      192.168.60.58
-          method: "POST",
-          header: {
-            "Content-Type": "application/json"
-          },
-          data: {
-            code: loginRes.code,
-            rawUserInfo: profileRes.userInfo
-          },
-          success: (res) => {
-            common_vendor.index.__f__("log", "at pages/profile/index.vue:164", "handleLoginSuccess success", res);
-          },
-          fail: (err) => {
-            common_vendor.index.__f__("log", "at pages/profile/index.vue:166", "handleLoginSuccess fail", err);
-          }
-        });
-        const finalProfile = {
-          ...defaultProfile,
-          ...backendRes.data
-          // 例如 { nickname, avatar, openid, token, ... }
-        };
-        applyProfile(finalProfile);
-        user.value = finalProfile;
-        common_vendor.index.setStorageSync("userProfile", finalProfile);
-        refreshLoginState();
-      } catch (error) {
-        common_vendor.index.__f__("warn", "at pages/profile/index.vue:185", "微信登录失败", error);
-        common_vendor.index.showToast({
-          icon: "none",
-          title: "登录已取消或失败"
-        });
-      }
+    const handleLoginSuccess = (payload) => {
+      const { token, user: backendUser } = payload;
+      const finalProfile = {
+        ...defaultProfile,
+        name: backendUser.nickname || defaultProfile.name,
+        avatar: backendUser.avatarUrl || ""
+        // 你后面可以再加：gender / deliveryDate / carModel 等
+      };
+      common_vendor.index.setStorageSync("token", token);
+      common_vendor.index.setStorageSync("userProfile", finalProfile);
+      applyProfile(finalProfile);
+      refreshLoginState();
+      showLoginSheet.value = false;
     };
     const handleLoginRequired = () => {
       if (!isLoggedIn.value) {
