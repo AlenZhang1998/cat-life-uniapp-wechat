@@ -24,7 +24,7 @@
         </view>
         <view class="agreement-text">
           我已阅读并同意
-          <text class="agreement-link" @tap.stop="openAgreement('user')">小熊油耗助手用户使用协议</text>
+          <text class="agreement-link" @tap.stop="openAgreement('user')">爱车油耗助手用户使用协议</text>
           和
           <text class="agreement-link" @tap.stop="openAgreement('privacy')">隐私保护协议</text>
         </view>
