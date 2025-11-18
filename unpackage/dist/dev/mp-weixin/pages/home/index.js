@@ -3,21 +3,25 @@ const common_vendor = require("../../common/vendor.js");
 const constants_storage = require("../../constants/storage.js");
 const utils_location = require("../../utils/location.js");
 const common_assets = require("../../common/assets.js");
+const utils_auth = require("../../utils/auth.js");
 if (!Array) {
   const _component_ec_canvas = common_vendor.resolveComponent("ec-canvas");
   _component_ec_canvas();
 }
 if (!Math) {
-  (RangePickerOverlay + BottomActionBar)();
+  (RangePickerOverlay + LoginOverlay + BottomActionBar)();
 }
 const BottomActionBar = () => "../../components/BottomActionBar.js";
 const RangePickerOverlay = () => "../../components/RangePickerOverlay.js";
+const LoginOverlay = () => "../../components/LoginOverlay.js";
 const DEFAULT_CITY = "深圳市";
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "index",
   setup(__props) {
     const echarts = require("../../wxcomponents/ec-canvas/echarts");
     const normalizeOrDefault = (value) => utils_location.normalizeCityName(value) || DEFAULT_CITY;
+    const { isLoggedIn, refreshLoginState } = utils_auth.useAuth();
+    const showLoginSheet = common_vendor.ref(false);
     const city = common_vendor.ref(normalizeOrDefault(DEFAULT_CITY));
     const syncSelectedCity = () => {
       const stored = common_vendor.index.getStorageSync(
@@ -311,6 +315,11 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         enterAnimationTimer = null;
       }
     });
+    const handleLoginRequired = () => {
+      if (!isLoggedIn.value) {
+        showLoginSheet.value = true;
+      }
+    };
     const handleNavigate = (actionKey) => {
       common_vendor.index.showToast({
         title: `功能 ${actionKey} 开发中`,
@@ -330,6 +339,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       });
     };
     common_vendor.onShow(() => {
+      refreshLoginState();
       syncSelectedCity();
       runPageEnterAnimation();
     });
@@ -388,10 +398,16 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           options: rangeOptions,
           ["selected-key"]: pendingRangeKey.value
         }),
-        A: common_vendor.p({
-          active: "fuel"
+        A: common_vendor.o(($event) => showLoginSheet.value = $event),
+        B: common_vendor.p({
+          visible: showLoginSheet.value
         }),
-        B: showRangePicker.value ? 1 : ""
+        C: common_vendor.o(handleLoginRequired),
+        D: common_vendor.p({
+          active: "fuel",
+          ["is-logged-in"]: common_vendor.unref(isLoggedIn)
+        }),
+        E: showRangePicker.value ? 1 : ""
       });
     };
   }

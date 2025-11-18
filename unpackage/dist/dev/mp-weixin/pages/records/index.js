@@ -1,12 +1,16 @@
 "use strict";
 const common_vendor = require("../../common/vendor.js");
+const utils_auth = require("../../utils/auth.js");
 if (!Math) {
-  BottomActionBar();
+  (LoginOverlay + BottomActionBar)();
 }
 const BottomActionBar = () => "../../components/BottomActionBar.js";
+const LoginOverlay = () => "../../components/LoginOverlay.js";
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "index",
   setup(__props) {
+    const { isLoggedIn, refreshLoginState } = utils_auth.useAuth();
+    const showLoginSheet = common_vendor.ref(false);
     const yearOptions = ["2025", "2024", "2023"];
     const selectedYearIndex = common_vendor.ref(0);
     const summarySnapshots = {
@@ -270,11 +274,17 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       };
       expandedRecordMap.value = next;
     };
+    const handleLoginRequired = () => {
+      if (!isLoggedIn.value) {
+        showLoginSheet.value = true;
+      }
+    };
     common_vendor.watch(currentYear, () => {
       expandedRecordMap.value = {};
       runPageEnterAnimation();
     });
     common_vendor.onShow(() => {
+      refreshLoginState();
       runPageEnterAnimation();
     });
     common_vendor.onMounted(() => {
@@ -340,8 +350,14 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             z: entry.id
           });
         }),
-        k: common_vendor.p({
-          active: "list"
+        k: common_vendor.o(($event) => showLoginSheet.value = $event),
+        l: common_vendor.p({
+          visible: showLoginSheet.value
+        }),
+        m: common_vendor.o(handleLoginRequired),
+        n: common_vendor.p({
+          active: "list",
+          ["is-logged-in"]: common_vendor.unref(isLoggedIn)
         })
       };
     };

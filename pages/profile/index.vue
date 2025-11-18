@@ -47,33 +47,7 @@
       </view>
     </view>
   </view>
-  <view
-    v-if="showLoginSheet"
-    class="login-overlay"
-    @tap="closeLoginSheet"
-    @touchmove.stop.prevent
-  >
-    <view class="login-overlay__backdrop"></view>
-    <view class="login-sheet" @tap.stop>
-      <view class="login-sheet__close" @tap="closeLoginSheet">✕</view>
-      <view class="login-sheet__title">登录账号</view>
-      <view class="login-sheet__subtitle">为有效保存您的数据，建议您登录</view>
-      <button class="login-sheet__btn login-sheet__btn--wechat" @tap="handleWeChatLogin">
-        微信一键登录
-      </button>
-      <view class="login-sheet__agreement" @tap="toggleAgreement">
-        <view class="checkbox" :class="{ 'checkbox--checked': hasAgreed }">
-          <text v-if="hasAgreed">✓</text>
-        </view>
-        <view class="agreement-text">
-          我已阅读并同意
-          <text class="agreement-link" @tap.stop="openAgreement('user')">小熊油耗助手用户使用协议</text>
-          和
-          <text class="agreement-link" @tap.stop="openAgreement('privacy')">隐私保护协议</text>
-        </view>
-      </view>
-    </view>
-  </view>
+  <LoginOverlay v-model:visible="showLoginSheet" @login-success="handleLoginSuccess" />
   <BottomActionBar active="profile" :is-logged-in="isLoggedIn" @login-required="handleLoginRequired" />
 </template>
 
@@ -81,6 +55,8 @@
 import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import BottomActionBar from '@/components/BottomActionBar.vue'
+import LoginOverlay from '@/components/LoginOverlay.vue'
+import { useAuth } from '@/utils/auth'
 
 const defaultProfile = {
   name: 'Alen',
@@ -96,9 +72,8 @@ const defaultProfile = {
   email: ''
 }
 
-const isLoggedIn = ref(false)
+const { isLoggedIn, refreshLoginState } = useAuth()
 const showLoginSheet = ref(false)
-const hasAgreed = ref(false)
 const user = ref({ ...defaultProfile })
 
 const features = ref([
@@ -133,7 +108,6 @@ const applyProfile = (profile?: Record<string, any>) => {
   const merged = { ...defaultProfile, ...(profile || {}) }
   merged.initial = merged.name ? merged.name.charAt(0) : defaultProfile.initial
   user.value = merged
-  isLoggedIn.value = !!profile && !!profile.name
 }
 
 const loadUserProfile = () => {
@@ -141,13 +115,14 @@ const loadUserProfile = () => {
     const stored = uni.getStorageSync('userProfile')
     if (stored) {
       applyProfile(typeof stored === 'string' ? JSON.parse(stored) : stored)
-      return
+    } else {
+      user.value = { ...defaultProfile }
     }
   } catch (error) {
     console.warn('读取用户信息失败', error)
+    user.value = { ...defaultProfile }
   }
-  isLoggedIn.value = false
-  user.value = { ...defaultProfile }
+  refreshLoginState()
 }
 
 onShow(() => {
@@ -161,78 +136,9 @@ const handleAvatarTap = () => {
   showLoginSheet.value = true
 }
 
-const closeLoginSheet = () => {
-  showLoginSheet.value = false
-}
 
-const toggleAgreement = () => {
-  hasAgreed.value = !hasAgreed.value
-}
-
-const handleWeChatLogin = () => {
-  if (!hasAgreed.value) {
-    uni.showToast({
-      title: '请勾选协议后再登录',
-      icon: 'none'
-    })
-    return
-  }
-  showLoginSheet.value = false
-
-  uni.getUserProfile({
-    desc: '用于完善个人信息',
-    success: (profileRes) => {
-      const userInfo = profileRes.userInfo
-      uni.login({
-        provider: 'weixin',
-        success: (loginRes) => {
-          const code = loginRes.code
-          uni.request({
-            url: 'http://192.168.60.58:3000/api/auth/login',
-            method: 'POST',
-            header: {
-              'Content-Type': 'application/json'
-            },
-            data: {
-              code,
-              userInfo
-            },
-            success: (res) => {
-              if (res.statusCode !== 200) {
-                uni.showToast({ title: '登录失败', icon: 'none' })
-                return
-              }
-
-              const { token, user } = res.data
-              uni.setStorageSync('token', token)
-              uni.setStorageSync('userInfo', user)
-
-              isLoggedIn.value = true
-              uni.showToast({ title: '登录成功', icon: 'success' })
-            },
-            fail: () => {
-              uni.showToast({ title: '网络错误', icon: 'none' })
-            }
-          })
-        },
-        fail: () => {
-          uni.showToast({ title: '微信登录失败', icon: 'none' })
-        }
-      })
-    },
-    fail: (err) => {
-      console.log('getUserProfile fail', err)
-      uni.showToast({ title: '需要授权头像信息', icon: 'none' })
-    }
-  })
-}
-
-const openAgreement = (type: 'user' | 'privacy') => {
-  const name = type === 'user' ? '用户使用协议' : '隐私保护协议'
-  uni.showToast({
-    title: `${name}暂未上线`,
-    icon: 'none'
-  })
+const handleLoginSuccess = () => {
+  loadUserProfile()
 }
 
 const handleLoginRequired = () => {
@@ -332,115 +238,7 @@ const handleFeatureTap = (item: { key: string }) => {
   font-size: 28rpx;
 }
 
-.login-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 1200;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 32rpx;
-}
 
-.login-overlay__backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.35);
-}
-
-.login-sheet {
-  position: relative;
-  width: 100%;
-  max-width: 640rpx;
-  padding: 48rpx 40rpx 52rpx;
-  border-radius: 32rpx;
-  background: #fff;
-  box-shadow: 0 28rpx 80rpx rgba(15, 25, 32, 0.28);
-  z-index: 1;
-}
-
-.login-sheet__close {
-  position: absolute;
-  top: 28rpx;
-  right: 28rpx;
-  width: 48rpx;
-  height: 48rpx;
-  border-radius: 50%;
-  background: rgba(99, 114, 140, 0.12);
-  color: #4b556c;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28rpx;
-}
-
-.login-sheet__title {
-  font-size: 36rpx;
-  font-weight: 600;
-  text-align: center;
-  color: #1f2329;
-}
-
-.login-sheet__subtitle {
-  margin-top: 12rpx;
-  text-align: center;
-  color: #6a7286;
-  font-size: 26rpx;
-}
-
-.login-sheet__btn {
-  width: 100%;
-  border: none;
-  border-radius: 999rpx;
-  margin-top: 32rpx;
-  padding: 24rpx 0;
-  font-size: 30rpx;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.login-sheet__btn--wechat {
-  background: linear-gradient(100deg, #00b83d, #00a837);
-  color: #fff;
-  box-shadow: 0 16rpx 32rpx rgba(0, 168, 55, 0.3);
-}
-
-.login-sheet__agreement {
-  display: flex;
-  align-items: center;
-  margin-top: 28rpx;
-  font-size: 24rpx;
-  color: #6c768e;
-}
-
-.checkbox {
-  width: 36rpx;
-  height: 36rpx;
-  border-radius: 8rpx;
-  border: 2rpx solid #c5ccdd;
-  margin-right: 16rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 24rpx;
-}
-
-.checkbox--checked {
-  background: linear-gradient(120deg, #00b83d, #00a837);
-  border-color: transparent;
-}
-
-.agreement-text {
-  flex: 1;
-  line-height: 1.6;
-}
-
-.agreement-link {
-  color: #0f73ff;
-}
 
 .identity-meta {
   flex: 1;

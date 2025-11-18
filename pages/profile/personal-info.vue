@@ -52,6 +52,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
+import { useAuth } from '@/utils/auth'
 
 interface UserProfile {
   avatar: string
@@ -76,6 +77,7 @@ const form = ref<UserProfile>({
 })
 
 const genderIndex = ref(2)
+const { refreshLoginState } = useAuth()
 
 const syncGenderIndex = (value: string) => {
   const idx = genderOptions.indexOf(value)
@@ -146,6 +148,7 @@ const handleSave = () => {
 
   try {
     uni.setStorageSync('userProfile', { ...form.value })
+    refreshLoginState()
     uni.showToast({
       title: '已保存',
       icon: 'success'

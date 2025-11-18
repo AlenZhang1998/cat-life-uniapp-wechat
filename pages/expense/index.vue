@@ -171,13 +171,21 @@
       </view>
     </view> -->
   </view>
-  <BottomActionBar active="expense" />
+  <LoginOverlay v-model:visible="showLoginSheet" />
+  <BottomActionBar
+    active="expense"
+    :is-logged-in="isLoggedIn"
+    @login-required="handleLoginRequired"
+  />
 </template>
 
 <script setup lang="ts">
+import { onShow } from '@dcloudio/uni-app'
 import { computed, onUnmounted, ref } from 'vue'
 import BottomActionBar from '@/components/BottomActionBar.vue'
 import RangePickerOverlay from '@/components/RangePickerOverlay.vue'
+import LoginOverlay from '@/components/LoginOverlay.vue'
+import { useAuth } from '@/utils/auth'
 // uCharts 官方 ECharts 适配仅支持 CJS 导入，这里使用 require 方式以兼容编译到小程序端
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const echarts = require('../../wxcomponents/ec-canvas/echarts')
@@ -207,6 +215,9 @@ const CATEGORY_META: Record<ExpenseCategory, { label: string; icon: string; colo
 }
 
 const MONTHLY_BUDGET = 2200
+
+const { isLoggedIn, refreshLoginState } = useAuth()
+const showLoginSheet = ref(false)
 
 const expenseRecords = ref<ExpenseRecord[]>([
   {
@@ -329,6 +340,12 @@ const heroOverview = computed(() => {
     ]
   }
 })
+
+const handleLoginRequired = () => {
+  if (!isLoggedIn.value) {
+    showLoginSheet.value = true
+  }
+}
 
 const handleHeroRangeTap = () => {
   pendingHeroRange.value = heroRange.value.key
@@ -560,6 +577,10 @@ onUnmounted(() => {
   yearlyExpenseChart?.dispose()
   monthlyExpenseChart = null
   yearlyExpenseChart = null
+})
+
+onShow(() => {
+  refreshLoginState()
 })
 
 const getCategoryMeta = (category: ExpenseCategory) => CATEGORY_META[category]

@@ -135,13 +135,20 @@
       </template>
     </view>
   </view>
-  <BottomActionBar active="list" />
+  <LoginOverlay v-model:visible="showLoginSheet" />
+  <BottomActionBar
+    active="list"
+    :is-logged-in="isLoggedIn"
+    @login-required="handleLoginRequired"
+  />
 </template>
 
 <script setup lang="ts">
 import { onShow } from '@dcloudio/uni-app'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import BottomActionBar from '@/components/BottomActionBar.vue'
+import LoginOverlay from '@/components/LoginOverlay.vue'
+import { useAuth } from '@/utils/auth'
 
 type FuelRecordItem = {
   type: 'record'
@@ -180,6 +187,9 @@ type SummarySnapshot = {
   pricePerLiter: string
   mileage: string
 }
+
+const { isLoggedIn, refreshLoginState } = useAuth()
+const showLoginSheet = ref(false)
 
 const yearOptions = ['2025', '2024', '2023']
 const selectedYearIndex = ref(0)
@@ -462,12 +472,19 @@ const toggleRecord = (entry: FuelRecordItem) => {
   expandedRecordMap.value = next
 }
 
+const handleLoginRequired = () => {
+  if (!isLoggedIn.value) {
+    showLoginSheet.value = true
+  }
+}
+
 watch(currentYear, () => {
   expandedRecordMap.value = {}
   runPageEnterAnimation()
 })
 
 onShow(() => {
+  refreshLoginState()
   runPageEnterAnimation()
 })
 
