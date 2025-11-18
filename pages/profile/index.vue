@@ -7,30 +7,18 @@
           <view class="avatar-core">{{ user.initial }}</view>
         </view>
         <view class="identity-meta">
+          <text class="identity-label">驾驶档案</text>
           <text class="user-name">{{ user.name }}</text>
           <text class="user-subtitle">加入于 {{ user.joinDate }}</text>
           <view class="user-tags">
             <text class="user-tag" v-for="tag in user.tags" :key="tag">{{ tag }}</text>
           </view>
         </view>
-        <!-- <view class="identity-badge">
-          <text class="badge-label">等级</text>
-          <text class="badge-value">α-3</text>
-        </view> -->
       </view>
-      <view class="identity-motto">{{ user.motto }}</view>
-      <!-- <view class="identity-actions">
-        <view class="identity-action" v-for="action in quickLinks" :key="action.key">
-          <view class="action-icon">
-            <text>{{ action.icon }}</text>
-          </view>
-          <view class="action-meta">
-            <text class="action-label">{{ action.label }}</text>
-            <text class="action-desc">{{ action.desc }}</text>
-          </view>
-          <text class="action-arrow">→</text>
-        </view>
-      </view> -->
+      <view class="identity-motto-card">
+        <text class="motto-label">今日心情</text>
+        <text class="motto-text">{{ user.motto }}</text>
+      </view>
     </view>
 
     <view class="garage-card">
@@ -65,12 +53,6 @@ const user = ref({
   tags: ['城市漫游者', '节能达人', '夜行者']
 })
 
-const quickLinks = ref([
-  { key: 'garage', icon: '🛰️', label: '车库宇宙', desc: '连接 3 台车与 2 个电桩' },
-  { key: 'report', icon: '📈', label: '驾驶报告', desc: '今日续航表现 +2%' },
-  // { key: 'subscription', icon: '🧊', label: '订阅服务', desc: '智驾实验室体验中' }
-])
-
 const features = ref([
   {
     key: 'garage',
@@ -90,7 +72,7 @@ const features = ref([
     title: '数据备份',
     desc: '同步到云端，换机无忧'
   },
-  { key: 'subscription', icon: '🧊', label: '订阅服务', desc: '智驾实验室体验中' },
+  { key: 'subscription', icon: '🧊', title: '订阅服务', desc: '智驾实验室体验中' },
   {
     key: 'settings',
     icon: '⚙️',
@@ -109,22 +91,24 @@ const features = ref([
   color: #1f2329;
 }
 
+
 .identity-card {
   position: relative;
-  border-radius: 40rpx;
-  padding: 40rpx 36rpx;
-  background: linear-gradient(135deg, #ffffff 0%, #f2fbff 60%, #fef7ff 100%);
-  box-shadow: 0 26rpx 52rpx rgba(103, 132, 192, 0.18);
+  border-radius: 44rpx;
+  padding: 44rpx 40rpx 36rpx;
+  background: linear-gradient(135deg, #ffffff 0%, #eef8ff 45%, #fdf1ff 100%);
+  box-shadow: 0 28rpx 60rpx rgba(74, 111, 160, 0.2);
   overflow: hidden;
   margin-bottom: 32rpx;
 }
 
 .identity-glow {
   position: absolute;
-  inset: -40rpx;
-  background: radial-gradient(circle at 20% 20%, rgba(190, 225, 255, 0.8), transparent 55%),
-    radial-gradient(circle at 80% 10%, rgba(255, 203, 240, 0.45), transparent 55%);
-  filter: blur(6rpx);
+  inset: -60rpx;
+  background: radial-gradient(circle at 15% 15%, rgba(190, 225, 255, 0.7), transparent 60%),
+    radial-gradient(circle at 85% 5%, rgba(255, 203, 240, 0.55), transparent 50%),
+    radial-gradient(circle at 50% 80%, rgba(198, 248, 219, 0.5), transparent 55%);
+  filter: blur(8rpx);
 }
 
 .identity-header {
@@ -136,11 +120,11 @@ const features = ref([
 }
 
 .avatar-ring {
-  width: 120rpx;
-  height: 120rpx;
+  width: 140rpx;
+  height: 140rpx;
   border-radius: 50%;
   background: conic-gradient(#2ed97a, #52a1ff, #ffd976, #2ed97a);
-  padding: 6rpx;
+  padding: 8rpx;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -157,14 +141,21 @@ const features = ref([
   font-size: 48rpx;
   font-weight: 700;
   color: #1f2329;
-  box-shadow: inset 0 0 12rpx rgba(0, 0, 0, 0.08);
+  box-shadow: inset 0 0 18rpx rgba(0, 0, 0, 0.06);
 }
 
 .identity-meta {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 16rpx;
+  gap: 12rpx;
+}
+
+.identity-label {
+  font-size: 22rpx;
+  letter-spacing: 4rpx;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.35);
 }
 
 .user-name {
@@ -201,21 +192,27 @@ const features = ref([
 //   color: #2a61d1;
 // }
 
-.identity-motto {
-  margin: 10rpx 0 5rpx;
-  font-size: 28rpx;
-  color: #4c5567;
-  // position: relative;
+ .identity-motto-card {
+  margin-top: 24rpx;
+  padding: 24rpx;
+  border-radius: 28rpx;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: inset 0 0 0 1rpx rgba(255, 255, 255, 0.3), 0 12rpx 32rpx rgba(86, 126, 173, 0.14);
+  position: relative;
   z-index: 1;
 }
 
-.identity-actions {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 20rpx;
-  margin-top: 18rpx;
+.motto-label {
+  font-size: 22rpx;
+  color: #7a8295;
+  margin-bottom: 8rpx;
+  display: block;
+}
+
+.motto-text {
+  font-size: 28rpx;
+  color: #3a3f4d;
+  line-height: 1.4;
 }
 
 .identity-action {
