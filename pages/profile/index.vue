@@ -18,8 +18,8 @@
           <text class="badge-value">α-3</text>
         </view> -->
       </view>
-      <text class="identity-motto">{{ user.motto }}</text>
-      <view class="identity-actions">
+      <view class="identity-motto">{{ user.motto }}</view>
+      <!-- <view class="identity-actions">
         <view class="identity-action" v-for="action in quickLinks" :key="action.key">
           <view class="action-icon">
             <text>{{ action.icon }}</text>
@@ -30,7 +30,7 @@
           </view>
           <text class="action-arrow">→</text>
         </view>
-      </view>
+      </view> -->
     </view>
 
     <view class="garage-card">
@@ -58,7 +58,7 @@ import { ref } from 'vue'
 import BottomActionBar from '@/components/BottomActionBar.vue'
 
 const user = ref({
-  name: '霓虹车主',
+  name: 'Alen',
   initial: '熊',
   joinDate: '2024-08',
   motto: '给油门一个拥抱，让城市多一点绿。',
@@ -68,7 +68,7 @@ const user = ref({
 const quickLinks = ref([
   { key: 'garage', icon: '🛰️', label: '车库宇宙', desc: '连接 3 台车与 2 个电桩' },
   { key: 'report', icon: '📈', label: '驾驶报告', desc: '今日续航表现 +2%' },
-  { key: 'subscription', icon: '🧊', label: '订阅服务', desc: '智驾实验室体验中' }
+  // { key: 'subscription', icon: '🧊', label: '订阅服务', desc: '智驾实验室体验中' }
 ])
 
 const features = ref([
@@ -79,10 +79,10 @@ const features = ref([
     desc: '切换默认车型，创建虚拟座驾'
   },
   {
-    key: 'report',
-    icon: '🧭',
-    title: '驾驶报告',
-    desc: '沉浸式路线回放，AI 语音解析'
+    key: 'feedback',
+    icon: '💡',
+    title: '建议反馈',
+    desc: '和我们聊聊你的灵感，持续优化体验'
   },
   {
     key: 'backup',
@@ -90,6 +90,7 @@ const features = ref([
     title: '数据备份',
     desc: '同步到云端，换机无忧'
   },
+  { key: 'subscription', icon: '🧊', label: '订阅服务', desc: '智驾实验室体验中' },
   {
     key: 'settings',
     icon: '⚙️',
@@ -201,10 +202,10 @@ const features = ref([
 // }
 
 .identity-motto {
-  margin: 24rpx 0 20rpx;
+  margin: 10rpx 0 5rpx;
   font-size: 28rpx;
   color: #4c5567;
-  position: relative;
+  // position: relative;
   z-index: 1;
 }
 

@@ -77,10 +77,9 @@
   color: #1d7243;
 }
 .identity-motto.data-v-201c0da5 {
-  margin: 24rpx 0 20rpx;
+  margin: 10rpx 0 5rpx;
   font-size: 28rpx;
   color: #4c5567;
-  position: relative;
   z-index: 1;
 }
 .identity-actions.data-v-201c0da5 {

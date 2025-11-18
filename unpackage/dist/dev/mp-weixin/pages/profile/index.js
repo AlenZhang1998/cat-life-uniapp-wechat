@@ -8,16 +8,16 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "index",
   setup(__props) {
     const user = common_vendor.ref({
-      name: "霓虹车主",
+      name: "Alen",
       initial: "熊",
       joinDate: "2024-08",
       motto: "给油门一个拥抱，让城市多一点绿。",
       tags: ["城市漫游者", "节能达人", "夜行者"]
     });
-    const quickLinks = common_vendor.ref([
+    common_vendor.ref([
       { key: "garage", icon: "🛰️", label: "车库宇宙", desc: "连接 3 台车与 2 个电桩" },
-      { key: "report", icon: "📈", label: "驾驶报告", desc: "今日续航表现 +2%" },
-      { key: "subscription", icon: "🧊", label: "订阅服务", desc: "智驾实验室体验中" }
+      { key: "report", icon: "📈", label: "驾驶报告", desc: "今日续航表现 +2%" }
+      // { key: 'subscription', icon: '🧊', label: '订阅服务', desc: '智驾实验室体验中' }
     ]);
     const features = common_vendor.ref([
       {
@@ -27,10 +27,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         desc: "切换默认车型，创建虚拟座驾"
       },
       {
-        key: "report",
-        icon: "🧭",
-        title: "驾驶报告",
-        desc: "沉浸式路线回放，AI 语音解析"
+        key: "feedback",
+        icon: "💡",
+        title: "建议反馈",
+        desc: "和我们聊聊你的灵感，持续优化体验"
       },
       {
         key: "backup",
@@ -38,6 +38,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         title: "数据备份",
         desc: "同步到云端，换机无忧"
       },
+      { key: "subscription", icon: "🧊", label: "订阅服务", desc: "智驾实验室体验中" },
       {
         key: "settings",
         icon: "⚙️",
@@ -57,15 +58,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           };
         }),
         e: common_vendor.t(user.value.motto),
-        f: common_vendor.f(quickLinks.value, (action, k0, i0) => {
-          return {
-            a: common_vendor.t(action.icon),
-            b: common_vendor.t(action.label),
-            c: common_vendor.t(action.desc),
-            d: action.key
-          };
-        }),
-        g: common_vendor.f(features.value, (item, k0, i0) => {
+        f: common_vendor.f(features.value, (item, k0, i0) => {
           return {
             a: common_vendor.t(item.icon),
             b: common_vendor.t(item.title),
@@ -73,7 +66,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             d: item.key
           };
         }),
-        h: common_vendor.p({
+        g: common_vendor.p({
           active: "profile"
         })
       };
