@@ -162,7 +162,12 @@
       @confirm="confirmRangePicker"
     />
 
-    <BottomActionBar active="fuel" />
+    <LoginOverlay v-model:visible="showLoginSheet" />
+    <BottomActionBar
+      active="fuel"
+      :is-logged-in="isLoggedIn"
+      @login-required="handleLoginRequired"
+    />
   </view>
 </template>
 
@@ -175,6 +180,8 @@ import locationIcon from '@/static/icons/dingwei.png'
 import dingwei_right from '@/static/icons/dingwei_right.png'
 import BottomActionBar from '@/components/BottomActionBar.vue'
 import RangePickerOverlay from '@/components/RangePickerOverlay.vue'
+import LoginOverlay from '@/components/LoginOverlay.vue'
+import { useAuth } from '@/utils/auth'
 // uCharts 官方 ECharts 适配仅支持 CJS 导入，这里使用 require 方式以兼容编译到小程序端
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const echarts = require('../../wxcomponents/ec-canvas/echarts')
@@ -183,6 +190,9 @@ const echarts = require('../../wxcomponents/ec-canvas/echarts')
 const DEFAULT_CITY = '深圳市'
 const normalizeOrDefault = (value?: string | null) =>
   normalizeCityName(value) || DEFAULT_CITY
+
+const { isLoggedIn, refreshLoginState } = useAuth()
+const showLoginSheet = ref(false)
 
 const city = ref(normalizeOrDefault(DEFAULT_CITY))
 
@@ -538,6 +548,12 @@ onUnmounted(() => {
   }
 })
 
+const handleLoginRequired = () => {
+  if (!isLoggedIn.value) {
+    showLoginSheet.value = true
+  }
+}
+
 /**
  * 统一处理页面跳转或后续功能入口
  * @param actionKey 操作 key
@@ -563,6 +579,7 @@ const navigateToCity = () => {
 }
 
 onShow(() => {
+  refreshLoginState()
   syncSelectedCity()
   runPageEnterAnimation()
 })

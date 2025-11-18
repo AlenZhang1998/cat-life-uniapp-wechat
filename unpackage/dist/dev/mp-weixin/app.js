@@ -8,6 +8,7 @@ if (!Math) {
   "./pages/add/index.js";
   "./pages/expense/index.js";
   "./pages/profile/index.js";
+  "./pages/profile/personal-info.js";
 }
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "App",

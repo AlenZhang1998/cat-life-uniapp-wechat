@@ -1,14 +1,16 @@
 "use strict";
 const common_vendor = require("../../common/vendor.js");
+const utils_auth = require("../../utils/auth.js");
 if (!Array) {
   const _component_ec_canvas = common_vendor.resolveComponent("ec-canvas");
   _component_ec_canvas();
 }
 if (!Math) {
-  (RangePickerOverlay + BottomActionBar)();
+  (RangePickerOverlay + LoginOverlay + BottomActionBar)();
 }
 const BottomActionBar = () => "../../components/BottomActionBar.js";
 const RangePickerOverlay = () => "../../components/RangePickerOverlay.js";
+const LoginOverlay = () => "../../components/LoginOverlay.js";
 const MONTHLY_BUDGET = 2200;
 const HERO_DISTANCE = 1577;
 const HERO_DAYS = 48;
@@ -24,6 +26,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       insurance: { label: "保险", icon: "🛡️", color: "#8E64FF", badgeBg: "#F0E7FF" },
       wash: { label: "洗车", icon: "💦", color: "#00BFA5", badgeBg: "#DDF8F3" }
     };
+    const { isLoggedIn, refreshLoginState } = utils_auth.useAuth();
+    const showLoginSheet = common_vendor.ref(false);
     const expenseRecords = common_vendor.ref([
       {
         id: "2025-03-18-fuel",
@@ -130,6 +134,11 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         ]
       };
     });
+    const handleLoginRequired = () => {
+      if (!isLoggedIn.value) {
+        showLoginSheet.value = true;
+      }
+    };
     const handleHeroRangeTap = () => {
       pendingHeroRange.value = heroRange.value.key;
       showHeroPicker.value = true;
@@ -341,6 +350,9 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       monthlyExpenseChart = null;
       yearlyExpenseChart = null;
     });
+    common_vendor.onShow(() => {
+      refreshLoginState();
+    });
     return (_ctx, _cache) => {
       return {
         a: common_vendor.t(heroRange.value.label),
@@ -400,8 +412,14 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           ["selected-key"]: pendingYearlyRange.value
         }),
         B: showHeroPicker.value || showMonthlyPicker.value || showYearlyPicker.value ? 1 : "",
-        C: common_vendor.p({
-          active: "expense"
+        C: common_vendor.o(($event) => showLoginSheet.value = $event),
+        D: common_vendor.p({
+          visible: showLoginSheet.value
+        }),
+        E: common_vendor.o(handleLoginRequired),
+        F: common_vendor.p({
+          active: "expense",
+          ["is-logged-in"]: common_vendor.unref(isLoggedIn)
         })
       };
     };
