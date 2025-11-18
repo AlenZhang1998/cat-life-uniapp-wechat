@@ -56,7 +56,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             success: (loginRes) => {
               const code = loginRes.code;
               common_vendor.index.request({
-                url: "http://192.168.60.58:3000/api/auth/login",
+                url: "http://10.48.75.101:3000/api/auth/login",
+                // 10.48.75.101      192.168.60.58
                 method: "POST",
                 header: {
                   "Content-Type": "application/json"
