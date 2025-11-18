@@ -17,3 +17,4 @@ declare module '@/wxcomponents/ec-canvas/echarts' {
 }
 
 declare const require: <T = any>(moduleId: string) => T;
+declare const uni: UniApp.Uni;
