@@ -7,14 +7,21 @@ const BottomActionBar = () => "../../components/BottomActionBar.js";
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "index",
   setup(__props) {
-    const isLoggedIn = common_vendor.ref(false);
-    const user = common_vendor.ref({
+    const defaultProfile = {
       name: "Alen",
       initial: "熊",
+      avatar: "",
       joinDate: "2024-08",
       motto: "给油门一个拥抱，让城市多一点绿。",
-      tags: ["城市漫游者", "节能达人", "夜行者"]
-    });
+      tags: ["城市漫游者", "节能达人", "夜行者"],
+      gender: "",
+      deliveryDate: "",
+      carModel: "",
+      phone: "",
+      email: ""
+    };
+    const isLoggedIn = common_vendor.ref(false);
+    const user = common_vendor.ref({ ...defaultProfile });
     const features = common_vendor.ref([
       {
         key: "garage",
@@ -42,6 +49,28 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         desc: "订阅提醒、隐私偏好、一键反馈"
       }
     ]);
+    const applyProfile = (profile) => {
+      const merged = { ...defaultProfile, ...profile || {} };
+      merged.initial = merged.name ? merged.name.charAt(0) : defaultProfile.initial;
+      user.value = merged;
+      isLoggedIn.value = !!profile && !!profile.name;
+    };
+    const loadUserProfile = () => {
+      try {
+        const stored = common_vendor.index.getStorageSync("userProfile");
+        if (stored) {
+          applyProfile(typeof stored === "string" ? JSON.parse(stored) : stored);
+          return;
+        }
+      } catch (error) {
+        common_vendor.index.__f__("warn", "at pages/profile/index.vue:118", "读取用户信息失败", error);
+      }
+      isLoggedIn.value = false;
+      user.value = { ...defaultProfile };
+    };
+    common_vendor.onShow(() => {
+      loadUserProfile();
+    });
     const handleAvatarTap = () => {
       if (isLoggedIn.value) {
         return;
@@ -56,37 +85,53 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         }
       });
     };
+    const handleFeatureTap = (item) => {
+      if (item.key === "garage") {
+        common_vendor.index.navigateTo({
+          url: "/pages/profile/personal-info"
+        });
+        return;
+      }
+      common_vendor.index.showToast({
+        title: "功能开发中，敬请期待",
+        icon: "none"
+      });
+    };
     return (_ctx, _cache) => {
       return common_vendor.e({
-        a: isLoggedIn.value
-      }, isLoggedIn.value ? {
-        b: common_vendor.t(user.value.initial)
+        a: user.value.avatar && isLoggedIn.value
+      }, user.value.avatar && isLoggedIn.value ? {
+        b: user.value.avatar
+      } : isLoggedIn.value ? {
+        d: common_vendor.t(user.value.initial)
       } : {}, {
-        c: common_vendor.o(handleAvatarTap),
-        d: isLoggedIn.value
+        c: isLoggedIn.value,
+        e: common_vendor.o(handleAvatarTap),
+        f: isLoggedIn.value
       }, isLoggedIn.value ? {
-        e: common_vendor.t(user.value.name),
-        f: common_vendor.t(user.value.joinDate),
-        g: common_vendor.f(user.value.tags, (tag, k0, i0) => {
+        g: common_vendor.t(user.value.name),
+        h: common_vendor.t(user.value.joinDate),
+        i: common_vendor.f(user.value.tags, (tag, k0, i0) => {
           return {
             a: common_vendor.t(tag),
             b: tag
           };
         })
       } : {}, {
-        h: isLoggedIn.value
+        j: isLoggedIn.value
       }, isLoggedIn.value ? {
-        i: common_vendor.t(user.value.motto)
+        k: common_vendor.t(user.value.motto)
       } : {}, {
-        j: common_vendor.f(features.value, (item, k0, i0) => {
+        l: common_vendor.f(features.value, (item, k0, i0) => {
           return {
             a: common_vendor.t(item.icon),
             b: common_vendor.t(item.title),
             c: common_vendor.t(item.desc),
-            d: item.key
+            d: item.key,
+            e: common_vendor.o(($event) => handleFeatureTap(item), item.key)
           };
         }),
-        k: common_vendor.p({
+        m: common_vendor.p({
           active: "profile"
         })
       });

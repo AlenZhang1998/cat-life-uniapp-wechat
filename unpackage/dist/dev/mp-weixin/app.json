@@ -5,7 +5,8 @@
     "pages/records/index",
     "pages/add/index",
     "pages/expense/index",
-    "pages/profile/index"
+    "pages/profile/index",
+    "pages/profile/personal-info"
   ],
   "window": {
     "navigationBarTextStyle": "black",

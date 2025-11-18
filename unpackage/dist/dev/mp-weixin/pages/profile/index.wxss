@@ -50,6 +50,11 @@
   color: #1f2329;
   box-shadow: inset 0 0 18rpx rgba(0, 0, 0, 0.06);
 }
+.avatar-image.data-v-201c0da5 {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
 .avatar-placeholder.data-v-201c0da5 {
   color: #94a2b8;
   font-size: 28rpx;
