@@ -3,10 +3,13 @@ const common_vendor = require("../common/vendor.js");
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "BottomActionBar",
   props: {
-    active: {}
+    active: {},
+    isLoggedIn: { type: Boolean }
   },
-  setup(__props) {
+  emits: ["login-required"],
+  setup(__props, { emit: __emit }) {
     const props = __props;
+    const emit = __emit;
     const actions = [
       {
         key: "fuel",
@@ -59,6 +62,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         return;
       }
       if (action.key === "add") {
+        if (props.isLoggedIn === false) {
+          emit("login-required");
+          return;
+        }
         common_vendor.index.navigateTo({ url: action.path });
         return;
       }
