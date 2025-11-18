@@ -21,6 +21,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       email: ""
     };
     const isLoggedIn = common_vendor.ref(false);
+    const showLoginSheet = common_vendor.ref(false);
+    const hasAgreed = common_vendor.ref(false);
     const user = common_vendor.ref({ ...defaultProfile });
     const features = common_vendor.ref([
       {
@@ -63,7 +65,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           return;
         }
       } catch (error) {
-        common_vendor.index.__f__("warn", "at pages/profile/index.vue:118", "读取用户信息失败", error);
+        common_vendor.index.__f__("warn", "at pages/profile/index.vue:147", "读取用户信息失败", error);
       }
       isLoggedIn.value = false;
       user.value = { ...defaultProfile };
@@ -71,10 +73,27 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     common_vendor.onShow(() => {
       loadUserProfile();
     });
-    const handleAvatarTap = async () => {
+    const handleAvatarTap = () => {
       if (isLoggedIn.value) {
         return;
       }
+      showLoginSheet.value = true;
+    };
+    const closeLoginSheet = () => {
+      showLoginSheet.value = false;
+    };
+    const toggleAgreement = () => {
+      hasAgreed.value = !hasAgreed.value;
+    };
+    const handleWeChatLogin = () => {
+      if (!hasAgreed.value) {
+        common_vendor.index.showToast({
+          title: "请勾选协议后再登录",
+          icon: "none"
+        });
+        return;
+      }
+      showLoginSheet.value = false;
       common_vendor.index.getUserProfile({
         desc: "用于完善个人信息",
         success: (profileRes) => {
@@ -115,9 +134,16 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           });
         },
         fail: (err) => {
-          common_vendor.index.__f__("log", "at pages/profile/index.vue:190", "getUserProfile fail", err);
+          common_vendor.index.__f__("log", "at pages/profile/index.vue:224", "getUserProfile fail", err);
           common_vendor.index.showToast({ title: "需要授权头像信息", icon: "none" });
         }
+      });
+    };
+    const openAgreement = (type) => {
+      const name = type === "user" ? "用户使用协议" : "隐私保护协议";
+      common_vendor.index.showToast({
+        title: `${name}暂未上线`,
+        icon: "none"
       });
     };
     const handleFeatureTap = (item) => {
@@ -166,7 +192,23 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             e: common_vendor.o(($event) => handleFeatureTap(item), item.key)
           };
         }),
-        m: common_vendor.p({
+        m: showLoginSheet.value
+      }, showLoginSheet.value ? common_vendor.e({
+        n: common_vendor.o(closeLoginSheet),
+        o: common_vendor.o(handleWeChatLogin),
+        p: hasAgreed.value
+      }, hasAgreed.value ? {} : {}, {
+        q: hasAgreed.value ? 1 : "",
+        r: common_vendor.o(($event) => openAgreement("user")),
+        s: common_vendor.o(($event) => openAgreement("privacy")),
+        t: common_vendor.o(toggleAgreement),
+        v: common_vendor.o(() => {
+        }),
+        w: common_vendor.o(closeLoginSheet),
+        x: common_vendor.o(() => {
+        })
+      }) : {}, {
+        y: common_vendor.p({
           active: "profile"
         })
       });

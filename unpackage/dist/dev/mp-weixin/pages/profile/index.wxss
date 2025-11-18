@@ -59,6 +59,103 @@
   color: #94a2b8;
   font-size: 28rpx;
 }
+.login-overlay.data-v-201c0da5 {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 32rpx;
+}
+.login-overlay__backdrop.data-v-201c0da5 {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+}
+.login-sheet.data-v-201c0da5 {
+  position: relative;
+  width: 100%;
+  max-width: 640rpx;
+  padding: 48rpx 40rpx 52rpx;
+  border-radius: 32rpx;
+  background: #fff;
+  box-shadow: 0 28rpx 80rpx rgba(15, 25, 32, 0.28);
+  z-index: 1;
+}
+.login-sheet__close.data-v-201c0da5 {
+  position: absolute;
+  top: 28rpx;
+  right: 28rpx;
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  background: rgba(99, 114, 140, 0.12);
+  color: #4b556c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+}
+.login-sheet__title.data-v-201c0da5 {
+  font-size: 36rpx;
+  font-weight: 600;
+  text-align: center;
+  color: #1f2329;
+}
+.login-sheet__subtitle.data-v-201c0da5 {
+  margin-top: 12rpx;
+  text-align: center;
+  color: #6a7286;
+  font-size: 26rpx;
+}
+.login-sheet__btn.data-v-201c0da5 {
+  width: 100%;
+  border: none;
+  border-radius: 999rpx;
+  margin-top: 32rpx;
+  padding: 24rpx 0;
+  font-size: 30rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.login-sheet__btn--wechat.data-v-201c0da5 {
+  background: linear-gradient(100deg, #00b83d, #00a837);
+  color: #fff;
+  box-shadow: 0 16rpx 32rpx rgba(0, 168, 55, 0.3);
+}
+.login-sheet__agreement.data-v-201c0da5 {
+  display: flex;
+  align-items: center;
+  margin-top: 28rpx;
+  font-size: 24rpx;
+  color: #6c768e;
+}
+.checkbox.data-v-201c0da5 {
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 8rpx;
+  border: 2rpx solid #c5ccdd;
+  margin-right: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 24rpx;
+}
+.checkbox--checked.data-v-201c0da5 {
+  background: linear-gradient(120deg, #00b83d, #00a837);
+  border-color: transparent;
+}
+.agreement-text.data-v-201c0da5 {
+  flex: 1;
+  line-height: 1.6;
+}
+.agreement-link.data-v-201c0da5 {
+  color: #0f73ff;
+}
 .identity-meta.data-v-201c0da5 {
   flex: 1;
   display: flex;
