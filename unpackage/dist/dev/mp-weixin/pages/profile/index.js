@@ -146,7 +146,16 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         icon: "none"
       });
     };
+    const handleLoginRequired = () => {
+      if (!isLoggedIn.value) {
+        showLoginSheet.value = true;
+      }
+    };
     const handleFeatureTap = (item) => {
+      if (!isLoggedIn.value) {
+        showLoginSheet.value = true;
+        return;
+      }
       if (item.key === "garage") {
         common_vendor.index.navigateTo({
           url: "/pages/profile/personal-info"
@@ -208,8 +217,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         x: common_vendor.o(() => {
         })
       }) : {}, {
-        y: common_vendor.p({
-          active: "profile"
+        y: common_vendor.o(handleLoginRequired),
+        z: common_vendor.p({
+          active: "profile",
+          ["is-logged-in"]: isLoggedIn.value
         })
       });
     };

@@ -32,6 +32,11 @@ type ActionKey = 'fuel' | 'list' | 'add' | 'expense' | 'profile'
 
 const props = defineProps<{
   active?: ActionKey
+  isLoggedIn?: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: 'login-required'): void
 }>()
 
 const actions: Array<{
@@ -96,6 +101,10 @@ const handleAction = (action: (typeof actions)[number]) => {
   }
 
   if (action.key === 'add') {
+    if (props.isLoggedIn === false) {
+      emit('login-required')
+      return
+    }
     uni.navigateTo({ url: action.path })
     return
   }

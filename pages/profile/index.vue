@@ -74,7 +74,7 @@
       </view>
     </view>
   </view>
-  <BottomActionBar active="profile" />
+  <BottomActionBar active="profile" :is-logged-in="isLoggedIn" @login-required="handleLoginRequired" />
 </template>
 
 <script setup lang="ts">
@@ -235,7 +235,17 @@ const openAgreement = (type: 'user' | 'privacy') => {
   })
 }
 
+const handleLoginRequired = () => {
+  if (!isLoggedIn.value) {
+    showLoginSheet.value = true
+  }
+}
+
 const handleFeatureTap = (item: { key: string }) => {
+  if (!isLoggedIn.value) {
+    showLoginSheet.value = true
+    return
+  }
   if (item.key === 'garage') {
     uni.navigateTo({
       url: '/pages/profile/personal-info'
