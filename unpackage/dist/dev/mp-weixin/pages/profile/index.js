@@ -26,8 +26,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       {
         key: "garage",
         icon: "🚗",
-        title: "我的车库",
-        desc: "切换默认车型，创建虚拟座驾"
+        title: "个人信息",
+        desc: "编辑个人信息, 爱车型号"
       },
       {
         key: "feedback",
