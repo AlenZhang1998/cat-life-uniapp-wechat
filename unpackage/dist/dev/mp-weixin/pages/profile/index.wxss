@@ -50,6 +50,10 @@
   color: #1f2329;
   box-shadow: inset 0 0 18rpx rgba(0, 0, 0, 0.06);
 }
+.avatar-placeholder.data-v-201c0da5 {
+  color: #94a2b8;
+  font-size: 28rpx;
+}
 .identity-meta.data-v-201c0da5 {
   flex: 1;
   display: flex;
@@ -81,6 +85,14 @@
   background: rgba(30, 193, 95, 0.12);
   font-size: 22rpx;
   color: #1d7243;
+}
+.identity-meta--placeholder.data-v-201c0da5 {
+  align-items: flex-start;
+  gap: 8rpx;
+}
+.identity-meta--placeholder .user-name.data-v-201c0da5 {
+  font-size: 32rpx;
+  color: #2a61d1;
 }
 .identity-motto-card.data-v-201c0da5 {
   margin-top: 24rpx;
