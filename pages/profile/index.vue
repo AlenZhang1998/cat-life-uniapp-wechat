@@ -125,18 +125,70 @@ onShow(() => {
   loadUserProfile()
 })
 
-const handleAvatarTap = () => {
+const handleAvatarTap = async () => {
   if (isLoggedIn.value) {
     return
   }
   // 模拟微信一键登录入口
-  uni.showModal({
-    title: '提示',
-    content: '模拟微信一键登录成功',
-    success: (res) => {
-      if (res.confirm) {
-        isLoggedIn.value = true
-      }
+  // uni.showModal({
+  //   title: '提示',
+  //   content: '模拟微信一键登录成功',
+  //   success: (res) => {
+  //     if (res.confirm) {
+  //       isLoggedIn.value = true
+  //     }
+  //   }
+  // })
+
+  // 1. 必须在 tap 的同步回调里，优先调用 getUserProfile
+  uni.getUserProfile({
+    desc: '用于完善个人信息',
+    success: (profileRes) => {
+      const userInfo = profileRes.userInfo
+
+      // 2. 再去调用 login 拿 code
+      uni.login({
+        provider: 'weixin',
+        success: (loginRes) => {
+          const code = loginRes.code
+
+          // 3. 调你自己的后端登录接口
+          uni.request({
+            url: 'http://192.168.60.58:3000/api/auth/login',
+            method: 'POST',
+            header: {
+              'Content-Type': 'application/json'
+            },
+            data: {
+              code,
+              userInfo
+            },
+            success: (res) => {
+              if (res.statusCode !== 200) {
+                uni.showToast({ title: '登录失败', icon: 'none' })
+                return
+              }
+
+              const { token, user } = res.data
+              uni.setStorageSync('token', token)
+              uni.setStorageSync('userInfo', user)
+
+              isLoggedIn.value = true
+              uni.showToast({ title: '登录成功', icon: 'success' })
+            },
+            fail: () => {
+              uni.showToast({ title: '网络错误', icon: 'none' })
+            }
+          })
+        },
+        fail: () => {
+          uni.showToast({ title: '微信登录失败', icon: 'none' })
+        }
+      })
+    },
+    fail: (err) => {
+      console.log('getUserProfile fail', err)
+      uni.showToast({ title: '需要授权头像信息', icon: 'none' })
     }
   })
 }

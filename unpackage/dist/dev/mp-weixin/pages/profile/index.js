@@ -71,17 +71,52 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     common_vendor.onShow(() => {
       loadUserProfile();
     });
-    const handleAvatarTap = () => {
+    const handleAvatarTap = async () => {
       if (isLoggedIn.value) {
         return;
       }
-      common_vendor.index.showModal({
-        title: "提示",
-        content: "模拟微信一键登录成功",
-        success: (res) => {
-          if (res.confirm) {
-            isLoggedIn.value = true;
-          }
+      common_vendor.index.getUserProfile({
+        desc: "用于完善个人信息",
+        success: (profileRes) => {
+          const userInfo = profileRes.userInfo;
+          common_vendor.index.login({
+            provider: "weixin",
+            success: (loginRes) => {
+              const code = loginRes.code;
+              common_vendor.index.request({
+                url: "http://192.168.60.58:3000/api/auth/login",
+                method: "POST",
+                header: {
+                  "Content-Type": "application/json"
+                },
+                data: {
+                  code,
+                  userInfo
+                },
+                success: (res) => {
+                  if (res.statusCode !== 200) {
+                    common_vendor.index.showToast({ title: "登录失败", icon: "none" });
+                    return;
+                  }
+                  const { token, user: user2 } = res.data;
+                  common_vendor.index.setStorageSync("token", token);
+                  common_vendor.index.setStorageSync("userInfo", user2);
+                  isLoggedIn.value = true;
+                  common_vendor.index.showToast({ title: "登录成功", icon: "success" });
+                },
+                fail: () => {
+                  common_vendor.index.showToast({ title: "网络错误", icon: "none" });
+                }
+              });
+            },
+            fail: () => {
+              common_vendor.index.showToast({ title: "微信登录失败", icon: "none" });
+            }
+          });
+        },
+        fail: (err) => {
+          common_vendor.index.__f__("log", "at pages/profile/index.vue:190", "getUserProfile fail", err);
+          common_vendor.index.showToast({ title: "需要授权头像信息", icon: "none" });
         }
       });
     };
