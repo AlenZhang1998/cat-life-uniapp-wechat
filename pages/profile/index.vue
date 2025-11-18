@@ -110,7 +110,8 @@ const applyProfile = (profile?: Record<string, any>) => {
   user.value = merged
 }
 
-const loadUserProfile = () => {
+// 从本地缓存里读用户信息
+const initUserFromStorage = () => {
   try {
     const stored = uni.getStorageSync('userProfile')
     if (stored) {
@@ -126,7 +127,7 @@ const loadUserProfile = () => {
 }
 
 onShow(() => {
-  loadUserProfile()
+  initUserFromStorage()
 })
 
 const handleAvatarTap = () => {
@@ -137,8 +138,57 @@ const handleAvatarTap = () => {
 }
 
 
-const handleLoginSuccess = () => {
-  loadUserProfile()
+const handleLoginSuccess = async() => {
+  // initUserFromStorage()
+  try {
+    // 1. 先拿微信用户信息（需要弹授权）
+    const profileRes = await uni.getUserProfile({
+      desc: '用于完善个人资料'
+    })
+    console.log(148, 'getUserProfile userInfo = ', profileRes.userInfo)
+
+    // 2. 拿登录 code
+    const loginRes = await uni.login()
+
+    // 3. 把 code + 用户信息发给你的后端，换 token / openid / 自己的用户信息
+    const backendRes = await uni.request({
+      url: 'http://10.48.75.101:3000/api/auth/login', // 10.48.75.101      192.168.60.58
+      method: 'POST',
+      header: {
+        'Content-Type': 'application/json'
+      },
+      data: {
+      code: loginRes.code,
+      rawUserInfo: profileRes.userInfo
+    }, success: (res) => {
+      console.log('handleLoginSuccess success', res)
+    }, fail: (err) => {
+      console.log('handleLoginSuccess fail', err)
+    }
+  })
+
+    const finalProfile = {
+      ...defaultProfile,
+      ...backendRes.data,     // 例如 { nickname, avatar, openid, token, ... }
+    }
+
+    // 4. 应用到前端状态
+    applyProfile(finalProfile)
+    user.value = finalProfile
+
+    // 5. 写入本地缓存，方便下次 initUserFromStorage 直接使用
+    uni.setStorageSync('userProfile', finalProfile)
+
+    // 6. 刷新登录状态标记
+    refreshLoginState()
+  } catch (error) {
+    console.warn('微信登录失败', error)
+    // 视情况提示用户
+    uni.showToast({
+      icon: 'none',
+      title: '登录已取消或失败'
+    })
+  }
 }
 
 const handleLoginRequired = () => {
