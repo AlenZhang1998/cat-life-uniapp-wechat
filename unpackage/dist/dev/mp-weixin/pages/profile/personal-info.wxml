@@ -1,0 +1,76 @@
+<view class="personal-info-page">
+  <view class="form-card">
+    <view class="avatar-section">
+      <view class="avatar-preview" bindtap="chooseAvatar">
+        <image wx:if="{{form.avatar}}" src="{{form.avatar}}" mode="aspectFill" />
+        <text wx:else>添加头像</text>
+      </view>
+      <text class="avatar-tip">支持拍照或从本地相册选择</text>
+      <button class="avatar-btn" bindtap="chooseAvatar">更换头像</button>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">昵称</text>
+      <input
+        class="form-input"
+        value="{{form.name}}"
+        placeholder="请输入昵称"
+        maxlength="20"
+        data-field="name"
+        bindinput="onInputChange"
+      />
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">性别</text>
+      <picker mode="selector" range="{{genderOptions}}" value="{{genderIndex}}" bindchange="onGenderChange">
+        <view class="picker-value">{{form.gender || '请选择性别'}}</view>
+      </picker>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">提车日期</text>
+      <picker mode="date" value="{{form.deliveryDate}}" bindchange="onDeliveryChange">
+        <view class="picker-value">{{form.deliveryDate || '请选择提车日期'}}</view>
+      </picker>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">爱车型号</text>
+      <input
+        class="form-input"
+        value="{{form.carModel}}"
+        maxlength="30"
+        placeholder="请输入你喜欢的车型"
+        data-field="carModel"
+        bindinput="onInputChange"
+      />
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">联系电话</text>
+      <input
+        class="form-input"
+        value="{{form.phone}}"
+        type="number"
+        maxlength="11"
+        placeholder="请输入手机号"
+        data-field="phone"
+        bindinput="onInputChange"
+      />
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">邮箱</text>
+      <input
+        class="form-input"
+        value="{{form.email}}"
+        placeholder="请输入邮箱地址"
+        data-field="email"
+        bindinput="onInputChange"
+      />
+    </view>
+  </view>
+
+  <button class="save-btn" bindtap="handleSave">保存</button>
+</view>

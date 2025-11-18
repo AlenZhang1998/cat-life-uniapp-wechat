@@ -5,7 +5,8 @@
       <view class="identity-header">
         <view class="avatar-ring" @tap="handleAvatarTap">
           <view class="avatar-core">
-            <text v-if="isLoggedIn">{{ user.initial }}</text>
+            <image v-if="user.avatar && isLoggedIn" :src="user.avatar" class="avatar-image" mode="aspectFill" />
+            <text v-else-if="isLoggedIn">{{ user.initial }}</text>
             <text v-else class="avatar-placeholder">点我登录</text>
           </view>
         </view>
@@ -35,7 +36,7 @@
         <text class="section-subtitle">体验自定义驾驶日常</text>
       </view>
       <view class="feature-list">
-        <view class="feature-item" v-for="item in features" :key="item.key">
+        <view class="feature-item" v-for="item in features" :key="item.key" @tap="handleFeatureTap(item)">
           <view class="feature-icon">{{ item.icon }}</view>
           <view class="feature-content">
             <text class="feature-title">{{ item.title }}</text>
@@ -51,16 +52,25 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
 import BottomActionBar from '@/components/BottomActionBar.vue'
 
-const isLoggedIn = ref(false)
-const user = ref({
+const defaultProfile = {
   name: 'Alen',
   initial: '熊',
+  avatar: '',
   joinDate: '2024-08',
   motto: '给油门一个拥抱，让城市多一点绿。',
-  tags: ['城市漫游者', '节能达人', '夜行者']
-})
+  tags: ['城市漫游者', '节能达人', '夜行者'],
+  gender: '',
+  deliveryDate: '',
+  carModel: '',
+  phone: '',
+  email: ''
+}
+
+const isLoggedIn = ref(false)
+const user = ref({ ...defaultProfile })
 
 const features = ref([
   {
@@ -90,6 +100,31 @@ const features = ref([
   }
 ])
 
+const applyProfile = (profile?: Record<string, any>) => {
+  const merged = { ...defaultProfile, ...(profile || {}) }
+  merged.initial = merged.name ? merged.name.charAt(0) : defaultProfile.initial
+  user.value = merged
+  isLoggedIn.value = !!profile && !!profile.name
+}
+
+const loadUserProfile = () => {
+  try {
+    const stored = uni.getStorageSync('userProfile')
+    if (stored) {
+      applyProfile(typeof stored === 'string' ? JSON.parse(stored) : stored)
+      return
+    }
+  } catch (error) {
+    console.warn('读取用户信息失败', error)
+  }
+  isLoggedIn.value = false
+  user.value = { ...defaultProfile }
+}
+
+onShow(() => {
+  loadUserProfile()
+})
+
 const handleAvatarTap = () => {
   if (isLoggedIn.value) {
     return
@@ -103,6 +138,19 @@ const handleAvatarTap = () => {
         isLoggedIn.value = true
       }
     }
+  })
+}
+
+const handleFeatureTap = (item: { key: string }) => {
+  if (item.key === 'garage') {
+    uni.navigateTo({
+      url: '/pages/profile/personal-info'
+    })
+    return
+  }
+  uni.showToast({
+    title: '功能开发中，敬请期待',
+    icon: 'none'
   })
 }
 </script>
@@ -167,6 +215,12 @@ const handleAvatarTap = () => {
   font-weight: 700;
   color: #1f2329;
   box-shadow: inset 0 0 18rpx rgba(0, 0, 0, 0.06);
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
 }
 
 .avatar-placeholder {
