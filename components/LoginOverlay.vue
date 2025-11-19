@@ -104,8 +104,8 @@ const handleWeChatLogin = () => {
           const code = loginRes.code
 
           request<{
-            token?: string
-            user?: Record<string, any>
+            token?: string // 给 request 的返回数据加 TypeScript 类型约束。 // token 是可选字段，可能有可能没有
+            user?: Record<string, any> // user 也是可选字段，但它是一个对象（键值对）
           }>({
             url: '/api/auth/login',
             method: 'POST',
