@@ -36,7 +36,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useAuth } from '@/utils/auth'
-import { request } from '@/utils/request'
+import { axios } from '@/utils/request'
 
 const props = defineProps<{
   visible: boolean
@@ -103,7 +103,20 @@ const handleWeChatLogin = () => {
         success: (loginRes) => {
           const code = loginRes.code
 
-          request<{
+          // 用法1
+          // axios.post<{ token?: string; user?: Record<string, any> }>(
+          //   '/api/auth/login',
+          //   { code, userInfo },
+          //   { showErrorToast: false }
+          // )
+          // .then((data) => {
+          //   // ...保持后续逻辑不变
+          // })
+          // .catch(...)
+          // .finally(...)
+
+          // 用法2
+          axios.request<{
             token?: string // 给 request 的返回数据加 TypeScript 类型约束。 // token 是可选字段，可能有可能没有
             user?: Record<string, any> // user 也是可选字段，但它是一个对象（键值对）
           }>({

@@ -1,4 +1,4 @@
-﻿import { request } from '@/utils/request'
+﻿import { axios } from '@/utils/request'
 
 type ReverseGeocodeResult = {
   city: string
@@ -63,7 +63,7 @@ export const reverseGeocodeByTencent = async (
   }
 
   try {
-    const response = await request<{
+    const response = await axios.request<{
       status: number
       result?: {
         address: string

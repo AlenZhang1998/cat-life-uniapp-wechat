@@ -1,4 +1,7 @@
-type RequestOptions<T = any> = Omit<UniApp.RequestOptions, 'success' | 'fail' | 'complete'> & {
+export type RequestOptions<T = any> = Omit<
+  UniApp.RequestOptions,
+  'success' | 'fail' | 'complete'
+> & {
   showErrorToast?: boolean
   baseURL?: string
 }
@@ -14,7 +17,7 @@ const DEFAULT_BASE_URL = 'http://10.48.75.101:3000' // 192.168.60.58
 const getEnvBaseUrl = () => {
   try {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore - uni-app 编译阶段会注入 import.meta.env
+    // @ts-ignore uni-app 会在编译阶段注入 import.meta.env
     return (import.meta?.env?.VITE_API_BASE_URL as string | undefined) || ''
   } catch {
     return ''
@@ -31,7 +34,10 @@ const joinUrl = (base: string, path: string) => {
   return `${base.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`
 }
 
-const createError = <T>(message: string, res?: UniApp.RequestSuccessCallbackResult<T>): RequestError<T> => {
+const createError = <T>(
+  message: string,
+  res?: UniApp.RequestSuccessCallbackResult<T>
+): RequestError<T> => {
   const error: RequestError<T> = new Error(message)
   if (res) {
     error.statusCode = res.statusCode
@@ -41,7 +47,7 @@ const createError = <T>(message: string, res?: UniApp.RequestSuccessCallbackResu
   return error
 }
 
-export const request = <T = any>(options: RequestOptions<T>) => {
+const coreRequest = <T = any>(options: RequestOptions<T>) => {
   const {
     url,
     showErrorToast = true,
@@ -68,12 +74,12 @@ export const request = <T = any>(options: RequestOptions<T>) => {
         }
 
         const errorPayload =
-          (res.data &&
-            typeof res.data === 'object' &&
-            'message' in (res.data as Record<string, any>) &&
-            typeof (res.data as Record<string, any>).message === 'string'
+          res.data &&
+          typeof res.data === 'object' &&
+          'message' in (res.data as Record<string, any>) &&
+          typeof (res.data as Record<string, any>).message === 'string'
             ? ((res.data as Record<string, any>).message as string)
-            : `请求失败（${res.statusCode}）`)
+            : `请求失败（${res.statusCode}）`
 
         if (showErrorToast) {
           uni.showToast({
@@ -96,5 +102,27 @@ export const request = <T = any>(options: RequestOptions<T>) => {
     })
   })
 }
+
+type Method = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
+
+const createShortcut =
+  (method: Method) =>
+  <T = any>(url: string, config?: Omit<RequestOptions<T>, 'url' | 'method'>) =>
+    coreRequest<T>({
+      ...(config as RequestOptions<T>),
+      url,
+      method
+    })
+
+export const axios = {
+  request: coreRequest,
+  get: createShortcut('GET'),
+  post: createShortcut('POST'),
+  put: createShortcut('PUT'),
+  delete: createShortcut('DELETE'),
+  patch: createShortcut('PATCH')
+}
+
+export const request = axios.request
 
 export const getBaseUrl = () => BASE_URL
