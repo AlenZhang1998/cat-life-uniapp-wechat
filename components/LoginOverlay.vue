@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <view
     v-if="visible"
     class="login-overlay"
@@ -36,6 +36,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useAuth } from '@/utils/auth'
+import { request } from '@/utils/request'
 
 const props = defineProps<{
   visible: boolean
@@ -95,70 +96,61 @@ const handleWeChatLogin = () => {
     desc: '用于完善个人信息',
     success: (profileRes) => {
       const userInfo = profileRes.userInfo
-      console.log(98, 'getUserProfile userInfo = ', userInfo)
+      console.log(99, 'getUserProfile userInfo = ', userInfo)
 
       uni.login({
         provider: 'weixin',
         success: (loginRes) => {
           const code = loginRes.code
 
-          uni.request({
-            url: 'http://192.168.60.58:3000/api/auth/login', // 10.48.75.101 192.168.60.58
+          request<{
+            token?: string
+            user?: Record<string, any>
+          }>({
+            url: '/api/auth/login',
             method: 'POST',
-            header: {
-              'Content-Type': 'application/json'
-            },
             data: {
               code,
-              userInfo   // ✅ 和后端 app.js 解构字段对上      前端传 code 和 userInfo
+              userInfo
             },
-            success: (res) => {
-              console.log(116, 'login success res = ', res)
-              isSubmitting.value = false
+            showErrorToast: false
+          })
+            .then((data) => {
+              console.log(116, 'login success data = ', data)
 
-              if (res.statusCode !== 200) {
-                uni.showToast({ title: '登录失败', icon: 'none' })
-                return
-              }
-
-              const { token, user } = res.data as {
-                token?: string
-                user?: Record<string, any>
-              }
+              const { token, user } = data || {}
 
               if (!token || !user) {
                 uni.showToast({ title: '登录数据异常', icon: 'none' })
                 return
               }
 
-              // 这里可以顺手存一份 raw 数据（可选）
               uni.setStorageSync('token', token)
-              uni.setStorageSync('userProfile', user)  // ✅ 统一用 userProfile
+              uni.setStorageSync('userProfile', user)
 
               refreshLoginState()
               uni.showToast({ title: '登录成功', icon: 'success' })
-
-              // 把结果抛给父组件，让父组件决定怎么展示 profile
               emit('login-success', { token, user })
-
               emit('update:visible', false)
-            },
-            fail: () => {
+            })
+            .catch((error) => {
+              console.log('login request fail', error)
+              uni.showToast({ title: '登录失败，请稍后再试', icon: 'none' })
+            })
+            .finally(() => {
               isSubmitting.value = false
-              uni.showToast({ title: '网络错误', icon: 'none' })
-            }
-          })
+            })
         },
         fail: () => {
           isSubmitting.value = false
-          uni.showToast({ title: '微信登录失败', icon: 'none' })
+          uni.showToast({ title: '寰俊鐧诲綍澶辫触', icon: 'none' })
         }
       })
     },
     fail: (err) => {
       isSubmitting.value = false
       console.log('getUserProfile fail', err)
-      uni.showToast({ title: '需要授权头像信息', icon: 'none' })
+      uni.showToast({ title: '需要获取用户信息权限', icon: 'none' })
     }
   })
 }

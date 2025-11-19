@@ -1,3 +1,5 @@
+﻿import { request } from '@/utils/request'
+
 type ReverseGeocodeResult = {
   city: string
   province?: string
@@ -16,15 +18,6 @@ const CITY_NAME_MATCHER =
 const PROVINCE_PREFIX_MATCHER =
   /^[\u4e00-\u9fa5]+?(?:省|自治区|特别行政区)/u
 const PROVINCE_SUFFIX_MATCHER = /(省|特别行政区)$/u
-
-const request = <T>(options: UniApp.RequestOptions) =>
-  new Promise<UniApp.RequestSuccessCallbackResult<T>>((resolve, reject) => {
-    uni.request({
-      ...options,
-      success: (res) => resolve(res as UniApp.RequestSuccessCallbackResult<T>),
-      fail: (err) => reject(err)
-    })
-  })
 
 export const requestLocation = () =>
   new Promise<UniApp.GetLocationSuccess>((resolve, reject) => {
@@ -89,13 +82,14 @@ export const reverseGeocodeByTencent = async (
         key: TENCENT_MAP_KEY,
         location: `${latitude},${longitude}`,
         get_poi: 0
-      }
+      },
+      showErrorToast: false
     })
 
-    if (response.data.status === 0 && response.data.result) {
+    if (response.status === 0 && response.result) {
       const {
         result: { address, ad_info }
-      } = response.data
+      } = response
       return {
         city: ad_info.city.replace(/(市|地区|盟)$/u, ''),
         province: ad_info.province,

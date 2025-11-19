@@ -16,5 +16,14 @@ declare module '@/wxcomponents/ec-canvas/echarts' {
   export = echarts;
 }
 
+interface ImportMetaEnv {
+  readonly VITE_TENCENT_MAP_KEY?: string;
+  readonly VITE_API_BASE_URL?: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
+
 declare const require: <T = any>(moduleId: string) => T;
 declare const uni: UniApp.Uni;
