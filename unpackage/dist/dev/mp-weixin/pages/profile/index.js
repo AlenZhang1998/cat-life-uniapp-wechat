@@ -22,7 +22,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       phone: "",
       email: ""
     };
-    const { isLoggedIn, refreshLoginState } = utils_auth.useAuth();
+    const { isLoggedIn, refreshLoginState, setStoredToken, setStoredProfile } = utils_auth.useAuth();
     const showLoginSheet = common_vendor.ref(false);
     const user = common_vendor.ref({ ...defaultProfile });
     const features = common_vendor.ref([
@@ -60,14 +60,14 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const initUserFromStorage = () => {
       try {
         const stored = common_vendor.index.getStorageSync("userProfile");
-        common_vendor.index.__f__("log", "at pages/profile/index.vue:117", 117, "stored", stored);
+        common_vendor.index.__f__("log", "at pages/profile/index.vue:121", 117, "stored", stored);
         if (stored) {
           applyProfile(typeof stored === "string" ? JSON.parse(stored) : stored);
         } else {
           user.value = { ...defaultProfile };
         }
       } catch (error) {
-        common_vendor.index.__f__("warn", "at pages/profile/index.vue:124", "读取用户信息失败", error);
+        common_vendor.index.__f__("warn", "at pages/profile/index.vue:128", "读取用户信息失败", error);
         user.value = { ...defaultProfile };
       }
       refreshLoginState();
@@ -89,7 +89,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         avatar: backendUser.avatarUrl || ""
         // 你后面可以再加：gender / deliveryDate / carModel 等
       };
-      common_vendor.index.__f__("log", "at pages/profile/index.vue:152", 152, "finalProfile = ", finalProfile);
+      common_vendor.index.__f__("log", "at pages/profile/index.vue:156", 152, "finalProfile = ", finalProfile);
       common_vendor.index.setStorageSync("token", token);
       common_vendor.index.setStorageSync("userProfile", finalProfile);
       applyProfile(finalProfile);
@@ -115,6 +115,28 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       common_vendor.index.showToast({
         title: "功能开发中，敬请期待",
         icon: "none"
+      });
+    };
+    const handleLogout = () => {
+      common_vendor.index.showModal({
+        title: "退出登录",
+        content: "确定要退出当前账号吗？",
+        confirmColor: "#f56c6c",
+        success: (res) => {
+          if (!res.confirm) {
+            return;
+          }
+          common_vendor.index.removeStorageSync("token");
+          common_vendor.index.removeStorageSync("userProfile");
+          setStoredToken();
+          setStoredProfile();
+          applyProfile();
+          showLoginSheet.value = false;
+          common_vendor.index.showToast({
+            title: "已退出登录",
+            icon: "none"
+          });
+        }
       });
     };
     return (_ctx, _cache) => {
@@ -151,13 +173,17 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             e: common_vendor.o(($event) => handleFeatureTap(item), item.key)
           };
         }),
-        m: common_vendor.o(handleLoginSuccess),
-        n: common_vendor.o(($event) => showLoginSheet.value = $event),
-        o: common_vendor.p({
+        m: common_vendor.unref(isLoggedIn)
+      }, common_vendor.unref(isLoggedIn) ? {
+        n: common_vendor.o(handleLogout)
+      } : {}, {
+        o: common_vendor.o(handleLoginSuccess),
+        p: common_vendor.o(($event) => showLoginSheet.value = $event),
+        q: common_vendor.p({
           visible: showLoginSheet.value
         }),
-        p: common_vendor.o(handleLoginRequired),
-        q: common_vendor.p({
+        r: common_vendor.o(handleLoginRequired),
+        s: common_vendor.p({
           active: "profile",
           ["is-logged-in"]: common_vendor.unref(isLoggedIn)
         })

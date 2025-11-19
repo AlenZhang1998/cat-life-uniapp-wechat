@@ -46,6 +46,10 @@
         </view>
       </view>
     </view>
+
+    <view v-if="isLoggedIn" class="logout-card" @tap="handleLogout">
+      <text class="logout-text">退出登录</text>
+    </view>
   </view>
   <LoginOverlay v-model:visible="showLoginSheet" @login-success="handleLoginSuccess" />
   <BottomActionBar active="profile" :is-logged-in="isLoggedIn" @login-required="handleLoginRequired" />
@@ -72,7 +76,7 @@ const defaultProfile = {
   email: ''
 }
 
-const { isLoggedIn, refreshLoginState } = useAuth()
+const { isLoggedIn, refreshLoginState, setStoredToken, setStoredProfile } = useAuth()
 const showLoginSheet = ref(false)
 const user = ref({ ...defaultProfile })
 
@@ -180,6 +184,35 @@ const handleFeatureTap = (item: { key: string }) => {
   uni.showToast({
     title: '功能开发中，敬请期待',
     icon: 'none'
+  })
+}
+
+const handleLogout = () => {
+  uni.showModal({
+    title: '退出登录',
+    content: '确定要退出当前账号吗？',
+    confirmColor: '#f56c6c',
+    success: (res) => {
+      if (!res.confirm) {
+        return
+      }
+      // 1. 清除本地缓存
+      uni.removeStorageSync('token')
+      uni.removeStorageSync('userProfile')
+
+      // 2. 更新 Vue 响应式数据 清空当前用户信息
+      // 更新 isLoggedIn
+      setStoredToken()
+      setStoredProfile()
+      // 清空当前用户信息
+      applyProfile()
+
+      showLoginSheet.value = false
+      uni.showToast({
+        title: '已退出登录',
+        icon: 'none'
+      })
+    }
   })
 }
 </script>
@@ -463,5 +496,22 @@ const handleFeatureTap = (item: { key: string }) => {
 .feature-arrow {
   font-size: 32rpx;
   color: #c0c5d2;
+}
+
+.logout-card {
+  margin-top: 32rpx;
+  border-radius: 32rpx;
+  background: #fff5f5;
+  color: #f16060;
+  text-align: center;
+  padding: 28rpx 24rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  box-shadow: 0 12rpx 32rpx rgba(241, 96, 96, 0.2);
+  letter-spacing: 4rpx;
+}
+
+.logout-text {
+  color: inherit;
 }
 </style>

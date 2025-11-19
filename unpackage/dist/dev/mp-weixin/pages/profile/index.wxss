@@ -225,3 +225,18 @@
   font-size: 32rpx;
   color: #c0c5d2;
 }
+.logout-card.data-v-201c0da5 {
+  margin-top: 32rpx;
+  border-radius: 32rpx;
+  background: #fff5f5;
+  color: #f16060;
+  text-align: center;
+  padding: 28rpx 24rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  box-shadow: 0 12rpx 32rpx rgba(241, 96, 96, 0.2);
+  letter-spacing: 4rpx;
+}
+.logout-text.data-v-201c0da5 {
+  color: inherit;
+}
