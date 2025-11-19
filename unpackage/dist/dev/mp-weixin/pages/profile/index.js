@@ -11,7 +11,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   setup(__props) {
     const defaultProfile = {
       name: "Alen",
-      initial: "熊",
+      initial: "A",
       avatar: "",
       joinDate: "2024-08",
       motto: "给油门一个拥抱，让城市多一点绿。",
@@ -60,13 +60,14 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const initUserFromStorage = () => {
       try {
         const stored = common_vendor.index.getStorageSync("userProfile");
+        common_vendor.index.__f__("log", "at pages/profile/index.vue:117", 117, "stored", stored);
         if (stored) {
           applyProfile(typeof stored === "string" ? JSON.parse(stored) : stored);
         } else {
           user.value = { ...defaultProfile };
         }
       } catch (error) {
-        common_vendor.index.__f__("warn", "at pages/profile/index.vue:123", "读取用户信息失败", error);
+        common_vendor.index.__f__("warn", "at pages/profile/index.vue:124", "读取用户信息失败", error);
         user.value = { ...defaultProfile };
       }
       refreshLoginState();
@@ -88,6 +89,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         avatar: backendUser.avatarUrl || ""
         // 你后面可以再加：gender / deliveryDate / carModel 等
       };
+      common_vendor.index.__f__("log", "at pages/profile/index.vue:152", 152, "finalProfile = ", finalProfile);
       common_vendor.index.setStorageSync("token", token);
       common_vendor.index.setStorageSync("userProfile", finalProfile);
       applyProfile(finalProfile);

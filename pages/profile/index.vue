@@ -60,7 +60,7 @@ import { useAuth } from '@/utils/auth'
 
 const defaultProfile = {
   name: 'Alen',
-  initial: '熊',
+  initial: 'A',
   avatar: '',
   joinDate: '2024-08',
   motto: '给油门一个拥抱，让城市多一点绿。',
@@ -114,6 +114,7 @@ const applyProfile = (profile?: Record<string, any>) => {
 const initUserFromStorage = () => {
   try {
     const stored = uni.getStorageSync('userProfile')
+    console.log(117, 'stored', stored)
     if (stored) {
       applyProfile(typeof stored === 'string' ? JSON.parse(stored) : stored)
     } else {
@@ -148,6 +149,7 @@ const handleLoginSuccess = (payload: { token: string; user: any }) => {
     avatar: backendUser.avatarUrl || '',
     // 你后面可以再加：gender / deliveryDate / carModel 等
   }
+  console.log(152, 'finalProfile = ', finalProfile)
 
   // 存本地，跟 initUserFromStorage 对上
   uni.setStorageSync('token', token)

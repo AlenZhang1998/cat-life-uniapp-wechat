@@ -56,7 +56,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             success: (loginRes) => {
               const code = loginRes.code;
               common_vendor.index.request({
-                url: "http://10.48.75.101:3000/api/auth/login",
+                url: "http://192.168.60.58:3000/api/auth/login",
+                // 10.48.75.101 192.168.60.58
                 method: "POST",
                 header: {
                   "Content-Type": "application/json"
@@ -64,9 +65,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
                 data: {
                   code,
                   userInfo
-                  // ✅ 和后端 app.js 解构字段对上
+                  // ✅ 和后端 app.js 解构字段对上      前端传 code 和 userInfo
                 },
                 success: (res) => {
+                  common_vendor.index.__f__("log", "at components/LoginOverlay.vue:116", 116, "login success res = ", res);
                   isSubmitting.value = false;
                   if (res.statusCode !== 200) {
                     common_vendor.index.showToast({ title: "登录失败", icon: "none" });
@@ -98,7 +100,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         },
         fail: (err) => {
           isSubmitting.value = false;
-          common_vendor.index.__f__("log", "at components/LoginOverlay.vue:159", "getUserProfile fail", err);
+          common_vendor.index.__f__("log", "at components/LoginOverlay.vue:160", "getUserProfile fail", err);
           common_vendor.index.showToast({ title: "需要授权头像信息", icon: "none" });
         }
       });
