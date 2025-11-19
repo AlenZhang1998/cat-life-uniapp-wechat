@@ -103,16 +103,17 @@ const handleWeChatLogin = () => {
           const code = loginRes.code
 
           uni.request({
-            url: 'http://10.48.75.101:3000/api/auth/login',
+            url: 'http://192.168.60.58:3000/api/auth/login', // 10.48.75.101 192.168.60.58
             method: 'POST',
             header: {
               'Content-Type': 'application/json'
             },
             data: {
               code,
-              userInfo   // ✅ 和后端 app.js 解构字段对上
+              userInfo   // ✅ 和后端 app.js 解构字段对上      前端传 code 和 userInfo
             },
             success: (res) => {
+              console.log(116, 'login success res = ', res)
               isSubmitting.value = false
 
               if (res.statusCode !== 200) {
