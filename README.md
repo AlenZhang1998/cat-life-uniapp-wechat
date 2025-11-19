@@ -12,6 +12,7 @@
 - **油耗记录列表**：`pages/records` 搭建分组列表、卡片展开、年度筛选与补充对比卡，展示真实业务形态。
 - **费用统计中心**：`pages/expense` 复用 `ec-canvas` 绘制月度 / 年度双图表，并提供多层时间范围选择器。
 - **个人档案与资料编辑**：`pages/profile` 与 `pages/profile/personal-info` 支持本地存储头像、昵称、车型等信息，模拟微信登录、资料保存。
+- **账号登录与退出**：个人档案页登录后会展示底部「退出登录」按钮，可清空本地 token 与 `userProfile`，方便演示账号切换与安全退出。
 - **复用型 UI 组件**：底部操作栏、范围选择弹层在多个页面共享，保持体验一致并简化交互逻辑。
 
 ## 核心页面
@@ -107,8 +108,8 @@
 - **油耗记录快照**：`pages/records` 中的 `recordSnapshots`、`summarySnapshots` 示例展示如何按年份切换；接入后端时可按年份拉取接口数据。
 - **费用统计图表**：`pages/expense` 通过 `wxcomponents/ec-canvas` 引入官方 ECharts 适配，动态图表均集中在 `monthlyExpenseEc` / `yearlyExpenseEc`。
 - **个人档案存储**：
-  - 个人信息存储在本地 `userProfile` 中（`uni.setStorageSync`）。
-  - `pages/profile/index.vue` 读取缓存并展示标签、加入时间、今日心情等。
+  - 个人信息存储在本地 `userProfile` 中（`uni.setStorageSync`），同时登录凭证会写入 `token` 键，方便接入真实接口。
+  - `pages/profile/index.vue` 读取缓存并展示标签、加入时间、今日心情等；登录后会渲染底部「退出登录」按钮，点击即可清空本地 token / `userProfile` 并恢复默认档案。
   - `pages/profile/personal-info.vue` 提供头像、昵称、车型等表单，便于替换为真实账号系统。
 - **样式变量**：`uni.scss` 定义了主题色、阴影、圆角等 token，能统一管理视觉风格。
 - **自定义导航栏**：`pages.json` 中将核心页面的 `navigationStyle` 设为 `custom`，并使用 `var(--status-bar-height)` 保证状态栏安全。
