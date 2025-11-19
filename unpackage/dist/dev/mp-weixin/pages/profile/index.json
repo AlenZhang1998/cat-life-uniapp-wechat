@@ -1,7 +1,0 @@
-{
-  "navigationBarTitleText": "我的",
-  "usingComponents": {
-    "bottom-action-bar": "../../components/BottomActionBar",
-    "login-overlay": "../../components/LoginOverlay"
-  }
-}
