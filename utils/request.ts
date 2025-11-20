@@ -12,7 +12,7 @@ export interface RequestError<T = any> extends Error {
   raw?: UniApp.RequestSuccessCallbackResult<T>
 }
 
-const DEFAULT_BASE_URL = 'http://10.48.75.101:3000' // 192.168.60.58
+const DEFAULT_BASE_URL = 'http://192.168.60.58:3000' // 192.168.60.58    10.48.75.101
 
 const getEnvBaseUrl = () => {
   try {
