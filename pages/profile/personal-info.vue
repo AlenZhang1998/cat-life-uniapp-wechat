@@ -16,10 +16,11 @@
       </view>
 
       <view class="form-group">
-        <text class="form-label">性别</text>
-        <picker mode="selector" :range="genderOptions" :value="genderIndex" @change="onGenderChange">
-          <view class="picker-value">{{ form.gender || '请选择性别' }}</view>
+        <text class="form-label">性别（微信）</text>
+        <picker mode="selector" :range="genderOptions" :value="genderIndex" :disabled="true">
+          <view class="picker-value picker-value--disabled">{{ form.gender || '保密' }}</view>
         </picker>
+        <text class="field-tip">性别由微信同步，暂不支持修改</text>
       </view>
 
       <view class="form-group">
@@ -51,8 +52,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { onLoad } from '@dcloudio/uni-app'
+import { onLoad, onShow } from '@dcloudio/uni-app'
 import { useAuth } from '@/utils/auth'
+import { axios } from '@/utils/request'
 
 interface UserProfile {
   avatar: string
@@ -64,7 +66,7 @@ interface UserProfile {
   email: string
 }
 
-const genderOptions = ['男', '女', '保密']
+const genderOptions = ['男', '女', '保密'] // 1 男，2 女，0 未知/保密
 
 const form = ref<UserProfile>({
   avatar: '',
@@ -79,12 +81,22 @@ const form = ref<UserProfile>({
 const genderIndex = ref(2)
 const { refreshLoginState } = useAuth()
 
+const mapGenderValue = (value: unknown) => {
+  if (typeof value === 'number') {
+    return value === 1 ? '男' : value === 2 ? '女' : '保密'
+  }
+  if (typeof value === 'string' && genderOptions.includes(value)) {
+    return value
+  }
+  return '保密'
+}
+
 const syncGenderIndex = (value: string) => {
   const idx = genderOptions.indexOf(value)
   genderIndex.value = idx >= 0 ? idx : 2
 }
 
-const loadProfile = () => {
+const loadLocalProfile = () => {
   try {
     const stored = uni.getStorageSync('userProfile')
     if (stored) {
@@ -94,7 +106,9 @@ const loadProfile = () => {
       if (!profile.deliveryDate && profile.birthDate) {
         profile.deliveryDate = profile.birthDate
       }
+      // 本地存的是用户自定义头像/昵称，不被微信数据覆盖
       form.value = { ...form.value, ...profile }
+      form.value.gender = mapGenderValue(profile.gender)
       syncGenderIndex(form.value.gender || '保密')
     }
   } catch (error) {
@@ -102,14 +116,52 @@ const loadProfile = () => {
   }
 }
 
+// 页面加载时先读本地自定义信息
 onLoad(() => {
+  loadLocalProfile()
+})
+
+// 页面显示时加载个人信息
+onShow(() => {
   loadProfile()
 })
 
-const onGenderChange = (event: any) => {
-  const idx = Number(event.detail.value)
-  genderIndex.value = idx
-  form.value.gender = genderOptions[idx]
+const loadProfile = () => {
+  const token = uni.getStorageSync('token')
+  if (!token) return
+
+  axios.get('/api/profile', {
+    showErrorToast: false
+  }).then((res) => {
+    console.log(139, 'loadProfile res = ', res)
+    if (res.code === 0) {
+      const remote = res.data || {}
+      const merged: UserProfile = {
+        ...form.value,
+        // 仅在用户未自定义时才用微信头像/昵称
+        avatar: form.value.avatar || remote.avatarUrl || '',
+        name: form.value.name || remote.nickname || '',
+        gender: mapGenderValue(remote.gender),
+        deliveryDate: remote.deliveryDate || remote.birthDate || form.value.deliveryDate,
+        carModel: remote.favoriteCarModel || remote.carModel || form.value.carModel,
+        phone: remote.phone || form.value.phone,
+        email: remote.email || form.value.email
+      }
+      form.value = merged
+      syncGenderIndex(merged.gender)
+    } else {
+      uni.showToast({
+        title: res.message,
+        icon: 'none'
+      })
+    }
+  }).catch((error) => {
+    console.warn('请求个人信息失败', error)
+    uni.showToast({
+      title: '加载失败，已使用本地信息',
+      icon: 'none'
+    })
+  })
 }
 
 const onDeliveryChange = (event: any) => {
@@ -138,9 +190,28 @@ const pickAvatar = (sourceType: 'camera' | 'album') => {
 }
 
 const handleSave = () => {
+  const phoneRegex = /^1\\d{10}$/
+  const emailRegex = /^[\\w.+-]+@[\\w-]+(\\.[\\w-]+)+$/
+
   if (!form.value.name || !form.value.carModel || !form.value.deliveryDate) {
     uni.showToast({
       title: !form.value.name ? '请填写昵称' : !form.value.carModel ? '请填写爱车型号' : '请选择提车日期',
+      icon: 'none'
+    })
+    return
+  }
+
+  if (form.value.phone && !phoneRegex.test(form.value.phone)) {
+    uni.showToast({
+      title: '手机号格式不正确',
+      icon: 'none'
+    })
+    return
+  }
+
+  if (form.value.email && !emailRegex.test(form.value.email)) {
+    uni.showToast({
+      title: '邮箱格式不正确',
       icon: 'none'
     })
     return
@@ -251,6 +322,16 @@ const handleSave = () => {
 .picker-value {
   display: flex;
   align-items: center;
+}
+
+.picker-value--disabled {
+  color: #8b94a8;
+}
+
+.field-tip {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #8b94a8;
 }
 
 .save-btn {
