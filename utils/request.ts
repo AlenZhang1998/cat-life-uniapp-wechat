@@ -52,6 +52,15 @@ const createError = <T>(
   return error
 }
 
+const getStoredToken = () => {
+  try {
+    const token = uni.getStorageSync('token')
+    return typeof token === 'string' ? token : ''
+  } catch {
+    return ''
+  }
+}
+
 const coreRequest = <T = any>(options: RequestOptions<T>) => {
   const {
     url,
@@ -62,6 +71,13 @@ const coreRequest = <T = any>(options: RequestOptions<T>) => {
   } = options as RequestOptions<T> & Record<string, any>
 
   const finalUrl = isAbsoluteUrl(url) ? url : joinUrl(baseURL || BASE_URL, url)
+  const token = getStoredToken()
+  const authHeaders = token
+    ? {
+        Authorization: token.startsWith('Bearer ') ? token : `Bearer ${token}`,
+        token
+      }
+    : {}
 
   return new Promise<T>((resolve, reject) => {
     uni.request({
@@ -69,6 +85,7 @@ const coreRequest = <T = any>(options: RequestOptions<T>) => {
       url: finalUrl,
       header: {
         'Content-Type': 'application/json',
+        ...authHeaders,
         ...header
       },
       success: (res) => {
