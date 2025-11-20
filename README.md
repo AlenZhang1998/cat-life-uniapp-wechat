@@ -108,9 +108,13 @@
 - **油耗记录快照**：`pages/records` 中的 `recordSnapshots`、`summarySnapshots` 示例展示如何按年份切换；接入后端时可按年份拉取接口数据。
 - **费用统计图表**：`pages/expense` 通过 `wxcomponents/ec-canvas` 引入官方 ECharts 适配，动态图表均集中在 `monthlyExpenseEc` / `yearlyExpenseEc`。
 - **个人档案存储**：
-  - 个人信息存储在本地 `userProfile` 中（`uni.setStorageSync`），同时登录凭证会写入 `token` 键，方便接入真实接口。
+  - 个人信息存储在本地 `userProfile` 中（`uni.setStorageSync`），同时登录凭证会写入 `token` 键。
   - `pages/profile/index.vue` 读取缓存并展示标签、加入时间、今日心情等；登录后会渲染底部「退出登录」按钮，点击即可清空本地 token / `userProfile` 并恢复默认档案。
-  - `pages/profile/personal-info.vue` 提供头像、昵称、车型等表单，便于替换为真实账号系统。
+  - `pages/profile/personal-info.vue` 支持头像（`userAvatar`）、用户名（`username`）等表单，保存会：
+    - 校验手机号/邮箱，再将 `{nickname, avatarUrl, gender, deliveryDate, favoriteCarModel, phone, email}` 通过 `PUT /api/profile` 写入后端。
+    - 写本地缓存，兼容旧字段 `name` / `avatar`。
+    - 初始化时先读本地自定义值；若用户未自定义 `userAvatar`/`username`，会回退使用接口的 `avatarUrl`/`nickname`。
+  - 后端示例（同目录 `../car-life-nodejs-express-mongodb/src/app.js`）提供 `GET /api/profile`、`PUT /api/profile`，接入时将 BASE_URL 指向你的服务即可。
 - **样式变量**：`uni.scss` 定义了主题色、阴影、圆角等 token，能统一管理视觉风格。
 - **自定义导航栏**：`pages.json` 中将核心页面的 `navigationStyle` 设为 `custom`，并使用 `var(--status-bar-height)` 保证状态栏安全。
 
