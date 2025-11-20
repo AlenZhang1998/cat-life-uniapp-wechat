@@ -3,7 +3,7 @@
     <view class="form-card">
       <view class="avatar-section">
         <view class="avatar-preview" @tap="chooseAvatar">
-          <image v-if="form.avatar" :src="form.avatar" mode="aspectFill" />
+          <image v-if="form.userAvatar" :src="form.userAvatar" mode="aspectFill" />
           <text v-else>添加头像</text>
         </view>
         <text class="avatar-tip">支持拍照或从本地相册选择</text>
@@ -11,8 +11,8 @@
       </view>
 
       <view class="form-group">
-        <text class="form-label">昵称</text>
-        <input class="form-input" v-model="form.name" placeholder="请输入昵称" maxlength="20" />
+        <text class="form-label">用户名</text>
+        <input class="form-input" v-model="form.username" placeholder="请输入用户名" maxlength="20" />
       </view>
 
       <view class="form-group">
@@ -57,20 +57,23 @@ import { useAuth } from '@/utils/auth'
 import { axios } from '@/utils/request'
 
 interface UserProfile {
-  avatar: string
-  name: string
+  userAvatar: string
+  username: string
   gender: string
   deliveryDate: string
   carModel: string
   phone: string
   email: string
+  // 兼容旧字段
+  name?: string
+  avatar?: string
 }
 
 const genderOptions = ['男', '女', '保密'] // 1 男，2 女，0 未知/保密
 
 const form = ref<UserProfile>({
-  avatar: '',
-  name: '',
+  userAvatar: '',
+  username: '',
   gender: '保密',
   deliveryDate: '',
   carModel: '',
@@ -96,6 +99,12 @@ const syncGenderIndex = (value: string) => {
   genderIndex.value = idx >= 0 ? idx : 2
 }
 
+const mapGenderToNumber = (value: string) => {
+  if (value === '男') return 1
+  if (value === '女') return 2
+  return 0
+}
+
 const loadLocalProfile = () => {
   try {
     const stored = uni.getStorageSync('userProfile')
@@ -108,6 +117,8 @@ const loadLocalProfile = () => {
       }
       // 本地存的是用户自定义头像/昵称，不被微信数据覆盖
       form.value = { ...form.value, ...profile }
+      form.value.username = profile.username || profile.name || form.value.username
+      form.value.userAvatar = profile.userAvatar || profile.avatar || form.value.userAvatar
       form.value.gender = mapGenderValue(profile.gender)
       syncGenderIndex(form.value.gender || '保密')
     }
@@ -133,28 +144,35 @@ const loadProfile = () => {
   axios.get('/api/profile', {
     showErrorToast: false
   }).then((res) => {
+    // 这里的 res 就是后端返回的 profile 对象
     console.log(139, 'loadProfile res = ', res)
-    if (res.code === 0) {
-      const remote = res.data || {}
-      const merged: UserProfile = {
-        ...form.value,
-        // 仅在用户未自定义时才用微信头像/昵称
-        avatar: form.value.avatar || remote.avatarUrl || '',
-        name: form.value.name || remote.nickname || '',
-        gender: mapGenderValue(remote.gender),
-        deliveryDate: remote.deliveryDate || remote.birthDate || form.value.deliveryDate,
-        carModel: remote.favoriteCarModel || remote.carModel || form.value.carModel,
-        phone: remote.phone || form.value.phone,
-        email: remote.email || form.value.email
-      }
-      form.value = merged
-      syncGenderIndex(merged.gender)
-    } else {
-      uni.showToast({
-        title: res.message,
-        icon: 'none'
-      })
+    const remote = res || {}
+
+    const merged: UserProfile = {
+      ...form.value,
+      // 头像优先级：本地自定义 > userAvatar > avatarUrl
+      userAvatar:
+        form.value.userAvatar ||
+        remote.userAvatar ||
+        remote.avatarUrl ||
+        '',
+
+      // 用户名优先级：本地自定义 > username > nickname
+      username:
+        form.value.username ||
+        remote.username ||
+        remote.nickname ||
+        '',
+
+      gender: mapGenderValue(remote.gender),
+      deliveryDate: remote.deliveryDate || remote.birthDate || form.value.deliveryDate,
+      carModel: remote.favoriteCarModel || remote.carModel || form.value.carModel,
+      phone: remote.phone || form.value.phone,
+      email: remote.email || form.value.email
     }
+
+    form.value = merged
+    syncGenderIndex(merged.gender)
   }).catch((error) => {
     console.warn('请求个人信息失败', error)
     uni.showToast({
@@ -184,18 +202,19 @@ const pickAvatar = (sourceType: 'camera' | 'album') => {
     sizeType: ['compressed'],
     sourceType: [sourceType],
     success: (res) => {
-      form.value.avatar = res.tempFilePaths[0]
+      form.value.userAvatar = res.tempFilePaths[0]
     }
   })
 }
 
 const handleSave = () => {
-  const phoneRegex = /^1\\d{10}$/
-  const emailRegex = /^[\\w.+-]+@[\\w-]+(\\.[\\w-]+)+$/
+  console.log(199, 'handleSave form.value = ', form.value)
+  const phoneRegex = /^1\d{10}$/
+  const emailRegex = /^[\w.+-]+@[\w-]+(\.[\w-]+)+$/
 
-  if (!form.value.name || !form.value.carModel || !form.value.deliveryDate) {
+  if (!form.value.username || !form.value.carModel || !form.value.deliveryDate) {
     uni.showToast({
-      title: !form.value.name ? '请填写昵称' : !form.value.carModel ? '请填写爱车型号' : '请选择提车日期',
+      title: !form.value.username ? '请填写用户名' : !form.value.carModel ? '请填写爱车型号' : '请选择提车日期',
       icon: 'none'
     })
     return
@@ -217,8 +236,30 @@ const handleSave = () => {
     return
   }
 
-  try {
-    uni.setStorageSync('userProfile', { ...form.value })
+  const payload = {
+    username: form.value.username,
+    userAvatar: form.value.userAvatar,
+    gender: mapGenderToNumber(form.value.gender || '保密'),
+    deliveryDate: form.value.deliveryDate,
+    favoriteCarModel: form.value.carModel,
+    phone: form.value.phone,
+    email: form.value.email
+  }
+
+  uni.showLoading({ title: '保存中', mask: true })
+
+  const doSave = async () => {
+    const token = uni.getStorageSync('token')
+    if (!token) {
+      uni.showToast({
+        title: '请先登录再保存',
+        icon: 'none'
+      })
+      throw new Error('no token')
+    }
+    await axios.put('/api/profile', { data: payload })
+    // 同步给旧字段 name 方便其他页面兼容
+    uni.setStorageSync('userProfile', { ...form.value, name: form.value.username, avatar: form.value.userAvatar })
     refreshLoginState()
     uni.showToast({
       title: '已保存',
@@ -227,13 +268,17 @@ const handleSave = () => {
     setTimeout(() => {
       uni.navigateBack()
     }, 500)
-  } catch (error) {
+  }
+
+  doSave().catch((error) => {
+    console.error('保存个人信息失败', error)
     uni.showToast({
       title: '保存失败，请稍后再试',
       icon: 'none'
     })
-    console.error('保存个人信息失败', error)
-  }
+  }).finally(() => {
+    uni.hideLoading()
+  })
 }
 </script>
 
