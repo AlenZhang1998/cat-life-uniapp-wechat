@@ -6,10 +6,15 @@ export type RequestOptions<T = any> = Omit<
   baseURL?: string
 }
 
+type RequestSuccessResult<T = any> = Omit<
+  UniApp.RequestSuccessCallbackResult,
+  'data'
+> & { data: T }
+
 export interface RequestError<T = any> extends Error {
   statusCode?: number
   data?: T
-  raw?: UniApp.RequestSuccessCallbackResult<T>
+  raw?: RequestSuccessResult<T>
 }
 
 const DEFAULT_BASE_URL = 'http://192.168.60.58:3000' // 192.168.60.58    10.48.75.101
@@ -36,7 +41,7 @@ const joinUrl = (base: string, path: string) => {
 
 const createError = <T>(
   message: string,
-  res?: UniApp.RequestSuccessCallbackResult<T>
+  res?: RequestSuccessResult<T>
 ): RequestError<T> => {
   const error: RequestError<T> = new Error(message)
   if (res) {
@@ -67,19 +72,20 @@ const coreRequest = <T = any>(options: RequestOptions<T>) => {
         ...header
       },
       success: (res) => {
-        const success = res.statusCode >= 200 && res.statusCode < 300
+        const typedRes = res as RequestSuccessResult<T>
+        const success = typedRes.statusCode >= 200 && typedRes.statusCode < 300
         if (success) {
-          resolve(res.data as T)
+          resolve(typedRes.data)
           return
         }
 
         const errorPayload =
-          res.data &&
-          typeof res.data === 'object' &&
-          'message' in (res.data as Record<string, any>) &&
-          typeof (res.data as Record<string, any>).message === 'string'
-            ? ((res.data as Record<string, any>).message as string)
-            : `请求失败（${res.statusCode}）`
+          typedRes.data &&
+          typeof typedRes.data === 'object' &&
+          'message' in (typedRes.data as Record<string, any>) &&
+          typeof (typedRes.data as Record<string, any>).message === 'string'
+            ? ((typedRes.data as Record<string, any>).message as string)
+            : `请求失败（${typedRes.statusCode}）`
 
         if (showErrorToast) {
           uni.showToast({
@@ -88,7 +94,7 @@ const coreRequest = <T = any>(options: RequestOptions<T>) => {
           })
         }
 
-        reject(createError(errorPayload, res as UniApp.RequestSuccessCallbackResult<T>))
+        reject(createError(errorPayload, typedRes))
       },
       fail: (err) => {
         if (showErrorToast) {
@@ -111,6 +117,7 @@ const createShortcut =
     coreRequest<T>({
       ...(config as RequestOptions<T>),
       url,
+      // @ts-expect-error PATCH is a valid method for our backend, but not in uni-app types.
       method
     })
 
