@@ -137,49 +137,52 @@ onShow(() => {
   loadProfile()
 })
 
-const loadProfile = () => {
+const isNonEmpty = (v: any) => v !== undefined && v !== null && String(v).trim() !== ''
+
+const loadProfile = async () => {
   const token = uni.getStorageSync('token')
   if (!token) return
 
-  axios.get('/api/profile', {
-    showErrorToast: false
-  }).then((res) => {
-    // 这里的 res 就是后端返回的 profile 对象
-    console.log(139, 'loadProfile res = ', res)
-    const remote = res || {}
+  try {
+    const res = await axios.get('/api/profile', { showErrorToast: false })
+    // 兼容两种 axios 封装：直接返回对象 或 包裹在 res.data
+    const remote = (res && (res as any).data && (res as any).code === undefined) ? (res as any).data : res || {}
+
+    console.log('loadProfile remote = ', remote)
+
+    // 如果后端返回真实 username/userAvatar，就优先使用后端的（只要非空字符串）
+    const finalUserAvatar = isNonEmpty(remote.userAvatar)
+      ? remote.userAvatar
+      : isNonEmpty(remote.avatarUrl)
+        ? remote.avatarUrl
+        : (isNonEmpty(form.value.userAvatar) ? form.value.userAvatar : '')
+
+    const finalUsername = isNonEmpty(remote.username)
+      ? remote.username
+      : isNonEmpty(remote.nickname)
+        ? remote.nickname
+        : (isNonEmpty(form.value.username) ? form.value.username : '')
 
     const merged: UserProfile = {
       ...form.value,
-      // 头像优先级：本地自定义 > userAvatar > avatarUrl
-      userAvatar:
-        form.value.userAvatar ||
-        remote.userAvatar ||
-        remote.avatarUrl ||
-        '',
-
-      // 用户名优先级：本地自定义 > username > nickname
-      username:
-        form.value.username ||
-        remote.username ||
-        remote.nickname ||
-        '',
-
+      userAvatar: finalUserAvatar,
+      username: finalUsername,
       gender: mapGenderValue(remote.gender),
-      deliveryDate: remote.deliveryDate || remote.birthDate || form.value.deliveryDate,
-      carModel: remote.favoriteCarModel || remote.carModel || form.value.carModel,
-      phone: remote.phone || form.value.phone,
-      email: remote.email || form.value.email
+      deliveryDate: isNonEmpty(remote.deliveryDate) ? remote.deliveryDate : (isNonEmpty(remote.birthDate) ? remote.birthDate : form.value.deliveryDate),
+      carModel: isNonEmpty(remote.favoriteCarModel) ? remote.favoriteCarModel : (isNonEmpty(remote.carModel) ? remote.carModel : form.value.carModel),
+      phone: isNonEmpty(remote.phone) ? remote.phone : form.value.phone,
+      email: isNonEmpty(remote.email) ? remote.email : form.value.email
     }
 
     form.value = merged
     syncGenderIndex(merged.gender)
-  }).catch((error) => {
+  } catch (error) {
     console.warn('请求个人信息失败', error)
     uni.showToast({
       title: '加载失败，已使用本地信息',
       icon: 'none'
     })
-  })
+  }
 }
 
 const onDeliveryChange = (event: any) => {
