@@ -66,7 +66,7 @@ const defaultProfile = {
   name: 'Alen',
   initial: 'A',
   avatar: '',
-  joinDate: '2024-08',
+  joinDate: '2024-08-01',
   motto: '给油门一个拥抱，让城市多一点绿。',
   tags: ['城市漫游者', '节能达人', '夜行者'],
   gender: '',
@@ -108,8 +108,51 @@ const features = ref([
   }
 ])
 
+const formatJoinDateLabel = (value: unknown) => {
+  if (!value) return ''
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim()
+    if (!trimmed) return ''
+    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+      return trimmed
+    }
+    const parsed = new Date(trimmed)
+    if (!Number.isNaN(parsed.getTime())) {
+      const year = parsed.getFullYear()
+      const month = `${parsed.getMonth() + 1}`.padStart(2, '0')
+      const day = `${parsed.getDate()}`.padStart(2, '0')
+      return `${year}-${month}-${day}`
+    }
+    return ''
+  }
+
+  const date = value instanceof Date ? value : new Date(value as any)
+  if (Number.isNaN(date.getTime())) {
+    return ''
+  }
+
+  const year = date.getFullYear()
+  const month = `${date.getMonth() + 1}`.padStart(2, '0')
+  const day = `${date.getDate()}`.padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+const resolveJoinDate = (payload?: Record<string, any>) => {
+  if (!payload) {
+    return defaultProfile.joinDate
+  }
+  const direct = formatJoinDateLabel(payload.joinDate)
+  if (direct) {
+    return direct
+  }
+  const formatted = formatJoinDateLabel(payload.joinedAt)
+  return formatted || defaultProfile.joinDate
+}
+
 const applyProfile = (profile?: Record<string, any>) => {
   const merged = { ...defaultProfile, ...(profile || {}) }
+  merged.joinDate = resolveJoinDate(merged)
   merged.initial = merged.name ? merged.name.charAt(0) : defaultProfile.initial
   user.value = merged
 }
@@ -149,8 +192,9 @@ const handleLoginSuccess = (payload: { token: string; user: any }) => {
   // 把后端返回的 user 映射成你页面用的结构
   const finalProfile = {
     ...defaultProfile,
-    name: backendUser.nickname || defaultProfile.name,
+    name: backendUser.username || defaultProfile.name,
     avatar: backendUser.avatarUrl || '',
+    joinDate: resolveJoinDate(backendUser)
     // 你后面可以再加：gender / deliveryDate / carModel 等
   }
   console.log(152, 'finalProfile = ', finalProfile)
