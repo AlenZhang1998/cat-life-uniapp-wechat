@@ -130,12 +130,13 @@ const loadLocalProfile = () => {
 // 页面加载时先读本地自定义信息
 onLoad(() => {
   loadLocalProfile()
+  loadProfile()
 })
 
 // 页面显示时加载个人信息
-onShow(() => {
-  loadProfile()
-})
+// onShow(() => {
+//   loadProfile()
+// })
 
 const isNonEmpty = (v: any) => v !== undefined && v !== null && String(v).trim() !== ''
 

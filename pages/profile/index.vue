@@ -193,7 +193,7 @@ const handleLoginSuccess = (payload: { token: string; user: any }) => {
   const finalProfile = {
     ...defaultProfile,
     name: backendUser.username || defaultProfile.name,
-    avatar: backendUser.avatarUrl || '',
+    avatar: backendUser.userAvatar || backendUser.avatarUrl,
     joinDate: resolveJoinDate(backendUser)
     // 你后面可以再加：gender / deliveryDate / carModel 等
   }
