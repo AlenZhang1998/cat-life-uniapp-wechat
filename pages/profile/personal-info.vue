@@ -55,6 +55,7 @@ import { ref } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { useAuth } from '@/utils/auth'
 import { axios } from '@/utils/request'
+import { uploadAvatarToCos } from '@/utils/avatar'
 
 interface UserProfile {
   userAvatar: string
@@ -205,8 +206,26 @@ const pickAvatar = (sourceType: 'camera' | 'album') => {
     count: 1,
     sizeType: ['compressed'],
     sourceType: [sourceType],
-    success: (res) => {
-      form.value.userAvatar = res.tempFilePaths[0]
+    success: async (res) => {
+      const tempPath = res.tempFilePaths[0]
+
+      // 1. 先用 wxfile:// 做本地预览，让用户马上看到效果
+      form.value.userAvatar = tempPath
+
+      // 2. 再上传到服务器 -> 服务器上传 COS -> 返回 https URL
+      try {
+        uni.showLoading({ title: '上传中...' })
+        const url = await uploadAvatarToCos(tempPath)
+
+        // 3. 用真正的 COS URL 覆盖掉临时路径
+        form.value.userAvatar = url as string
+        uni.hideLoading()
+        uni.showToast({ title: '头像已更新', icon: 'success' })
+      } catch (err) {
+        console.error('上传头像失败', err)
+        uni.hideLoading()
+        uni.showToast({ title: '上传头像失败', icon: 'none' })
+      }
     }
   })
 }
