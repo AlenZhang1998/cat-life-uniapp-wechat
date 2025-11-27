@@ -32,7 +32,7 @@
           type="number"
           placeholder="请输入仪表盘当前里程"
           :value="form.mileage"
-          @input="(e) => handleFieldChange('mileage', e.detail.value)"
+          @input="(e:any) => handleFieldChange('mileage', e.detail.value)"
         />
       </view>
 
@@ -55,7 +55,7 @@
           type="digit"
           placeholder="请输入本次加油油价"
           :value="form.fuelPrice"
-          @input="(e) => handleFieldChange('fuelPrice', e.detail.value)"
+          @input="(e:any) => handleFieldChange('fuelPrice', e.detail.value)"
         />
       </view>
 
@@ -66,7 +66,7 @@
           type="digit"
           placeholder="请输入本次加油金额"
           :value="form.amount"
-          @input="(e) => handleFieldChange('amount', e.detail.value)"
+          @input="(e:any) => handleFieldChange('amount', e.detail.value)"
         />
       </view>
 
@@ -82,7 +82,7 @@
           <switch
             :class="['switch-gradient', form.fullAutoStop ? 'switch-gradient--on' : '']"
             :checked="form.fullAutoStop"
-            @change="(e) => handleSwitchChange('fullAutoStop', e.detail.value)"
+            @change="(e:any) => handleSwitchChange('fullAutoStop', e.detail.value)"
           ></switch>
         </view>
       </view>
@@ -104,7 +104,7 @@
           <switch
             :class="['switch-gradient', form.warningLight ? 'switch-gradient--on' : '']"
             :checked="form.warningLight"
-            @change="(e) => handleSwitchChange('warningLight', e.detail.value)"
+            @change="(e:any) => handleSwitchChange('warningLight', e.detail.value)"
           ></switch>
         </view>
       </view>
@@ -121,7 +121,7 @@
           <switch
             :class="['switch-gradient', form.hasPreviousRecord ? 'switch-gradient--on' : '']"
             :checked="form.hasPreviousRecord"
-            @change="(e) => handleSwitchChange('hasPreviousRecord', e.detail.value)"
+            @change="(e:any) => handleSwitchChange('hasPreviousRecord', e.detail.value)"
           ></switch>
         </view>
       </view>
@@ -133,7 +133,7 @@
           maxlength="200"
           placeholder="例如：城际高速 + 空调节能模式"
           :value="form.remark"
-          @input="(e) => handleFieldChange('remark', e.detail.value)"
+          @input="(e:any) => handleFieldChange('remark', e.detail.value)"
         />
       </view>
     </view>
