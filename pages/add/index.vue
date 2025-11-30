@@ -259,166 +259,146 @@ const handleSubmit = () => {
   min-height: 100vh;
   padding: 48rpx 32rpx 220rpx;
   background: linear-gradient(180deg, #f6fbff 0%, #eef6f2 35%, #f8fbfd 100%);
-}
 
-.page-header {
-  margin-bottom: 32rpx;
-  padding: 32rpx 36rpx;
-  border-radius: 32rpx;
-  background: linear-gradient(135deg, rgba(30, 193, 95, 0.14), rgba(88, 177, 255, 0.14));
-  border: 1rpx solid rgba(30, 193, 95, 0.16);
-  box-shadow: 0 24rpx 45rpx rgba(30, 193, 95, 0.12);
-}
+  .page-header {
+    margin-bottom: 32rpx;
+    padding: 32rpx 36rpx;
+    border-radius: 32rpx;
+    background: linear-gradient(135deg, rgba(30, 193, 95, 0.14), rgba(88, 177, 255, 0.14));
+    border: 1rpx solid rgba(30, 193, 95, 0.16);
+    box-shadow: 0 24rpx 45rpx rgba(30, 193, 95, 0.12);
 
-.page-title {
-  display: block;
-  font-size: 40rpx;
-  font-weight: 700;
-  margin-bottom: 12rpx;
-  color: #0f172a;
-}
+    .page-title {
+      display: block;
+      margin-bottom: 12rpx;
+      font-size: 40rpx;
+      font-weight: 700;
+      color: #0f172a;
+    }
 
-.page-desc {
-  font-size: 26rpx;
-  color: #5b6472;
-}
+    .page-desc {
+      font-size: 26rpx;
+      color: #5b6472;
+    }
+  }
 
-.form-card {
-  background-color: #fff;
-  border-radius: $card-radius;
-  padding: 40rpx 32rpx 44rpx;
-  box-shadow: 0 28rpx 60rpx rgba(15, 23, 42, 0.08);
-  border: 1rpx solid rgba(8, 16, 44, 0.05);
-}
+  .form-card {
+    padding: 40rpx 32rpx 44rpx;
+    border-radius: $card-radius;
+    background-color: #fff;
+    border: 1rpx solid rgba(8, 16, 44, 0.05);
+    box-shadow: 0 28rpx 60rpx rgba(15, 23, 42, 0.08);
 
-.form-item {
-  margin-bottom: 28rpx;
-}
+    .section-divider {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin: 12rpx 0 32rpx;
+      padding-bottom: 16rpx;
+      border-bottom: 1rpx dashed rgba(11, 23, 52, 0.08);
 
-.form-item:last-child {
-  margin-bottom: 0;
-}
+      .section-title {
+        font-size: 30rpx;
+        font-weight: 700;
+      }
 
-.form-label {
-  display: block;
-  font-size: 28rpx;
-  font-weight: 600;
-  margin-bottom: 12rpx;
-}
+      .section-subtitle {
+        font-size: 24rpx;
+        color: $muted-text;
+      }
+    }
 
-.form-item.toggle-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
+    .form-item {
+      margin-bottom: 28rpx;
 
-.form-item.toggle-item .form-label {
-  margin-bottom: 0;
-}
+      &:last-child {
+        margin-bottom: 0;
+      }
 
-.toggle-control {
-  display: flex;
-  align-items: center;
-  gap: 16rpx;
-  padding: 4rpx 8rpx;
-  border-radius: 999rpx;
-  // background-color: rgba(244, 247, 252, 0.9);
-}
+      &.toggle-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
 
-.toggle-value {
-  min-width: 48rpx;
-  text-align: right;
-  font-size: 26rpx;
-  font-weight: 600;
-  color: $muted-text;
-}
+        .form-label {
+          margin-bottom: 0;
+        }
+      }
+    }
 
-.toggle-value.on {
-  color: $primary-dark;
-}
+    .form-label {
+      display: block;
+      margin-bottom: 12rpx;
+      font-size: 28rpx;
+      font-weight: 600;
+    }
 
-// :deep(.switch-gradient .wx-switch-input) {
-//   width: 120rpx;
-//   height: 64rpx;
-//   border-radius: 999rpx;
-//   background-color: #e1e7ef;
-//   border: none;
-//   transition: background 0.3s ease, box-shadow 0.3s ease;
-// }
+    .toggle-control {
+      display: flex;
+      align-items: center;
+      gap: 16rpx;
+      padding: 4rpx 8rpx;
+      border-radius: 999rpx;
 
-// :deep(.switch-gradient .wx-switch-input::after) {
-//   width: 56rpx;
-//   height: 56rpx;
-//   top: 4rpx;
-//   left: 4rpx;
-//   border-radius: 50%;
-//   box-shadow: 0 6rpx 16rpx rgba(15, 23, 42, 0.25);
-//   background: #fff;
-// }
+      .toggle-value {
+        min-width: 48rpx;
+        text-align: right;
+        font-size: 26rpx;
+        font-weight: 600;
+        color: $muted-text;
 
-:deep(.switch-gradient.switch-gradient--on .wx-switch-input) {
-  background: linear-gradient(180deg, #1ec15f 0%, #22d78a 100%);
-  box-shadow: 0 12rpx 26rpx rgba(17, 168, 70, 0.35);
-}
+        &.on {
+          color: $primary-dark;
+        }
+      }
 
-.section-divider {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin: 12rpx 0 32rpx;
-  padding-bottom: 16rpx;
-  border-bottom: 1rpx dashed rgba(11, 23, 52, 0.08);
-}
+      :deep(.switch-gradient.switch-gradient--on .wx-switch-input) {
+        background: linear-gradient(180deg, #1ec15f 0%, #22d78a 100%);
+        box-shadow: 0 12rpx 26rpx rgba(17, 168, 70, 0.35);
+      }
+    }
 
-.section-title {
-  font-size: 30rpx;
-  font-weight: 700;
-}
+    .picker-value,
+    .form-input,
+    .form-textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 26rpx;
+      font-size: 28rpx;
+      color: #1f2329;
+      border-radius: 20rpx;
+      border: 1rpx solid rgba(120, 146, 172, 0.18);
+      background: linear-gradient(135deg, #f8fbff 0%, #f1f6fb 100%);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
 
-.section-subtitle {
-  font-size: 24rpx;
-  color: $muted-text;
-}
+    .form-input {
+      height: 88rpx;
+    }
 
-.picker-value,
-.form-input,
-.form-textarea {
-  width: 100%;
-  box-sizing: border-box;
-  background: linear-gradient(135deg, #f8fbff 0%, #f1f6fb 100%);
-  border-radius: 20rpx;
-  padding: 26rpx;
-  font-size: 28rpx;
-  color: #1f2329;
-  border: 1rpx solid rgba(120, 146, 172, 0.18);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
+    .form-textarea {
+      min-height: 160rpx;
+    }
 
-.form-input {
-  height: 88rpx;
-}
+    .picker-value:focus,
+    .form-input:focus,
+    .form-textarea:focus {
+      border-color: rgba(17, 168, 70, 0.55);
+      box-shadow: 0 12rpx 28rpx rgba(17, 168, 70, 0.12);
+    }
+  }
 
-.form-textarea {
-  min-height: 160rpx;
-}
-
-.picker-value:focus,
-.form-input:focus,
-.form-textarea:focus {
-  border-color: rgba(17, 168, 70, 0.55);
-  box-shadow: 0 12rpx 28rpx rgba(17, 168, 70, 0.12);
-}
-
-.submit-btn {
-  margin-top: 48rpx;
-  background: linear-gradient(180deg, #1ec15f 0%, #22d78a 100%);
-  border: none;
-  border-radius: 999rpx;
-  height: 96rpx;
-  line-height: 96rpx;
-  color: #fff;
-  font-size: 32rpx;
-  font-weight: 600;
-  box-shadow: 0 18rpx 36rpx rgba(30, 193, 95, 0.28);
+  .submit-btn {
+    margin-top: 48rpx;
+    height: 96rpx;
+    line-height: 96rpx;
+    border: none;
+    border-radius: 999rpx;
+    background: linear-gradient(180deg, #1ec15f 0%, #22d78a 100%);
+    color: #fff;
+    font-size: 32rpx;
+    font-weight: 600;
+    box-shadow: 0 18rpx 36rpx rgba(30, 193, 95, 0.28);
+  }
 }
 </style>
