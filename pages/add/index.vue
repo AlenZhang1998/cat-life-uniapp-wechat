@@ -139,7 +139,7 @@
     </view>
 
     <!-- 提交按钮 -->
-    <button class="submit-btn" type="primary" @tap="handleSubmit">
+    <button class="submit-btn" type="button" @tap="handleSubmit">
       保存油耗记录
     </button>
   </view>
