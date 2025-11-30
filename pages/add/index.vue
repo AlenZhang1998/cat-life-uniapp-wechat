@@ -147,6 +147,7 @@
 
 <script setup lang="ts">
 import { reactive } from 'vue'
+import { axios } from '@/utils/request'
 
 const now = new Date()
 const defaultDate = now.toISOString().slice(0, 10)
@@ -227,28 +228,82 @@ const handleSwitchChange = (
 /**
  * 简单的模拟提交，实际开发中可调用云函数或 HTTP 接口
  */
-const handleSubmit = () => {
+const handleSubmit = async () => {
   if (!form.date || !form.time || !form.mileage || !form.fuelGrade || !form.fuelPrice || !form.amount) {
     uni.showToast({
-      title: '请完善必填项',
+      title: '请完善带 * 的必填项',
       icon: 'none'
     })
     return
   }
 
-  uni.showToast({
-    title: '保存成功',
-    icon: 'success'
-  })
+  const mileage = toNumber(form.mileage)
+  const fuelPrice = toNumber(form.fuelPrice)
+  const amount = toNumber(form.amount)
 
-  // 保存成功后可根据业务清空表单，这里简单重置数值字段
-  form.mileage = ''
-  form.fuelPrice = ''
-  form.amount = ''
-  form.fullAutoStop = false
-  form.warningLight = false
-  form.hasPreviousRecord = false
-  form.remark = ''
+  // 加油量 = 金额 / 单价
+  const volume = Number((amount / fuelPrice).toFixed(2))
+
+  // 组装发给后端的 payload
+  const payload = {
+    date: form.date,             // '2025-11-28'
+    time: form.time,             // '22:35'
+    odometer: mileage,           // 当前里程
+    volume,                      // 加油量(L)
+    amount,                      // 金额
+    pricePerL: fuelPrice,        // 单价
+    fuelGrade: form.fuelGrade,   // 燃油标号
+    isFullTank: form.fullAutoStop,
+    warningLight: form.warningLight,
+    hasPreviousRecord: form.hasPreviousRecord,
+    remark: form.remark
+  }
+
+  // 调用后端接口
+  uni.showLoading({ title: '保存中...', mask: true })
+
+  try {
+    console.log(266, 'payload = ', payload)
+    // axios 封装要求请求体放在 data 字段，否则不会带上 body
+    const res = await axios.post('/api/refuels', { data: payload })
+    const { success, data } = (res as any) || {}
+
+    if (!success) {
+      throw new Error('接口返回异常')
+    }
+
+    uni.showToast({
+      title: '保存成功',
+      icon: 'success'
+    })
+
+    // 保存成功后的处理：返回上一页或重置表单
+    setTimeout(() => {
+      uni.navigateBack({ delta: 1 })
+    }, 400)
+
+    // // 保存成功后可根据业务清空表单，这里简单重置数值字段
+    // form.mileage = ''
+    // form.fuelPrice = ''
+    // form.amount = ''
+    // form.fullAutoStop = false
+    // form.warningLight = false
+    // form.hasPreviousRecord = false
+    // form.remark = ''
+  } catch (err) {
+    console.error('保存油耗记录失败：', err)
+    uni.showToast({
+      title: '保存失败，请稍后再试',
+      icon: 'none'
+    })
+  } finally {
+    uni.hideLoading()
+  }
+}
+
+const toNumber = (value: string) => {
+  const n = Number(value)
+  return Number.isNaN(n) ? NaN : n
 }
 </script>
 
