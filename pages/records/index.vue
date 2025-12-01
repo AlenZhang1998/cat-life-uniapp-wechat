@@ -149,6 +149,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import BottomActionBar from '@/components/BottomActionBar.vue'
 import LoginOverlay from '@/components/LoginOverlay.vue'
 import { useAuth } from '@/utils/auth'
+import { axios } from '@/utils/request'
 
 type FuelRecordItem = {
   type: 'record'
@@ -194,239 +195,250 @@ const showLoginSheet = ref(false)
 const yearOptions = ['2025', '2024', '2023']
 const selectedYearIndex = ref(0)
 
-const summarySnapshots: Record<string, SummarySnapshot> = {
-  '2025': {
-    totalAmount: '836.70',
-    avgFuel: '5.71',
-    pricePerLiter: '7.12',
-    mileage: '1,577'
-  }
-}
+const summaryCard = ref<SummarySnapshot>({
+  totalAmount: '--',
+  avgFuel: '--',
+  pricePerLiter: '--',
+  mileage: '--'
+})
 
-const recordSnapshots: Record<string, FuelRecord[]> = {
-  '2025': [
-    {
-      type: 'record',
-      id: '2025-10-18',
-      date: '10/18',
-      consumption: '4.80',
-      mileage: '1587',
-      amount: '200.00',
-      pricePerLiter: '7.12',
-      deltaFuel: '+28.09',
-      oilType: '92#汽油',
-      fillStatus: '加满',
-      fillStatusTone: 'danger',
-      fuelConsumption:'-28.09',
-      deltaMileage: '+585.00',
-      pricePerKm: '0.34',
-    },
-    {
-      type: 'record',
-      id: '2025-10-09',
-      date: '10/09',
-      consumption: '8.59',
-      mileage: '1002',
-      highlight: 'danger',
-      compact: true,
-      amount: '186.00',
-      pricePerLiter: '7.20',
-      deltaFuel: '+25.80',
-      oilType: '95#汽油',
-      fillStatus: '加满',
-      fillStatusTone: 'danger',
-      fuelConsumption:'-28.09',
-      deltaMileage: '+585.00',
-      pricePerKm: '0.34',
-    },
-    {
-      type: 'record',
-      id: '2025-10-02',
-      date: '10/02',
-      consumption: '4.72',
-      mileage: '611',
-      compact: true,
-      amount: '160.00',
-      pricePerLiter: '6.90',
-      deltaFuel: '+23.30',
-      oilType: '92#汽油',
-      fillStatus: '加满',
-      fillStatusTone: 'danger',
-      fuelConsumption:'-28.09',
-      deltaMileage: '+585.00',
-      pricePerKm: '0.34',
-    },
-    {
-      type: 'record',
-      id: '2025-10-01',
-      date: '10/01',
-      consumption: '4.72',
-      mileage: '611',
-      compact: true,
-      amount: '160.00',
-      pricePerLiter: '6.90',
-      deltaFuel: '+23.30',
-      oilType: '92#汽油',
-      fillStatus: '加满',
-      fillStatusTone: 'danger',
-      fuelConsumption:'-28.09',
-      deltaMileage: '+585.00',
-      pricePerKm: '0.34',
-    },
-    {
-      type: 'record',
-      id: '2025-09-26',
-      date: '09/26',
-      consumption: '4.72',
-      mileage: '611',
-      compact: true,
-      amount: '160.00',
-      pricePerLiter: '6.90',
-      deltaFuel: '+23.30',
-      oilType: '92#汽油',
-      fillStatus: '加满',
-      fillStatusTone: 'danger',
-      fuelConsumption:'-28.09',
-      deltaMileage: '+585.00',
-      pricePerKm: '0.34',
-    },
-    {
-      type: 'record',
-      id: '2025-09-15',
-      date: '09/15',
-      consumption: '4.72',
-      mileage: '611',
-      compact: true,
-      amount: '160.00',
-      pricePerLiter: '6.90',
-      deltaFuel: '+23.30',
-      oilType: '92#汽油',
-      fillStatus: '加满',
-      fillStatusTone: 'danger',
-      fuelConsumption:'-28.09',
-      deltaMileage: '+585.00',
-      pricePerKm: '0.34',
-    },
-    {
-      type: 'record',
-      id: '2025-09-10',
-      date: '09/01',
-      consumption: '4.72',
-      mileage: '611',
-      compact: true,
-      amount: '160.00',
-      pricePerLiter: '6.90',
-      deltaFuel: '+23.30',
-      oilType: '92#汽油',
-      fillStatus: '加满',
-      fillStatusTone: 'danger',
-      fuelConsumption:'-28.09',
-      deltaMileage: '+585.00',
-      pricePerKm: '0.34',
-    },
-    {
-      type: 'record',
-      id: '2025-09-03',
-      date: '09/01',
-      consumption: '4.72',
-      mileage: '611',
-      compact: true,
-      amount: '160.00',
-      pricePerLiter: '6.90',
-      deltaFuel: '+23.30',
-      oilType: '92#汽油',
-      fillStatus: '加满',
-      fillStatusTone: 'danger',
-      fuelConsumption:'-28.09',
-      deltaMileage: '+585.00',
-      pricePerKm: '0.34',
-    },
-    {
-      type: 'record',
-      id: '2025-09-01',
-      date: '09/01',
-      consumption: '4.72',
-      mileage: '611',
-      compact: true,
-      amount: '160.00',
-      pricePerLiter: '6.90',
-      deltaFuel: '+23.30',
-      oilType: '92#汽油',
-      fillStatus: '加满',
-      fillStatusTone: 'danger',
-      fuelConsumption:'-28.09',
-      deltaMileage: '+585.00',
-      pricePerKm: '0.34',
-    }
-  ],
-  '2024': [
-    {
-      type: 'record',
-      id: '2024-12-22',
-      date: '12/22',
-      consumption: '4.72',
-      mileage: '611',
-      compact: true,
-      amount: '160.00',
-      pricePerLiter: '6.90',
-      deltaFuel: '+23.30',
-      oilType: '92#汽油',
-      fillStatus: '加满',
-      fillStatusTone: 'danger',
-      fuelConsumption:'-28.09',
-      deltaMileage: '+585.00',
-      pricePerKm: '0.34',
-    },
-    {
-      type: 'record',
-      id: '2024-11-02',
-      date: '11/02',
-      consumption: '4.72',
-      mileage: '611',
-      compact: true,
-      amount: '160.00',
-      pricePerLiter: '6.90',
-      deltaFuel: '+23.30',
-      oilType: '92#汽油',
-      fillStatus: '加满',
-      fillStatusTone: 'danger',
-      fuelConsumption:'-28.09',
-      deltaMileage: '+585.00',
-      pricePerKm: '0.34',
-    }
-  ],
-  '2023': [
-    {
-      type: 'record',
-      id: '2023-07-03',
-      date: '07/03',
-      consumption: '4.72',
-      mileage: '611',
-      compact: true,
-      amount: '160.00',
-      pricePerLiter: '6.90',
-      deltaFuel: '+23.30',
-      oilType: '92#汽油',
-      fillStatus: '加满',
-      fillStatusTone: 'danger',
-      fuelConsumption:'-28.09',
-      deltaMileage: '+585.00',
-      pricePerKm: '0.34',
-    }
-  ]
-}
+const records = ref<FuelRecordItem[]>([])
+
+const visibleRecords = computed(() => records.value)
+
+// const summarySnapshots: Record<string, SummarySnapshot> = {
+//   '2025': {
+//     totalAmount: '836.70',
+//     avgFuel: '5.71',
+//     pricePerLiter: '7.12',
+//     mileage: '1,577'
+//   }
+// }
+
+// const recordSnapshots: Record<string, FuelRecord[]> = {
+//   '2025': [
+//     {
+//       type: 'record',
+//       id: '2025-10-18',
+//       date: '10/18',
+//       consumption: '4.80',
+//       mileage: '1587',
+//       amount: '200.00',
+//       pricePerLiter: '7.12',
+//       deltaFuel: '+28.09',
+//       oilType: '92#汽油',
+//       fillStatus: '加满',
+//       fillStatusTone: 'danger',
+//       fuelConsumption:'-28.09',
+//       deltaMileage: '+585.00',
+//       pricePerKm: '0.34',
+//     },
+//     {
+//       type: 'record',
+//       id: '2025-10-09',
+//       date: '10/09',
+//       consumption: '8.59',
+//       mileage: '1002',
+//       highlight: 'danger',
+//       compact: true,
+//       amount: '186.00',
+//       pricePerLiter: '7.20',
+//       deltaFuel: '+25.80',
+//       oilType: '95#汽油',
+//       fillStatus: '加满',
+//       fillStatusTone: 'danger',
+//       fuelConsumption:'-28.09',
+//       deltaMileage: '+585.00',
+//       pricePerKm: '0.34',
+//     },
+//     {
+//       type: 'record',
+//       id: '2025-10-02',
+//       date: '10/02',
+//       consumption: '4.72',
+//       mileage: '611',
+//       compact: true,
+//       amount: '160.00',
+//       pricePerLiter: '6.90',
+//       deltaFuel: '+23.30',
+//       oilType: '92#汽油',
+//       fillStatus: '加满',
+//       fillStatusTone: 'danger',
+//       fuelConsumption:'-28.09',
+//       deltaMileage: '+585.00',
+//       pricePerKm: '0.34',
+//     },
+//     {
+//       type: 'record',
+//       id: '2025-10-01',
+//       date: '10/01',
+//       consumption: '4.72',
+//       mileage: '611',
+//       compact: true,
+//       amount: '160.00',
+//       pricePerLiter: '6.90',
+//       deltaFuel: '+23.30',
+//       oilType: '92#汽油',
+//       fillStatus: '加满',
+//       fillStatusTone: 'danger',
+//       fuelConsumption:'-28.09',
+//       deltaMileage: '+585.00',
+//       pricePerKm: '0.34',
+//     },
+//     {
+//       type: 'record',
+//       id: '2025-09-26',
+//       date: '09/26',
+//       consumption: '4.72',
+//       mileage: '611',
+//       compact: true,
+//       amount: '160.00',
+//       pricePerLiter: '6.90',
+//       deltaFuel: '+23.30',
+//       oilType: '92#汽油',
+//       fillStatus: '加满',
+//       fillStatusTone: 'danger',
+//       fuelConsumption:'-28.09',
+//       deltaMileage: '+585.00',
+//       pricePerKm: '0.34',
+//     },
+//     {
+//       type: 'record',
+//       id: '2025-09-15',
+//       date: '09/15',
+//       consumption: '4.72',
+//       mileage: '611',
+//       compact: true,
+//       amount: '160.00',
+//       pricePerLiter: '6.90',
+//       deltaFuel: '+23.30',
+//       oilType: '92#汽油',
+//       fillStatus: '加满',
+//       fillStatusTone: 'danger',
+//       fuelConsumption:'-28.09',
+//       deltaMileage: '+585.00',
+//       pricePerKm: '0.34',
+//     },
+//     {
+//       type: 'record',
+//       id: '2025-09-10',
+//       date: '09/01',
+//       consumption: '4.72',
+//       mileage: '611',
+//       compact: true,
+//       amount: '160.00',
+//       pricePerLiter: '6.90',
+//       deltaFuel: '+23.30',
+//       oilType: '92#汽油',
+//       fillStatus: '加满',
+//       fillStatusTone: 'danger',
+//       fuelConsumption:'-28.09',
+//       deltaMileage: '+585.00',
+//       pricePerKm: '0.34',
+//     },
+//     {
+//       type: 'record',
+//       id: '2025-09-03',
+//       date: '09/01',
+//       consumption: '4.72',
+//       mileage: '611',
+//       compact: true,
+//       amount: '160.00',
+//       pricePerLiter: '6.90',
+//       deltaFuel: '+23.30',
+//       oilType: '92#汽油',
+//       fillStatus: '加满',
+//       fillStatusTone: 'danger',
+//       fuelConsumption:'-28.09',
+//       deltaMileage: '+585.00',
+//       pricePerKm: '0.34',
+//     },
+//     {
+//       type: 'record',
+//       id: '2025-09-01',
+//       date: '09/01',
+//       consumption: '4.72',
+//       mileage: '611',
+//       compact: true,
+//       amount: '160.00',
+//       pricePerLiter: '6.90',
+//       deltaFuel: '+23.30',
+//       oilType: '92#汽油',
+//       fillStatus: '加满',
+//       fillStatusTone: 'danger',
+//       fuelConsumption:'-28.09',
+//       deltaMileage: '+585.00',
+//       pricePerKm: '0.34',
+//     }
+//   ],
+//   '2024': [
+//     {
+//       type: 'record',
+//       id: '2024-12-22',
+//       date: '12/22',
+//       consumption: '4.72',
+//       mileage: '611',
+//       compact: true,
+//       amount: '160.00',
+//       pricePerLiter: '6.90',
+//       deltaFuel: '+23.30',
+//       oilType: '92#汽油',
+//       fillStatus: '加满',
+//       fillStatusTone: 'danger',
+//       fuelConsumption:'-28.09',
+//       deltaMileage: '+585.00',
+//       pricePerKm: '0.34',
+//     },
+//     {
+//       type: 'record',
+//       id: '2024-11-02',
+//       date: '11/02',
+//       consumption: '4.72',
+//       mileage: '611',
+//       compact: true,
+//       amount: '160.00',
+//       pricePerLiter: '6.90',
+//       deltaFuel: '+23.30',
+//       oilType: '92#汽油',
+//       fillStatus: '加满',
+//       fillStatusTone: 'danger',
+//       fuelConsumption:'-28.09',
+//       deltaMileage: '+585.00',
+//       pricePerKm: '0.34',
+//     }
+//   ],
+//   '2023': [
+//     {
+//       type: 'record',
+//       id: '2023-07-03',
+//       date: '07/03',
+//       consumption: '4.72',
+//       mileage: '611',
+//       compact: true,
+//       amount: '160.00',
+//       pricePerLiter: '6.90',
+//       deltaFuel: '+23.30',
+//       oilType: '92#汽油',
+//       fillStatus: '加满',
+//       fillStatusTone: 'danger',
+//       fuelConsumption:'-28.09',
+//       deltaMileage: '+585.00',
+//       pricePerKm: '0.34',
+//     }
+//   ]
+// }
 
 const currentYear = computed(
   () => yearOptions[selectedYearIndex.value] || yearOptions[0]
 )
 
-const summaryCard = computed(
-  () => summarySnapshots[currentYear.value] || summarySnapshots[yearOptions[0]]
-)
+// const summaryCard = computed(
+//   () => summarySnapshots[currentYear.value] || summarySnapshots[yearOptions[0]]
+// )
 
-const visibleRecords = computed(
-  () => recordSnapshots[currentYear.value] || []
-)
+// const visibleRecords = computed(
+//   () => recordSnapshots[currentYear.value] || []
+// )
 
 const isPageAnimated = ref(false)
 let enterAnimationTimer: ReturnType<typeof setTimeout> | null = null
@@ -472,22 +484,122 @@ const toggleRecord = (entry: FuelRecordItem) => {
   expandedRecordMap.value = next
 }
 
+const fetchRecords = async () => {
+  console.log(488)
+
+  if (!isLoggedIn.value) {
+    records.value = []
+    summaryCard.value = {
+      totalAmount: '--',
+      avgFuel: '--',
+      pricePerLiter: '--',
+      mileage: '--'
+    }
+    return
+  }
+
+  try {
+    uni.showLoading({ title: '加载中...', mask: true })
+
+    const res = await axios.get('/api/refuels/list?year=' + currentYear.value)
+    console.log(505, res)
+
+    const response = res as { success?: boolean; data?: any }
+    if (!response || response.success !== true) {
+      throw new Error('接口返回异常')
+    }
+
+    const payload = response.data || {}
+    const s = payload.summary || {}
+    const list = (payload.records || []) as any[]
+
+    // 顶部 summary 卡片
+    summaryCard.value = {
+      totalAmount:
+        s.totalAmount != null ? Number(s.totalAmount).toFixed(2) : '--',
+      avgFuel:
+        s.avgFuelConsumption != null
+          ? Number(s.avgFuelConsumption).toFixed(2)
+          : '--',
+      pricePerLiter:
+        s.avgPricePerL != null ? Number(s.avgPricePerL).toFixed(2) : '--',
+      mileage:
+        s.totalDistance != null ? String(Math.round(Number(s.totalDistance))) : '--'
+    }
+
+
+    // 列表项映射到你现有的结构
+    records.value = list.map((r): FuelRecordItem => {
+      const distanceNum =
+        r.distance != null ? Number(r.distance) : NaN
+      const volumeNum = r.volume != null ? Number(r.volume) : NaN
+
+      return {
+        type: 'record',
+        id: r._id,
+        date: r.monthDay || '--',
+        consumption:
+          r.lPer100km != null ? Number(r.lPer100km).toFixed(2) : '--',
+        mileage: !Number.isNaN(distanceNum)
+          ? String(Math.round(distanceNum))
+          : '--',
+        amount:
+          r.amount != null ? Number(r.amount).toFixed(2) : undefined,
+        pricePerLiter:
+          r.pricePerL != null ? Number(r.pricePerL).toFixed(2) : undefined,
+        deltaFuel:
+          !Number.isNaN(volumeNum)
+            ? `+${volumeNum.toFixed(2)}`
+            : undefined,
+        oilType: r.fuelGrade ? `${r.fuelGrade}汽油` : undefined,
+        fillStatus: r.isFullTank ? '加满' : '',
+        fillStatusTone: r.isFullTank ? 'danger' : undefined,
+        compact: true, // 你原来都是 compact 视图
+        highlight: undefined,
+        fuelConsumption:
+          !Number.isNaN(volumeNum)
+            ? `-${volumeNum.toFixed(2)}`
+            : undefined,
+        deltaMileage:
+          !Number.isNaN(distanceNum)
+            ? `+${Math.round(distanceNum)}`
+            : undefined,
+        pricePerKm:
+          r.pricePerKm != null
+            ? Number(r.pricePerKm).toFixed(2)
+            : undefined
+      }
+    })
+  } catch (err) {
+    console.error('fetchRecords error:', err)
+    uni.showToast({
+      title: '加载失败，请稍后再试',
+      icon: 'none'
+    })
+  } finally {
+    uni.hideLoading()
+  }
+}
+
 const handleLoginRequired = () => {
   if (!isLoggedIn.value) {
     showLoginSheet.value = true
   }
 }
-
+// 切换年份时，重置展开状态
 watch(currentYear, () => {
   expandedRecordMap.value = {}
   runPageEnterAnimation()
+  fetchRecords()
 })
 
 onShow(() => {
   refreshLoginState()
   runPageEnterAnimation()
+  fetchRecords()
 })
 
+// 只做动画就行，不必再拉数据
 onMounted(() => {
   runPageEnterAnimation()
 })
