@@ -94,7 +94,7 @@
 
 | 变量 | 作用 | 默认值 |
 | --- | --- | --- |
-| `VITE_API_BASE_URL` | 后端 API 根地址，`utils/request.ts` 会自动拼接路径并附加 token Header。 | `http://10.48.75.101:3000` |
+| `VITE_API_BASE_URL` | 后端 API 根地址，`utils/request.ts` 会自动拼接路径并附加 token Header。 | `http://192.168.60.78:3000` |
 | `VITE_TENCENT_MAP_KEY` | 腾讯位置服务 Key，用于城市页的反向地理编码/地图选点。 | 未设置则不调用地图接口 |
 
 ## 后端接口约定
