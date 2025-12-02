@@ -142,6 +142,16 @@
     <button class="submit-btn" type="button" @tap="handleSubmit">
       保存油耗记录
     </button>
+
+    <!-- 新增：只在编辑模式显示 -->
+    <button
+      v-if="isEditing"
+      class="delete-btn"
+      type="button"
+      @tap="handleDelete"
+    >
+      删除本条记录
+    </button>
   </view>
 </template>
 
@@ -370,6 +380,48 @@ const loadDetail = async(id: string) => {
   }
 }
 
+// 删除本条记录
+const handleDelete = async () => {
+  console.log(385, 'handleDelete editingId = ', editingId.value)
+  if (!editingId.value || !isEditing.value) {
+    return
+  }
+  uni.showModal({
+    title: '提示',
+    content: '确定删除本条记录吗？',
+    confirmColor: '#f56c6c',
+    success: async(res) => {
+      if (!res.confirm) return
+      
+      try {
+        uni.showLoading({ title: '删除中...', mask: true })
+        const res = await axios.delete(`/api/refuels/${editingId.value}`)
+        const { success, data } = (res as any) || {}
+        if (!success) {
+          throw new Error('接口返回异常')
+        }
+        uni.showToast({
+          title: '删除成功',
+          icon: 'success'
+        })
+        
+        setTimeout(() => {
+          uni.navigateBack({ delta: 1 })
+        }, 400)
+      } catch (err) {
+        console.error('删除本条记录失败：', err)
+        uni.showToast({
+          title: '删除失败，请稍后再试',
+          icon: 'none'
+        })
+      } finally {
+        uni.hideLoading()
+      }
+      
+    }
+  })
+}
+
 onLoad(async(options: { id: string }) => {
   console.log(325, 'onLoad options = ', options)
   if (options.id) {
@@ -533,6 +585,15 @@ onLoad(async(options: { id: string }) => {
     font-size: 32rpx;
     font-weight: 600;
     box-shadow: 0 18rpx 36rpx rgba(30, 193, 95, 0.28);
+  }
+  .delete-btn {
+    margin-top: 24rpx;
+    height: 80rpx;
+    line-height: 80rpx;
+    border: none;
+    border-radius: 999rpx;
+    background: linear-gradient(180deg, #ff4d4f 0%, #ff7875 100%);
+    color: #fff;
   }
 }
 </style>
