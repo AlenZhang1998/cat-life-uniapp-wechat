@@ -525,7 +525,7 @@ const fetchRecords = async () => {
       pricePerLiter:
         s.avgPricePerL != null ? Number(s.avgPricePerL).toFixed(2) : '--',
       mileage:
-        s.totalDistance != null ? String(Math.round(Number(s.totalDistance))) : '--'
+      s.coverageDistance != null ? String(Math.round(Number(s.coverageDistance))) : '--'
     }
     // 列表项映射到你现有的结构
     records.value = list.map((r): FuelRecordItem => {
