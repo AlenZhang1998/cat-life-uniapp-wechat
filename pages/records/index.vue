@@ -111,7 +111,7 @@
                   {{ entry.fillStatus }}
                 </text>
               </text>
-              <view class="record-edit">✎</view>
+              <view class="record-edit" @tap.stop="handleEdit(entry)">✎</view>
             </view>
           </view>
         </view>
@@ -585,6 +585,17 @@ const handleLoginRequired = () => {
     showLoginSheet.value = true
   }
 }
+
+// 编辑记录
+const handleEdit = (entry: FuelRecordItem) => {
+  handleLoginRequired()
+  
+  console.log(590, 'handleEdit', entry)
+  uni.navigateTo({
+    url: `/pages/add/index?id=${entry.id}`
+  })
+}
+
 // 切换年份时，重置展开状态
 watch(currentYear, () => {
   expandedRecordMap.value = {}

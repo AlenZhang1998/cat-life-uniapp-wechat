@@ -146,8 +146,9 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { axios } from '@/utils/request'
+import { onLoad } from '@dcloudio/uni-app'
 
 const now = new Date()
 const defaultDate = now.toISOString().slice(0, 10)
@@ -167,6 +168,10 @@ type FormModel = {
   hasPreviousRecord: boolean
   remark: string
 }
+
+// 增加「是否编辑」状态
+const isEditing = ref(false)
+const editingId = ref<string | null>(null)
 
 type TextFieldKey = 'mileage' | 'fuelPrice' | 'amount' | 'remark'
 
@@ -282,14 +287,7 @@ const handleSubmit = async () => {
       uni.navigateBack({ delta: 1 })
     }, 400)
 
-    // // 保存成功后可根据业务清空表单，这里简单重置数值字段
-    // form.mileage = ''
-    // form.fuelPrice = ''
-    // form.amount = ''
-    // form.fullAutoStop = false
-    // form.warningLight = false
-    // form.hasPreviousRecord = false
-    // form.remark = ''
+    resetForm()
   } catch (err) {
     console.error('保存油耗记录失败：', err)
     uni.showToast({
@@ -301,10 +299,81 @@ const handleSubmit = async () => {
   }
 }
 
+// 重置表单
+const resetForm = () => {
+  const now = new Date()
+  const defaultDate = now.toISOString().slice(0, 10)
+  const defaultTime = now.toTimeString().slice(0, 5)
+
+  form.date = defaultDate
+  form.time = defaultTime
+  form.mileage = ''
+  form.fuelGrade = fuelGradeOptions[0]
+  form.fuelPrice = ''
+  form.amount = ''
+  form.fullAutoStop = false
+  form.warningLight = false
+  form.hasPreviousRecord = true
+  form.remark = ''
+}
+
 const toNumber = (value: string) => {
   const n = Number(value)
   return Number.isNaN(n) ? NaN : n
 }
+
+// 查询单条数据、回填数据
+const loadDetail = async(id: string) => {
+  console.log(326, 'loadDetail id = ', id)
+  try {
+    uni.showLoading({ title: '加载中...', mask: true })
+    const res = await axios.get(`/api/refuels/${id}`)
+    console.log(330, 'loadDetail res = ', res)
+
+    const { success, data } = (res as any) || {}
+    if (!success) {
+      throw new Error('接口返回异常')
+    }
+    const r = res.data
+
+    // refuelDate -> date + time
+    const d = r.refuelDate ? new Date(r.refuelDate) : new Date()
+    form.date = d.toISOString().slice(0, 10)
+    form.time = d.toTimeString().slice(0, 5)
+
+    form.mileage = r.odometer != null ? String(r.odometer) : ''
+    form.fuelGrade = r.fuelGrade || fuelGradeOptions[0]
+    form.fuelPrice = r.pricePerL != null ? String(r.pricePerL) : ''
+    form.amount = r.amount != null ? String(r.amount) : ''
+    form.fullAutoStop = !!r.isFullTank
+    form.warningLight = !!r.warningLight
+    form.hasPreviousRecord = !!r.hasPreviousRecord
+    form.remark = r.remark || ''
+  } catch (err) {
+    console.error('查询单条数据失败：', err)
+    uni.showToast({
+      title: '查询失败，请稍后再试',
+      icon: 'none'
+    })
+  } finally {
+    uni.hideLoading()
+  }
+}
+
+onLoad(async(options: { id: string }) => {
+  console.log(325, 'onLoad options = ', options)
+  if (options.id) {
+    // 编辑
+    isEditing.value = true
+    editingId.value = options.id
+    await loadDetail(options.id) //查询数据
+  } else {
+    // 新增
+    isEditing.value = false
+    editingId.value = null
+    resetForm()
+  }
+})
 </script>
 
 <style lang="scss" scoped>
