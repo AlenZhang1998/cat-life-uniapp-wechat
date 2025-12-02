@@ -485,8 +485,6 @@ const toggleRecord = (entry: FuelRecordItem) => {
 }
 
 const fetchRecords = async () => {
-  console.log(488)
-
   if (!isLoggedIn.value) {
     records.value = []
     summaryCard.value = {
@@ -502,7 +500,7 @@ const fetchRecords = async () => {
     uni.showLoading({ title: '加载中...', mask: true })
 
     const res = await axios.get('/api/refuels/list?year=' + currentYear.value)
-    console.log(505, res)
+    console.log(503, res)
 
     // const response = res as { success?: boolean; data?: any }
     // console.log(508, res)
