@@ -504,12 +504,13 @@ const fetchRecords = async () => {
     const res = await axios.get('/api/refuels/list?year=' + currentYear.value)
     console.log(505, res)
 
-    const response = res as { success?: boolean; data?: any }
-    if (!response || response.success !== true) {
+    // const response = res as { success?: boolean; data?: any }
+    // console.log(508, res)
+    if (!res || res.success !== true) {
       throw new Error('接口返回异常')
     }
 
-    const payload = response.data || {}
+    const payload = res.data || {}
     const s = payload.summary || {}
     const list = (payload.records || []) as any[]
 
@@ -526,13 +527,12 @@ const fetchRecords = async () => {
       mileage:
         s.totalDistance != null ? String(Math.round(Number(s.totalDistance))) : '--'
     }
-
-
     // 列表项映射到你现有的结构
     records.value = list.map((r): FuelRecordItem => {
       const distanceNum =
         r.distance != null ? Number(r.distance) : NaN
       const volumeNum = r.volume != null ? Number(r.volume) : NaN
+      const odometerNum = r.odometer != null ? Number(r.odometer) : NaN
 
       return {
         type: 'record',
@@ -540,9 +540,7 @@ const fetchRecords = async () => {
         date: r.monthDay || '--',
         consumption:
           r.lPer100km != null ? Number(r.lPer100km).toFixed(2) : '--',
-        mileage: !Number.isNaN(distanceNum)
-          ? String(Math.round(distanceNum))
-          : '--',
+        mileage: !Number.isNaN(odometerNum) ? String(Math.round(odometerNum)) : '--',
         amount:
           r.amount != null ? Number(r.amount).toFixed(2) : undefined,
         pricePerLiter:
@@ -556,6 +554,8 @@ const fetchRecords = async () => {
         fillStatusTone: r.isFullTank ? 'danger' : undefined,
         compact: true, // 你原来都是 compact 视图
         highlight: undefined,
+
+        // 展开卡片里的“消耗油量”/“里程变化”保持用区间数据
         fuelConsumption:
           !Number.isNaN(volumeNum)
             ? `-${volumeNum.toFixed(2)}`
@@ -570,6 +570,7 @@ const fetchRecords = async () => {
             : undefined
       }
     })
+    // console.log(573, records.value)
   } catch (err) {
     console.error('fetchRecords error:', err)
     uni.showToast({
