@@ -269,8 +269,18 @@ const handleSubmit = async () => {
 
   try {
     console.log(266, 'payload = ', payload)
-    // axios 封装要求请求体放在 data 字段，否则不会带上 body
-    const res = await axios.post('/api/refuels', { data: payload })
+
+    let res
+
+    if (isEditing.value && editingId.value) {
+      // ✅ 编辑模式：PUT /api/refuels/:id
+      res = await axios.put(`/api/refuels/${editingId.value}`, { data: payload })
+    } else {
+      // ✅ 新建模式：POST /api/refuels
+      res = await axios.post('/api/refuels', { data: payload })
+    }
+    // // axios 封装要求请求体放在 data 字段，否则不会带上 body
+    // const res = await axios.post('/api/refuels', { data: payload })
     const { success, data } = (res as any) || {}
 
     if (!success) {
