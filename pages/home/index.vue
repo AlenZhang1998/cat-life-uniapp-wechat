@@ -35,7 +35,8 @@
       </view>
 
       <view class="car-info">
-        <text class="car-name">{{ carInfo.brand }} · {{ carInfo.model }}</text>
+        <text class="car-name">{{ carInfo.name }}</text>
+        <!-- <text class="car-name">{{ carInfo.brand }} · {{ carInfo.model }}</text> -->
         <text class="car-trim">{{ carInfo.trim }}</text>
       </view>
 
@@ -182,6 +183,8 @@ import BottomActionBar from '@/components/BottomActionBar.vue'
 import RangePickerOverlay from '@/components/RangePickerOverlay.vue'
 import LoginOverlay from '@/components/LoginOverlay.vue'
 import { useAuth } from '@/utils/auth'
+import { axios } from '@/utils/request'
+
 // uCharts 官方 ECharts 适配仅支持 CJS 导入，这里使用 require 方式以兼容编译到小程序端
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const echarts = require('../../wxcomponents/ec-canvas/echarts')
@@ -209,7 +212,8 @@ syncSelectedCity()
 const carInfo = ref({
   brand: '思域',
   model: '2025款 240TURBO CVT',
-  trim: '智趣Plus'
+  trim: '智趣Plus',
+  name: '--' // 思域 · 2025款 240TURBO CVT
 })
 const oilPrice = ref({
   label: '92#',
@@ -219,8 +223,8 @@ const oilPrice = ref({
 // 用于控制提醒条是否展示，这里默认没有记录
 const hasRecentRefuel = ref(false)
 
-// 最新油耗展示值，可在后续与服务端对接时替换
-const latestFuel = ref('4.80')
+// 最新油耗展示值，默认0
+const latestFuel = ref('0')
 
 // 评级标签以静态数组呈现，方便后续根据接口高亮不同等级
 type EfficiencyLevel = {
@@ -243,47 +247,177 @@ const getBadgeStyle = (level: EfficiencyLevel) => ({
   '--badge-color': level.badgeColor
 })
 
+// ⭐ 根据最新油耗计算评级
+const getGradeByFuel = (val: number): 'S' | 'A' | 'B' | 'C' | 'D' => {
+  if (val <= 5) return 'S'
+  if (val <= 6) return 'A'
+  if (val <= 7.5) return 'B'
+  if (val <= 9) return 'C'
+  return 'D'
+}
+
+watch(latestFuel, (newVal) => {
+  const num = Number(newVal)
+  if (Number.isNaN(num)) {
+    currentEfficiency.value = efficiencyLevels.value[0]
+    return
+  }
+  const grade = getGradeByFuel(num)
+  const target =
+    efficiencyLevels.value.find((item) => item.label === grade) ||
+    efficiencyLevels.value[0]
+  currentEfficiency.value = target
+  console.log(1111, currentEfficiency.value)
+})
+
+// 获取用户资料信息
+const fetchProfile = async () => {
+  if (!isLoggedIn.value) {
+    return
+  }
+  try {
+    const res = await axios.get('/api/profile')
+    console.log(1111, res)
+    const resp = res as any
+    const data = resp.data || resp || {}
+
+    carInfo.value.name = data.favoriteCarModel
+  } catch (err) {
+    console.warn('fetchProfile error:', err)
+  }
+}
+
+
 // 统计区块的数据源，这里把单位也一起放进来，便于展示
 const stats = ref([
   {
     key: 'fuelAvg',
     label: '平均油耗',
-    value: '5.71',
+    value: '0',
     unit: '升/百公里',
     accent: true
   },
   {
     key: 'mileageAvg',
     label: '平均行程',
-    value: '92.76',
+    value: '0',
     unit: '公里/天'
   },
   {
     key: 'costAvg',
     label: '平均油费',
-    value: '0.35',
+    value: '0',
     unit: '元/公里',
     accent: true
   },
   {
     key: 'mileageTotal',
     label: '累计行程',
-    value: '1577',
+    value: '0',
     unit: '公里'
   },
   {
     key: 'costTotal',
     label: '累计油费',
-    value: '836.7',
+    value: '0',
     unit: '元'
   },
   {
     key: 'discountTotal',
     label: '总计优惠',
-    value: '128.4',
+    value: '0',
     unit: '元'
   }
 ])
+
+const fetchRefuelData = async () => {
+  if (!isLoggedIn.value) {
+    hasRecentRefuel.value = false
+    latestFuel.value = '0'
+    return
+  }
+
+  try {
+    const year = new Date().getFullYear()
+    const res = await axios.get('/api/refuels/list?year=' + year)
+    const resp = res as any
+
+    if (!resp || resp.success !== true) {
+      throw new Error('接口返回异常')
+    }
+    const payload = res.data || {}
+    const s = payload.summary || {}
+    const list = (payload.records || []) as any[]
+
+    // 是否有加油记录 -> 控制“没有记录”提示条
+    hasRecentRefuel.value = Array.isArray(list) && list.length > 0
+
+    // ===== 最新油耗：取最近一条有 lPer100km 的记录 =====
+    const firstWithL = list.find((item: any) => item.lPer100km != null)
+    if (firstWithL) {
+      latestFuel.value = Number(firstWithL.lPer100km).toFixed(2)
+    } else {
+      latestFuel.value = '0'
+    }
+
+    // ===== 统计区块数据 =====
+    const avgFuel =
+      s.avgFuelConsumption != null
+        ? Number(s.avgFuelConsumption).toFixed(2)
+        : '--'
+    const totalDistance =
+      s.totalDistance != null ? String(Math.round(Number(s.totalDistance))) : '--'
+    const totalAmount =
+      s.totalAmount != null ? Number(s.totalAmount).toFixed(2) : '--'
+    const avgPricePerL =
+      s.avgPricePerL != null ? Number(s.avgPricePerL).toFixed(2) : '--'
+
+      stats.value = [
+      {
+        key: 'fuelAvg',
+        label: '平均油耗',
+        value: avgFuel,
+        unit: '升/百公里',
+        accent: true
+      },
+      // 平均行程、平均油费暂时用占位，你以后可以再算
+      {
+        key: 'mileageAvg',
+        label: '平均行程',
+        value: '--',
+        unit: '公里/天'
+      },
+      {
+        key: 'costAvg',
+        label: '平均油费',
+        value: avgPricePerL === '--' ? '--' : avgPricePerL,
+        unit: '元/升',
+        accent: true
+      },
+      {
+        key: 'mileageTotal',
+        label: '累计行程',
+        value: totalDistance,
+        unit: '公里'
+      },
+      {
+        key: 'costTotal',
+        label: '累计油费',
+        value: totalAmount,
+        unit: '元'
+      },
+      {
+        key: 'discountTotal',
+        label: '总计优惠',
+        value: '--',
+        unit: '元'
+      }
+    ]
+    
+  } catch (err) {
+
+  }
+}
 
 // 油耗趋势数据，value 直接对应折线的高度
 type TrendPoint = {
@@ -294,11 +428,11 @@ type TrendPoint = {
 }
 
 const trendData = ref<TrendPoint[]>([
-  { day: '2025-10-01', value: 4.9, cityHigh: 8.2, cityLow: 6.1 },
-  { day: '2025-10-02', value: 8.6, cityHigh: 8.15, cityLow: 6.05 },
-  { day: '2025-10-04', value: 8.1, cityHigh: 8.05, cityLow: 6.0 },
-  { day: '2025-10-06', value: 7.3, cityHigh: 8.0, cityLow: 5.96 },
-  { day: '2025-10-09', value: 4.8, cityHigh: 7.95, cityLow: 5.92 }
+  // { day: '2025-10-01', value: 4.9, cityHigh: 8.2, cityLow: 6.1 },
+  // { day: '2025-10-02', value: 8.6, cityHigh: 8.15, cityLow: 6.05 },
+  // { day: '2025-10-04', value: 8.1, cityHigh: 8.05, cityLow: 6.0 },
+  // { day: '2025-10-06', value: 7.3, cityHigh: 8.0, cityLow: 5.96 },
+  // { day: '2025-10-09', value: 4.8, cityHigh: 7.95, cityLow: 5.92 }
 ])
 
 // 统计口径筛选，目前仅用于展示标签
@@ -582,6 +716,10 @@ onShow(() => {
   refreshLoginState()
   syncSelectedCity()
   runPageEnterAnimation()
+
+  // 获取用户资料信息和加油记录数据
+  fetchProfile()
+  fetchRefuelData()
 })
 
 onMounted(() => {
