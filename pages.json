@@ -59,5 +59,10 @@
     "navigationBarTitleText": "爱车油耗助手",
     "navigationBarBackgroundColor": "#F7F8FA",
     "backgroundColor": "#F7F8FA"
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于定位您所在城市"
+    }
   }
 }
