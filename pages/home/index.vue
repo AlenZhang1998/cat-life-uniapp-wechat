@@ -427,6 +427,33 @@ const rangeOptions: RangeOption[] = [
   { key: 'all', label: '全部' }
 ]
 
+const DAY_MS = 24 * 60 * 60 * 1000
+
+const normalizeDateOnly = (value?: string | Date | null) => {
+  if (!value) return null
+  const date =
+    value instanceof Date ? value : new Date(String(value).replace(/-/g, '/'))
+
+  if (Number.isNaN(date.getTime())) return null
+
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate())
+}
+
+const calcDateRangeDays = (
+  start?: string | Date | null,
+  end?: string | Date | null
+): number | null => {
+  const startDate = normalizeDateOnly(start)
+  const endDate = normalizeDateOnly(end)
+
+  if (!startDate || !endDate || endDate.getTime() < startDate.getTime()) {
+    return null
+  }
+
+  const diff = endDate.getTime() - startDate.getTime()
+  return Math.floor(diff / DAY_MS) + 1
+}
+
 
 // 统计区块的数据源，这里把单位也一起放进来，便于展示
 const stats = ref([
@@ -513,14 +540,31 @@ const fetchRefuelData = async (rangeKey: RangeKey = rangeOptions[3].key) => {
       s.avgFuelConsumption != null
         ? Number(s.avgFuelConsumption).toFixed(2)
         : '--'
-    const totalDistance =
-      s.totalDistance != null ? String(Math.round(Number(s.totalDistance))) : '--'
+    const totalDistanceNum =
+      s.totalDistance != null ? Number(s.totalDistance) : NaN
+    const totalDistance = Number.isFinite(totalDistanceNum)
+      ? String(Math.round(totalDistanceNum))
+      : '--'
     const totalAmount =
       s.totalAmount != null ? Number(s.totalAmount).toFixed(2) : '--'
     const avgPricePerL =
       s.avgPricePerL != null ? Number(s.avgPricePerL).toFixed(2) : '--'
 
-      stats.value = [
+    const resolvedDateRangeDays =
+      typeof s.dateRangeDays === 'number'
+        ? s.dateRangeDays
+        : calcDateRangeDays(s.startDate, s.endDate)
+    const validDateRangeDays =
+      typeof resolvedDateRangeDays === 'number' && resolvedDateRangeDays > 0
+        ? resolvedDateRangeDays
+        : null
+
+    const mileageAvg =
+      Number.isFinite(totalDistanceNum) && validDateRangeDays
+        ? (totalDistanceNum / validDateRangeDays).toFixed(2)
+        : '--'
+
+    stats.value = [
       {
         key: 'fuelAvg',
         label: '平均油耗',
@@ -528,11 +572,10 @@ const fetchRefuelData = async (rangeKey: RangeKey = rangeOptions[3].key) => {
         unit: '升/百公里',
         accent: true
       },
-      // 平均行程、平均油费暂时用占位，你以后可以再算
       {
         key: 'mileageAvg',
         label: '平均行程',
-        value: '--',
+        value: mileageAvg,
         unit: '公里/天'
       },
       {
