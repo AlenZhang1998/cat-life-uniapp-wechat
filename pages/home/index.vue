@@ -380,10 +380,10 @@ watch(latestFuel, (newVal) => {
     efficiencyLevels.value.find((item) => item.label === grade) ||
     efficiencyLevels.value[0]
   currentEfficiency.value = target
-  console.log(1111, currentEfficiency.value)
+  // console.log(1111, currentEfficiency.value)
 })
 
-// 获取用户资料信息
+// 计算爱车相伴天数
 const calcHeroDays = (deliveryDate?: string | null) => {
   if (!deliveryDate) return 0
   const parsed = new Date(deliveryDate.replace(/-/g, '/'))
@@ -394,13 +394,14 @@ const calcHeroDays = (deliveryDate?: string | null) => {
   return days + 1 // 当天算第 1 天
 }
 
+// 获取用户资料信息
 const fetchProfile = async () => {
   if (!isLoggedIn.value) {
     return
   }
   try {
     const res = await axios.get('/api/profile')
-    console.log(1111, res)
+    // console.log(1111, res)
     const resp = res as any
     const data = resp.data || resp || {}
 
@@ -410,6 +411,21 @@ const fetchProfile = async () => {
     console.warn('fetchProfile error:', err)
   }
 }
+
+// 统计口径筛选
+type RangeKey = '3m' | '6m' | '1y' | 'all'
+
+type RangeOption = {
+  key: RangeKey
+  label: string
+}
+
+const rangeOptions: RangeOption[] = [
+  { key: '3m', label: '三个月' },
+  { key: '6m', label: '半年' },
+  { key: '1y', label: '一年' },
+  { key: 'all', label: '全部' }
+]
 
 
 // 统计区块的数据源，这里把单位也一起放进来，便于展示
@@ -454,7 +470,7 @@ const stats = ref([
   }
 ])
 
-const fetchRefuelData = async () => {
+const fetchRefuelData = async (rangeKey: RangeKey = rangeOptions[3].key) => {
   if (!isLoggedIn.value) {
     hasRecentRefuel.value = false
     latestFuel.value = '0'
@@ -462,14 +478,22 @@ const fetchRefuelData = async () => {
   }
 
   try {
-    const year = new Date().getFullYear()
-    const res = await axios.get('/api/refuels/list?year=' + year)
+    // const year = new Date().getFullYear()
+    const resolvedRange = rangeKey || rangeOptions[3].key
+    // let url = `/api/refuels/list?year=${year}`
+    
+    // if (resolvedRange !== 'all') {
+    //   url += `&range=${resolvedRange}`
+    // }
+    const url = `/api/refuels/list?range=${resolvedRange || 'all'}`
+
+    const res = await axios.get(url)
     const resp = res as any
 
     if (!resp || resp.success !== true) {
       throw new Error('接口返回异常')
     }
-    const payload = res.data || {}
+    const payload = resp.data || resp || {}
     const s = payload.summary || {}
     const list = (payload.records || []) as any[]
 
@@ -533,7 +557,7 @@ const fetchRefuelData = async () => {
       {
         key: 'discountTotal',
         label: '总计优惠',
-        value: '--',
+        value: '0',
         unit: '元'
       }
     ]
@@ -558,21 +582,6 @@ const trendData = ref<TrendPoint[]>([
   // { day: '2025-10-06', value: 7.3, cityHigh: 8.0, cityLow: 5.96 },
   // { day: '2025-10-09', value: 4.8, cityHigh: 7.95, cityLow: 5.92 }
 ])
-
-// 统计口径筛选，目前仅用于展示标签
-type RangeKey = '3m' | '6m' | '1y' | 'all'
-
-type RangeOption = {
-  key: RangeKey
-  label: string
-}
-
-const rangeOptions: RangeOption[] = [
-  { key: '3m', label: '三个月' },
-  { key: '6m', label: '半年' },
-  { key: '1y', label: '一年' },
-  { key: 'all', label: '全部' }
-]
 
 type RangeTarget = 'stats' | 'trend'
 
@@ -615,16 +624,30 @@ const handlePendingRangeChange = (value: RangeKey | null) => {
   }
 }
 
-const confirmRangePicker = () => {
-  const target = rangeOptions.find((option) => option.key === pendingRangeKey.value)
-  if (target) {
-    const rangeRef = resolveTargetRange(activeRangeTarget.value)
-    rangeRef.value = target
-    const targetLabel = activeRangeTarget.value === 'stats' ? '统计' : '趋势'
-    uni.showToast({
-      title: `${targetLabel}已切换到${target.label}`,
-      icon: 'none'
-    })
+const applyRangeSelection = (target: RangeTarget, key: RangeKey) => {
+  const targetOption = rangeOptions.find((option) => option.key === key)
+  if (!targetOption) return
+
+  const rangeRef = resolveTargetRange(target)
+  const changed = rangeRef.value.key !== targetOption.key
+  rangeRef.value = targetOption
+  pendingRangeKey.value = targetOption.key
+
+  if (target === 'stats' && changed) {
+    fetchRefuelData(targetOption.key)
+  }
+
+  const targetLabel = target === 'stats' ? '统计' : '趋势'
+  uni.showToast({
+    title: `${targetLabel}已切换到${targetOption.label}`,
+    icon: 'none'
+  })
+}
+
+const confirmRangePicker = (value?: RangeKey | null) => {
+  const finalKey = value || pendingRangeKey.value
+  if (finalKey) {
+    applyRangeSelection(activeRangeTarget.value, finalKey)
   }
   closeRangePicker()
 }
@@ -843,7 +866,7 @@ onShow(() => {
 
   // 获取用户资料信息和加油记录数据
   fetchProfile()
-  fetchRefuelData()
+  fetchRefuelData(statsRange.value.key)
 })
 
 onMounted(() => {
