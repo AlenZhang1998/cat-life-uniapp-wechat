@@ -105,7 +105,7 @@
             class="rating-badge"
             v-for="level in efficiencyLevels"
             :key="level.label"
-            :class="{ active: level.label === currentEfficiency.label }"
+            :class="{ active: level.label === currentEfficiency.label && isLoggedIn }"
             :style="getBadgeStyle(level)"
           >
             <text>{{ level.label }}</text>
