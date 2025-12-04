@@ -25,6 +25,7 @@
         <text class="location-label">当前位置：</text>
         <text class="location-value">
           {{ locationCity || currentCity || '未定位' }}
+          <!-- {{ locationProvince }}-{{ locationCity }}-{{ currentCity }} -->
         </text>
         <text
           v-if="!locationCity"
@@ -149,7 +150,8 @@ type TouchLikeEvent = {
 
 const keyword = ref('')
 const currentCity = ref('')
-const locationCity = ref('')
+const locationProvince = ref('') // 定位省份
+const locationCity = ref('') // 定位城市
 const locating = ref(false)
 const activeAnchor = ref('')
 const highlightedLetter = ref('')
@@ -268,9 +270,16 @@ const handleLocate = async (applyCity = true) => {
   try {
     await ensureLocationAuth()
     const located = await locateCityByGPS()
+    console.log(273, 'located = ', located)
+
     if (located?.city) {
       const normalizedCity = formatCityName(located.city)
+      const normalizedProvince = formatCityName(located.province || '')
+
+      // 保存到页面状态
+      locationProvince.value = normalizedProvince
       locationCity.value = normalizedCity
+
       if (applyCity) {
         handleCityTap(normalizedCity)
       }
@@ -293,9 +302,14 @@ const handleLocate = async (applyCity = true) => {
 
 const handlePickFromMap = async () => {
   const result = await chooseCityFromMap()
+  console.log(305, 'result = ', result)
   if (result?.city) {
     const normalizedCity = formatCityName(result.city)
+    const normalizedProvince = formatCityName(result.province || '')
+
+    locationProvince.value = normalizedProvince
     locationCity.value = normalizedCity
+
     handleCityTap(normalizedCity)
   } else {
     uni.showToast({
@@ -386,7 +400,7 @@ onLoad((options) => {
   const queryCity = normalizeCityName(queryCityRaw)
   const storedCity = normalizeCityName(storedCityRaw)
 
-  currentCity.value = queryCity || storedCity || '深圳市'
+  currentCity.value = queryCity || storedCity || '--'
   locationCity.value = storedCity
 
   // 自动定位但不立即切换城市，仅展示定位结果

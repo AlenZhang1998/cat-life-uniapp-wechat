@@ -6,6 +6,14 @@ type ReverseGeocodeResult = {
   address?: string
 }
 
+export type LocatedCity = {
+  city: string
+  latitude: number
+  longitude: number
+  province?: string
+  address?: string
+}
+
 const TENCENT_MAP_KEY =
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore uni-app 会在编译阶段注入 import.meta.env
@@ -21,13 +29,28 @@ const PROVINCE_SUFFIX_MATCHER = /(省|特别行政区)$/u
 
 export const requestLocation = () =>
   new Promise<UniApp.GetLocationSuccess>((resolve, reject) => {
-    uni.getLocation({
-      type: 'gcj02',
-      isHighAccuracy: true,
-      highAccuracyExpireTime: 3000,
-      success: (pos) => resolve(pos),
-      fail: (err) => reject(err)
-    })
+    const tryOnce = (highAccuracy: boolean) => {
+      uni.getLocation({
+        type: 'gcj02',
+        isHighAccuracy: highAccuracy,
+        highAccuracyExpireTime: 3000,
+        success: (pos) => {
+          console.log('[requestLocation] success', pos)
+          resolve(pos)
+        },
+        fail: (err: any) => {
+          console.warn('[requestLocation] fail', err)
+          // 第一次高精度失败，再用普通模式试一次
+          if (highAccuracy && (err.errCode === 404 || err.errCode === 2)) {
+            tryOnce(false)
+          } else {
+            reject(err)
+          }
+        }
+      })
+    }
+
+    tryOnce(true)
   })
 
 export const chooseLocationManually = () =>
@@ -102,7 +125,7 @@ export const reverseGeocodeByTencent = async (
   return null
 }
 
-export const locateCityByGPS = async () => {
+export const locateCityByGPS = async (): Promise<LocatedCity | null> => {
   try {
     const { latitude, longitude } = await requestLocation()
     const geocode = await reverseGeocodeByTencent(latitude, longitude)
@@ -121,8 +144,9 @@ export const locateCityByGPS = async () => {
   return null
 }
 
-export const chooseCityFromMap = async () => {
+export const chooseCityFromMap = async (): Promise<LocatedCity | null> => {
   const selection = await chooseLocationManually()
+  console.log(149, 'selection = ', selection)
   if (!selection) return null
 
   const cityName =
