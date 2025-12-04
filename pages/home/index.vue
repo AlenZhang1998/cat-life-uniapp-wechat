@@ -40,7 +40,35 @@
         <text class="car-trim">{{ carInfo.trim }}</text>
       </view>
 
-      <view class="price-row">
+      <view
+        v-if="oilPriceList.length"
+        class="price-row"
+      >
+        <swiper
+          class="price-swiper"
+          :autoplay="oilPriceList.length > 1"
+          :circular="oilPriceList.length > 1"
+          :interval="2600"
+          vertical
+        >
+          <swiper-item
+            v-for="item in oilPriceList"
+            :key="item.label"
+          >
+            <view class="price-item">
+              <text class="oil-type">{{ item.label }}</text>
+              <text class="oil-price">
+                <text class="price-number">{{ item.value }}</text>
+                元/升
+              </text>
+            </view>
+          </swiper-item>
+        </swiper>
+      </view>
+      <view
+        v-else
+        class="price-row"
+      >
         <text class="oil-type">{{ oilPrice.label }}</text>
         <text class="oil-price">
           <text class="price-number">{{ oilPrice.value }}</text>
@@ -255,19 +283,29 @@ const carInfo = ref({
   trim: '智趣Plus',
   name: '--' // 思域 · 2025款 240TURBO CVT
 })
-const oilPrice = ref({
+type OilPrice = {
+  label: string
+  value: string
+}
+
+const oilPrice = ref<OilPrice>({
   label: '92#',
   value: '--'
 })
-const oilPriceList = ref([])
+const oilPriceList = ref<OilPrice[]>([
+  // {label: "92#", value: "6.91"},
+  // {label: "95#", value: "7.48"},
+  // {label: "98#", value: "9.48"},
+  // {label: "0#", value: "6.53"}
+])
 const oilLoading = ref(false)
 const oilError = ref('')
 
 // 获取今日油价
 const fetchOilPrice = async () => {
-  if (!isLoggedIn.value) {
-    return
-  }
+  // if (!isLoggedIn.value) {
+  //   return
+  // }
   if (!province.value) return
   oilLoading.value = true
   oilError.value = ''
@@ -282,6 +320,9 @@ const fetchOilPrice = async () => {
     }
     console.log(276, 'data = ', data)
     oilPriceList.value = data.prices
+    if (data.prices.length) {
+      oilPrice.value = data.prices[0]
+    }
 
   } catch (err) {
     console.warn('fetchOilPrice error:', err)
@@ -960,9 +1001,20 @@ onMounted(() => {
 
     .price-row {
       display: flex;
-      align-items: baseline;
+      align-items: center;
       gap: 16rpx;
       margin-bottom: 24rpx;
+
+      .price-swiper {
+        height: 64rpx;
+        width: 100%;
+      }
+
+      .price-item {
+        display: flex;
+        align-items: baseline;
+        gap: 16rpx;
+      }
 
       .oil-type {
         font-size: 32rpx;
