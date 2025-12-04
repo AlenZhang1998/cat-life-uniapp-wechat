@@ -40,13 +40,13 @@
         <text class="car-trim">{{ carInfo.trim }}</text>
       </view>
 
-      <!-- <view class="price-row">
+      <view class="price-row">
         <text class="oil-type">{{ oilPrice.label }}</text>
         <text class="oil-price">
           <text class="price-number">{{ oilPrice.value }}</text>
           元/升
         </text>
-      </view> -->
+      </view>
 
       <view class="reminder-banner" v-if="!hasRecentRefuel">
         <text class="reminder-icon">!</text>
@@ -176,6 +176,7 @@
 import { onShow } from '@dcloudio/uni-app'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { STORAGE_KEYS } from '@/constants/storage'
+import { CITY_LIST } from '@/data/cities'
 import { normalizeCityName } from '@/utils/location'
 import locationIcon from '@/static/icons/dingwei.png'
 import dingwei_right from '@/static/icons/dingwei_right.png'
@@ -194,17 +195,56 @@ const DEFAULT_CITY = '未定位'
 const normalizeOrDefault = (value?: string | null) =>
   normalizeCityName(value) || DEFAULT_CITY
 
+const cityProvinceMap = new Map<string, string>()
+
+const buildCityProvinceMap = () => {
+  CITY_LIST.forEach((item) => {
+    const normalized = normalizeCityName(item.name)
+    if (normalized && !cityProvinceMap.has(normalized)) {
+      cityProvinceMap.set(normalized, item.province)
+    }
+    if (!cityProvinceMap.has(item.name)) {
+      cityProvinceMap.set(item.name, item.province)
+    }
+  })
+}
+
+buildCityProvinceMap()
+
+const resolveProvinceByCity = (cityName?: string | null) => {
+  if (!cityName) return ''
+  const normalized = normalizeCityName(cityName)
+  return (
+    cityProvinceMap.get(normalized) ||
+    cityProvinceMap.get(cityName) ||
+    ''
+  )
+}
+
 const { isLoggedIn, refreshLoginState } = useAuth()
 const showLoginSheet = ref(false)
 
 const city = ref(normalizeOrDefault(DEFAULT_CITY))
+const province = ref(resolveProvinceByCity(city.value))
 
+const applyCity = (value: string) => {
+  city.value = normalizeOrDefault(value)
+  province.value = resolveProvinceByCity(value)
+  console.log(233, 'applyCity = ', city.value, province.value)
+}
+watch(
+  () => province.value,
+  (v) => {
+    if (v) fetchOilPrice() // 有了省份，就获取油价
+  },
+  { immediate: true }
+)
 const syncSelectedCity = () => {
   const stored = uni.getStorageSync(
     STORAGE_KEYS.selectedCity
   ) as string | null
   if (stored) {
-    city.value = normalizeOrDefault(stored)
+    applyCity(stored)
   }
 }
 
@@ -217,8 +257,39 @@ const carInfo = ref({
 })
 const oilPrice = ref({
   label: '92#',
-  value: '7.07'
+  value: '--'
 })
+const oilPriceList = ref([])
+const oilLoading = ref(false)
+const oilError = ref('')
+
+// 获取今日油价
+const fetchOilPrice = async () => {
+  if (!isLoggedIn.value) {
+    return
+  }
+  if (!province.value) return
+  oilLoading.value = true
+  oilError.value = ''
+
+  try {
+    const res = await axios.get('/api/oil-price?province=' + province.value)
+
+    const data = res as any
+    if (!data?.success || !Array.isArray(data.prices)) {
+      oilError.value = '油价数据异常'
+      return
+    }
+    console.log(276, 'data = ', data)
+    oilPriceList.value = data.prices
+
+  } catch (err) {
+    console.warn('fetchOilPrice error:', err)
+    oilError.value = '获取油价失败'
+  } finally {
+    oilLoading.value = false
+  }
+}
 
 // 用于控制提醒条是否展示，这里默认没有记录
 const hasRecentRefuel = ref(false)
@@ -705,7 +776,7 @@ const navigateToCity = () => {
     events: {
       'city-selected': (selectedCity: string) => {
         if (selectedCity) {
-          city.value = normalizeOrDefault(selectedCity)
+          applyCity(selectedCity)
         }
       }
     }
