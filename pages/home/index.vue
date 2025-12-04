@@ -190,7 +190,7 @@ import { axios } from '@/utils/request'
 const echarts = require('../../wxcomponents/ec-canvas/echarts')
 
 // ================= 基础展示数据 =================
-const DEFAULT_CITY = '深圳市'
+const DEFAULT_CITY = '未定位'
 const normalizeOrDefault = (value?: string | null) =>
   normalizeCityName(value) || DEFAULT_CITY
 
