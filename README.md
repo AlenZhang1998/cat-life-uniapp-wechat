@@ -104,11 +104,13 @@
 - **资料更新**：`PUT /api/profile`，请求体 `{ data: { nickname, avatarUrl, gender, deliveryDate, favoriteCarModel, phone, email } }`。
 - **头像上传**：`POST /api/upload/avatar`，表单字段名 `file`，返回 `{ url }`；请求会携带 `Authorization: Bearer <token>`。
 - 请求封装：`utils/request.ts` 会将本地 `token` 写入 `Authorization` 与 `token` 头，非 2xx 状态自动 toast 提示。
+- **加油记录列表**：`GET /api/refuels/list?range=all|3m|6m|1y`，返回 `summary`（含 `startDate`、`endDate`、`dateRangeDays`，`all` 时从最早加油日到今日）及 `records`，前端用 `dateRangeDays` 计算平均行程。
 
 ## 数据与配置说明
 
 - **首页静态数据**：`pages/home/index.vue` 中的 `ref` 保存城市、车辆、油耗指标等，替换即可更新 UI。
 - **筛选范围配置**：`RangePickerOverlay` 接收 `options` / `selected-key`，在首页与费用页复用，可统一承载接口参数。
+- **统计口径**：首页「平均行程」= `累计行程 ÷ 统计天数`，统计天数来源于接口 `dateRangeDays`（或 `startDate`/`endDate` 推算）；选择「全部」时从最早加油记录日期计算至今日。
 - **城市列表与定位**：`data/cities.ts` 提供城市列表；`utils/location.ts` 负责授权/GPS/腾讯地图解析；`STORAGE_KEYS.selectedCity` 用于跨页复用最近城市。
 - **油耗记录快照**：`pages/records` 的 `recordSnapshots`、`summarySnapshots` 示例展示按年份切换，真实接入时按年份请求接口即可。
 - **个人档案存储**：`userProfile` 与 `token` 持久化在本地；`pages/profile/index.vue` 支持退出登录；`pages/profile/personal-info.vue` 兼容旧字段 `name` / `avatar` 并回退使用接口数据。

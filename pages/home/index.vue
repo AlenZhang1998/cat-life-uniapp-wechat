@@ -37,7 +37,7 @@
       <view class="car-info">
         <text class="car-name">{{ carInfo.name }}</text>
         <!-- <text class="car-name">{{ carInfo.brand }} · {{ carInfo.model }}</text> -->
-        <text class="car-trim">{{ carInfo.trim }}</text>
+        <!-- <text class="car-trim">{{ carInfo.trim }}</text> -->
       </view>
 
       <view
