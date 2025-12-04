@@ -26,7 +26,7 @@
         </view>
         <view class="header-actions">
           <view class="chip primary">
-            <text class="chip-text">下次保养时间</text>
+            <text class="chip-text">爱车相伴 {{ carInfo.heroDays }} 天</text>
           </view>
           <!-- <view class="chip outline">
             <text class="chip-text">智驾提醒</text>
@@ -281,7 +281,8 @@ const carInfo = ref({
   brand: '思域',
   model: '2025款 240TURBO CVT',
   trim: '智趣Plus',
-  name: '--' // 思域 · 2025款 240TURBO CVT
+  name: '--', // 思域 · 2025款 240TURBO CVT
+  heroDays: 0
 })
 type OilPrice = {
   label: string
@@ -383,6 +384,16 @@ watch(latestFuel, (newVal) => {
 })
 
 // 获取用户资料信息
+const calcHeroDays = (deliveryDate?: string | null) => {
+  if (!deliveryDate) return 0
+  const parsed = new Date(deliveryDate.replace(/-/g, '/'))
+  if (Number.isNaN(parsed.getTime())) return 0
+  const diff = Date.now() - parsed.getTime()
+  if (diff < 0) return 0
+  const days = Math.floor(diff / (24 * 60 * 60 * 1000))
+  return days + 1 // 当天算第 1 天
+}
+
 const fetchProfile = async () => {
   if (!isLoggedIn.value) {
     return
@@ -394,6 +405,7 @@ const fetchProfile = async () => {
     const data = resp.data || resp || {}
 
     carInfo.value.name = data.favoriteCarModel
+    carInfo.value.heroDays = calcHeroDays(data.deliveryDate)
   } catch (err) {
     console.warn('fetchProfile error:', err)
   }
