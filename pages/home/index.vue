@@ -606,7 +606,62 @@ const fetchRefuelData = async (rangeKey: RangeKey = rangeOptions[3].key) => {
     ]
     
   } catch (err) {
+    console.warn('fetchRefuelData error:', err)
+  }
+}
 
+
+
+// ================ 油耗趋势图 ================
+
+// 根据加油记录构造油耗趋势数据
+const fetchTrendData = async (rangeKey: RangeKey = rangeOptions[3].key) => {
+  if (!isLoggedIn.value) {
+    trendData.value = []
+    return
+  }
+
+  try {
+    const resolvedRange = rangeKey || rangeOptions[3].key
+    const url = `/api/refuels/list?range=${resolvedRange || 'all'}`
+
+    const res = await axios.get(url)
+    const resp = res as any
+
+    const payload = resp.data || resp || {}
+    const s = payload.summary || {}
+    const list = (payload.records || []) as any[]
+
+    // 基准油耗（用于城市高/低位线）：用平均油耗做一个 ±15% 的区间
+    const base =
+      typeof s.avgFuelConsumption === 'number' && s.avgFuelConsumption > 0
+        ? Number(s.avgFuelConsumption)
+        : 7 // 没数据给个兜底值
+
+    const cityHigh = Number((base * 1.15).toFixed(2))
+    const cityLow = Number((base * 0.85).toFixed(2))
+
+    // 列表接口是「最近在前」，趋势要按时间正序画，所以要 reverse 一下
+    const points = list
+      .slice()
+      .reverse()
+      .filter(
+        (item: any) =>
+          item.lPer100km != null &&
+          item.distance != null &&
+          Number(item.distance) > 0
+      )
+      .map((item: any) => ({
+        day: item.monthDay || '',                                // X轴标签
+        value: Number(Number(item.lPer100km).toFixed(2)),        // 当前车油耗
+        cityHigh,
+        cityLow
+      }))
+
+    trendData.value = points
+  } catch (err) {
+    console.warn('fetchTrendData error:', err)
+    trendData.value = []
   }
 }
 
@@ -676,8 +731,13 @@ const applyRangeSelection = (target: RangeTarget, key: RangeKey) => {
   rangeRef.value = targetOption
   pendingRangeKey.value = targetOption.key
 
-  if (target === 'stats' && changed) {
-    fetchRefuelData(targetOption.key)
+  if (changed) {
+    if (target === 'stats') {
+      fetchRefuelData(targetOption.key)
+    } else {
+      // 趋势卡片的筛选变化时，单独拉趋势数据
+      fetchTrendData(targetOption.key)
+    }
   }
 
   const targetLabel = target === 'stats' ? '统计' : '趋势'
@@ -695,7 +755,6 @@ const confirmRangePicker = (value?: RangeKey | null) => {
   closeRangePicker()
 }
 
-// ================ 油耗趋势图 ================
 let fuelTrendChart: any = null
 
 const buildTrendOption = () => {
@@ -705,6 +764,14 @@ const buildTrendOption = () => {
   const lowSeries = trendData.value.map((item) => item.cityLow)
   const cityLegendHigh = `${city.value}油耗参考-高位`
   const cityLegendLow = `${city.value}油耗参考-低位`
+  const allValues = [...actualSeries, ...highSeries, ...lowSeries].filter(
+    (v) => typeof v === 'number' && !Number.isNaN(v)
+  )
+
+  const yMin =
+    allValues.length > 0 ? Math.floor(Math.min(...allValues) - 0.5) : 4
+  const yMax =
+    allValues.length > 0 ? Math.ceil(Math.max(...allValues) + 0.5) : 9
 
   return {
     color: ['#F47274', '#11B561', '#AEB5C0'],
@@ -759,8 +826,10 @@ const buildTrendOption = () => {
     },
     yAxis: {
       type: 'value',
-      min: 4,
-      max: 9,
+      // min: 4,
+      // max: 9,
+      min: yMin,
+      max: yMax,
       interval: 1,
       axisLine: { show: false },
       axisTick: { show: false },
@@ -863,15 +932,6 @@ watch(city, () => {
   refreshFuelTrendChart()
 })
 
-onUnmounted(() => {
-  fuelTrendChart?.dispose()
-  fuelTrendChart = null
-  if (enterAnimationTimer) {
-    clearTimeout(enterAnimationTimer)
-    enterAnimationTimer = null
-  }
-})
-
 const handleLoginRequired = () => {
   if (!isLoggedIn.value) {
     showLoginSheet.value = true
@@ -910,12 +970,21 @@ onShow(() => {
   // 获取用户资料信息和加油记录数据
   fetchProfile()
   fetchRefuelData(statsRange.value.key)
+  // 获取趋势数据
+  fetchTrendData(trendRange.value.key)
 })
 
 onMounted(() => {
   runPageEnterAnimation()
 })
-
+onUnmounted(() => {
+  fuelTrendChart?.dispose()
+  fuelTrendChart = null
+  if (enterAnimationTimer) {
+    clearTimeout(enterAnimationTimer)
+    enterAnimationTimer = null
+  }
+})
 </script>
 
 <style lang="scss" scoped>
