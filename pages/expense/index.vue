@@ -759,25 +759,58 @@ const buildMonthlyOption = () => {
 const buildYearlyOption = () => {
   const categories = yearlyChartData.value.map((item) => item.month)
   const seriesData = yearlyChartData.value.map((item) => item.value)
+
+  if (!categories.length) {
+    return {
+      title: {
+        text: '暂无数据',
+        left: 'center',
+        top: 'middle',
+        textStyle: { color: '#9ca3af', fontSize: 12 }
+      }
+    }
+  }
+
+  const maxVal = Math.max(...seriesData)
+  const minVal = Math.min(...seriesData)
+  const yMax = Math.max(9, Math.ceil(maxVal + 0.5))
+  const yMin = Math.min(4, Math.floor(minVal - 0.5))
+
   return {
-    grid: { left: 28, right: 20, top: 32, bottom: 28 },
-    tooltip: { trigger: 'axis' },
+    grid: { left: 40, right: 20, top: 30, bottom: 36 },
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'line' },
+      backgroundColor: 'rgba(31,35,41,0.9)',
+      borderWidth: 0,
+      padding: [6, 8],
+      textStyle: { color: '#fff', fontSize: 11 },
+      formatter: (params: any[]) => {
+        const p = params[0]
+        return `${p.axisValue}\n油耗：${p.data.toFixed(1)} L/100km`
+      }
+    },
     xAxis: {
       type: 'category',
       data: categories,
-      axisLine: { lineStyle: { color: '#d0d7e3' } },
+      boundaryGap: false,
+      axisLine: { lineStyle: { color: '#d4d7de' } },
       axisTick: { show: false },
-      axisLabel: { color: '#5f6673', fontSize: 12 }
+      axisLabel: { color: '#6b7280', fontSize: 11 }
     },
     yAxis: {
       type: 'value',
-      min: 4,
-      max: 9,
+      min: yMin,
+      max: yMax,
       splitNumber: 5,
-      splitLine: { lineStyle: { color: '#eef1f5', type: 'dashed' } },
+      splitLine: { lineStyle: { color: '#e5e7eb', type: 'dashed' } },
       axisLine: { show: false },
       axisTick: { show: false },
-      axisLabel: { color: '#8a93a0', fontSize: 12 }
+      axisLabel: {
+        color: '#9ca3af',
+        fontSize: 11,
+        formatter: (val: number) => val.toFixed(1)
+      }
     },
     series: [
       {
@@ -785,13 +818,28 @@ const buildYearlyOption = () => {
         type: 'line',
         data: seriesData,
         smooth: true,
-        showSymbol: true,
+        symbol: 'circle',
         symbolSize: 6,
-        itemStyle: { color: '#3a7afe' }
+        lineStyle: {
+          width: 2,
+          color: '#3b82f6'
+        },
+        itemStyle: {
+          color: '#2563eb',
+          borderColor: '#eff6ff',
+          borderWidth: 2
+        },
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: 'rgba(59,130,246,0.22)' },
+            { offset: 1, color: 'rgba(59,130,246,0.02)' }
+          ])
+        }
       }
     ]
   }
 }
+
 
 const initMonthlyExpenseChart = (
   canvas: any,
