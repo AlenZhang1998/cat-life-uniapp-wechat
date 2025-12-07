@@ -636,42 +636,109 @@ let yearlyExpenseChart: any = null
 const buildMonthlyOption = () => {
   const categories = monthlyChartData.value.map((item) => item.month)
   const seriesData = monthlyChartData.value.map((item) => item.value)
+
+  // 空数据时给一个占位，避免 ECharts 报错
+  if (!categories.length) {
+    return {
+      title: {
+        text: '暂无数据',
+        left: 'center',
+        top: 'middle',
+        textStyle: { color: '#9ca3af', fontSize: 12 }
+      }
+    }
+  }
+
+  // 动态算一个稍微高一点的 max，让柱子不要顶到头
+  const maxVal = Math.max(...seriesData)
+  const yMax = maxVal > 0 ? Math.ceil(maxVal * 1.15) : 100
+
   return {
-    grid: { left: 28, right: 16, top: 32, bottom: 32 },
-    tooltip: { trigger: 'axis' },
+    grid: { left: 36, right: 20, top: 24, bottom: 40 },
+    tooltip: {
+      trigger: 'axis',
+      // axisPointer: { type: 'shadow' },
+      formatter: (params: any[]) => {
+        const p = params[0]
+        // ✅ 用 \n，而不是 <br/>
+        return `${p.axisValue}\n油费：${p.data} 元`
+        // 如果你不想换行，也可以写成：
+        // return `${p.axisValue}  油费：${p.data} 元`
+      },
+      backgroundColor: 'rgba(31,35,41,0.9)',
+      borderWidth: 0,
+      textStyle: { color: '#fff', fontSize: 11, lineHeight: 16 },
+      padding: [6, 8]
+    },
     xAxis: {
       type: 'category',
       data: categories,
-      axisLine: { lineStyle: { color: '#d0d7e3' } },
+      axisLine: { lineStyle: { color: '#d4d7de' } },
       axisTick: { show: false },
-      axisLabel: { color: '#5f6673', fontSize: 12 }
+      axisLabel: { color: '#6b7280', fontSize: 11 }
     },
     yAxis: {
       type: 'value',
-      splitLine: { lineStyle: { color: '#eef1f5', type: 'dashed' } },
+      max: yMax,
+      splitLine: { lineStyle: { color: '#e5e7eb', type: 'dashed' } },
       axisLine: { show: false },
       axisTick: { show: false },
-      axisLabel: { color: '#8a93a0', fontSize: 12 }
+      axisLabel: {
+        color: '#9ca3af',
+        fontSize: 11,
+        formatter: (val: number) => (val === 0 ? '0' : val.toFixed(0))
+      }
     },
     series: [
       {
         name: '油费',
         type: 'bar',
         data: seriesData,
-        barWidth: 26,
+        barWidth: 20,
+        itemStyle: {
+          borderRadius: [8, 8, 4, 4],
+          shadowColor: 'rgba(15, 118, 110, 0.25)',
+          shadowBlur: 8,
+          shadowOffsetY: 4,
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: '#34d399' },   // 上：浅绿
+            { offset: 1, color: '#059669' }    // 下：深绿
+          ])
+        },
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 12,
+            shadowOffsetY: 6,
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: '#6ee7b7' },
+              { offset: 1, color: '#10b981' }
+            ])
+          }
+        },
         label: {
           show: true,
           position: 'top',
-          color: '#1f2329',
-          fontSize: 12
-        },
-        itemStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: '#3a7afe' },
-            { offset: 1, color: '#8db8ff' }
-          ])
+          fontSize: 11,
+          color: '#374151',
+          formatter: '{c}'
         },
         markLine: {
+          // symbol: 'none',        // 去掉两端小圆点
+          // label: {
+          //   show: true,
+          //   position: 'end',     // ✅ 不要默认 auto
+          //   formatter: `平均 ${monthlyBaseline.value} 元`,
+          //   color: '#ff6b6b',
+          //   fontSize: 11,
+          //   padding: [2, 6],
+          //   backgroundColor: 'rgba(255,107,107,0.3)',
+          //   borderRadius: 6
+          // },
+          // lineStyle: {
+          //   type: 'dashed',
+          //   color: '#ff6b6b',
+          //   width: 1
+          // },
           data: [
             {
               yAxis: Number(monthlyBaseline.value),
@@ -687,6 +754,7 @@ const buildMonthlyOption = () => {
     ]
   }
 }
+
 
 const buildYearlyOption = () => {
   const categories = yearlyChartData.value.map((item) => item.month)
