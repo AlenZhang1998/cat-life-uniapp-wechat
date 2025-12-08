@@ -362,7 +362,7 @@ const fetchHeroData = async (rangeKey: RangeKey = heroRange.value.key) => {
     const s = payload.summary || {}
     const list = (payload.records || []) as any[]
 
-    // 计算总油费
+    // 计算总油费（当前筛选范围内的所有加油金额）
     const totalOilNum =
       typeof s.totalAmount === 'number'
         ? Number(s.totalAmount)
@@ -372,35 +372,80 @@ const fetchHeroData = async (rangeKey: RangeKey = heroRange.value.key) => {
     const otherTotalNum = 0
     const totalSpendNum = totalOilNum + otherTotalNum
 
-    // 里程相关
-    const coverageDistance =
-      typeof s.coverageDistance === 'number'
-        ? Number(s.coverageDistance)
-        : typeof s.totalDistance === 'number'
-          ? Number(s.totalDistance)
-          : 0
+    // ===== 用“满箱区间”计算油费/公里 =====
 
-    // 区间天数
-    const dateRangeDays =
-      typeof s.dateRangeDays === 'number'
-        ? s.dateRangeDays
-        : calcDateRangeDays(s.startDate, s.endDate)
+    // list 是按时间倒序（最新在前），这里翻转成正序处理
+    const asc = [...list].reverse()
 
-    // 计算爱车相伴天数
+    let lastFullIndex: number | null = null
+    let segmentDistanceTotal = 0 // 所有满箱区间的里程和
+    let segmentAmountTotal = 0   // 所有满箱区间的油费和
+
+    for (let i = 0; i < asc.length; i++) {
+      const item = asc[i]
+      const isFull = !!item.isFullTank
+
+      if (!isFull) continue
+
+      // 第一次遇到“加满”，记录起点
+      if (lastFullIndex === null) {
+        lastFullIndex = i
+        continue
+      }
+
+      // 之后再次遇到“加满”，形成一个区间 [lastFullIndex, i]
+      const start = asc[lastFullIndex]
+      const end = item
+
+      const startOdo = Number(start.odometer)
+      const endOdo = Number(end.odometer)
+
+      if (
+        !Number.isFinite(startOdo) ||
+        !Number.isFinite(endOdo) ||
+        endOdo <= startOdo
+      ) {
+        // 里程非法，跳过这个区间，同时把新的满箱当成下一个区间起点
+        lastFullIndex = i
+        continue
+      }
+
+      // 区间油费：起点之后一条到终点这一条（不含起点加满）
+      let segmentAmount = 0
+      for (let j = lastFullIndex + 1; j <= i; j++) {
+        const amt = Number(asc[j].amount || 0)
+        if (Number.isFinite(amt) && amt > 0) {
+          segmentAmount += amt
+        }
+      }
+
+      const distance = endOdo - startOdo
+      if (distance > 0 && segmentAmount > 0) {
+        segmentDistanceTotal += distance
+        segmentAmountTotal += segmentAmount
+      }
+
+      // 当前满箱作为下一段的起点
+      lastFullIndex = i
+    }
+
+    const fuelPerKm =
+      segmentDistanceTotal > 0
+        ? segmentAmountTotal / segmentDistanceTotal
+        : 0
+
+    // ===== 爱车相伴天数 & 成本/天 =====
     const heroDaysNum = calcHeroDays(profileDeliveryDate.value)
 
-    // 计算油费/公里
-    const fuelPerKm =
-      coverageDistance > 0 ? totalOilNum / coverageDistance : 0
-    // 计算成本/天
+    // 成本/天 = 总支出 / 爱车相伴天数
     const costPerDay =
-      dateRangeDays && dateRangeDays > 0 ? totalSpendNum / heroDaysNum : 0
+      heroDaysNum > 0 ? totalSpendNum / heroDaysNum : 0
 
-    // 更新 heroOverview 数据
+    // ===== 更新 heroOverview 数据 =====
     heroOverview.value = {
-      total: totalSpendNum.toFixed(1),  // 总支出
-      fuel: totalOilNum.toFixed(1),  // 油费
-      other: otherTotalNum.toFixed(1),  // 其他支出
+      total: totalSpendNum.toFixed(1),      // 总支出
+      fuel: totalOilNum.toFixed(1),         // 油费
+      other: otherTotalNum.toFixed(1),      // 其他支出
       metrics: [
         {
           key: 'days',
@@ -411,13 +456,19 @@ const fetchHeroData = async (rangeKey: RangeKey = heroRange.value.key) => {
         {
           key: 'fuelKm',
           label: '油费/公里',
-          value: coverageDistance > 0 ? fuelPerKm.toFixed(2) : '--',
+          value:
+            segmentDistanceTotal > 0
+              ? fuelPerKm.toFixed(2)
+              : '--',
           unit: '元'
         },
         {
           key: 'perDay',
           label: '成本/天',
-          value: dateRangeDays && dateRangeDays > 0 ? costPerDay.toFixed(2) : '--',
+          value:
+            heroDaysNum > 0
+              ? costPerDay.toFixed(2)
+              : '--',
           unit: '元'
         }
       ]
