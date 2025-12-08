@@ -212,7 +212,7 @@ type ExpenseCategory =
   | 'insurance'
   | 'wash';
 
-type RangeKey = '3m' | '6m' | '1y' | '2y' | 'all';
+type RangeKey = '3m' | '6m' | '1y' | '2y' | '3y' | 'all';
 type BackendRangeKey = '3m' | '6m' | '1y' | 'all';
 
 type HeroMetric = {
@@ -518,14 +518,15 @@ const confirmHeroPicker = () => {
 
 // ============= 「油费月度统计」 =============
 const monthlyRangeOptions: { key: RangeKey; label: string }[] = [
-  { key: '3m', label: '三个月' },
-  { key: '6m', label: '半年' },
-  { key: '1y', label: '一年' },
+  { key: '1y', label: '今年' },
+  { key: '2y', label: '近两年' },
+  { key: '3y', label: '近三年' },
   { key: 'all', label: '全部' },
 ];
-const monthlyRange = ref(monthlyRangeOptions[3]); // 默认半年
+
+const monthlyRange = ref(monthlyRangeOptions[3]); // 默认 全部
 const showMonthlyPicker = ref(false);
-const pendingMonthlyRange = ref<RangeKey>(monthlyRangeOptions[1].key);
+const pendingMonthlyRange = ref<RangeKey>(monthlyRangeOptions[3].key);
 const monthlyChartData = ref<MonthlyBarPoint[]>([]);
 
 // 用所有柱子的总和 / 横轴覆盖的月份数量 作为虚线参考
@@ -569,9 +570,10 @@ const fetchMonthlyCost = async (
     monthlyChartData.value = [];
     return;
   }
+
   try {
-    const backendRange = mapRangeToBackend(rangeKey);
-    const res = await axios.get(`/api/refuels/list?range=${backendRange}`);
+    // 这里直接拉全部记录，前端自己按年份筛选
+    const res = await axios.get('/api/refuels/list?range=all');
     const resp = res as any;
     if (!resp || resp.success !== true) {
       throw new Error('接口返回异常');
@@ -579,32 +581,60 @@ const fetchMonthlyCost = async (
     const payload = resp.data || resp || {};
     const list = (payload.records || []) as any[];
 
-    const map = new Map<string, number>(); // '2025-07' -> 金额
+    const now = new Date();
+    const currentYear = now.getFullYear();
+
+    // 根据筛选项，算出需要保留的最早年份
+    let minYear = -Infinity;
+    switch (rangeKey) {
+      case '1y': // 今年
+        minYear = currentYear;
+        break;
+      case '2y': // 近两年 = 今年 + 去年
+        minYear = currentYear - 1;
+        break;
+      case '3y': // 近三年 = 今年 + 前两年
+        minYear = currentYear - 2;
+        break;
+      case 'all':
+      default:
+        minYear = -Infinity;
+        break;
+    }
+
+    const map = new Map<
+      string,
+      { year: number; month: number; amount: number }
+    >(); // '2025-07' -> 聚合
+
     list.forEach((item) => {
       const dateStr = item.date || item.refuelDate;
       if (!dateStr) return;
+
       const d = new Date(String(dateStr).replace(/-/g, '/'));
       if (Number.isNaN(d.getTime())) return;
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
-        2,
-        '0'
-      )}`;
-      const prev = map.get(key) || 0;
-      map.set(key, prev + Number(item.amount || 0));
+
+      const year = d.getFullYear();
+      const month = d.getMonth() + 1;
+
+      // 按“今年 / 近两年 / 近三年”过滤
+      if (year < minYear || year > currentYear) return;
+
+      const key = `${year}-${String(month).padStart(2, '0')}`;
+      const prev = map.get(key)?.amount || 0;
+      map.set(key, { year, month, amount: prev + Number(item.amount || 0) });
     });
 
-    monthlyChartData.value = Array.from(map.entries())
-      .sort(([a], [b]) => (a > b ? 1 : -1))
-      .map(([ym, amount]) => {
-        const [yearStr, monthStr] = ym.split('-');
-        const year = Number(yearStr);
-        const monthNum = Number(monthStr);
-        return {
-          year,
-          month: `${monthNum}月`,
-          value: Number(amount.toFixed(0)),
-        } as MonthlyBarPoint;
-      });
+    monthlyChartData.value = Array.from(map.values())
+      .sort((a, b) => {
+        if (a.year !== b.year) return a.year - b.year;
+        return a.month - b.month;
+      })
+      .map((item) => ({
+        year: item.year,
+        month: `${item.month}月`,
+        value: Number(item.amount.toFixed(0)),
+      }));
 
     refreshMonthlyExpenseChart();
   } catch (err) {
