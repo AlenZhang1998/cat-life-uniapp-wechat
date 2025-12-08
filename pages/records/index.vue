@@ -259,90 +259,6 @@ const toggleRecord = (entry: FuelRecordItem) => {
   expandedRecordMap.value = next
 }
 
-const recomputeConsumptionFromFullTanks = () => {
-  if (!records.value.length) return
-
-  // 先全部重置为 '--'
-  records.value.forEach((item) => {
-    if (item.type === 'record') {
-      item.consumption = '--'
-    }
-  })
-
-  // 按时间正序处理：复制一份反转数组（对象引用仍然是同一个）
-  const asc = [...records.value].reverse() as FuelRecordItem[]
-
-  // 记录上一段“起始加满”的下标（正序下标）
-  let lastFullIndex: number | null = null
-
-  for (let i = 0; i < asc.length; i++) {
-    const item = asc[i]
-    if (item.type !== 'record') continue
-
-    const isFull = item.fillStatus === '加满'
-    if (!isFull) continue
-
-    // 第一次遇到“加满”，只是记起点，不计算
-    if (lastFullIndex === null) {
-      lastFullIndex = i
-      continue
-    }
-
-    // 这里是第二次(及之后)遇到“加满”，形成一个区间 [lastFullIndex, i]
-    const start = asc[lastFullIndex] // 比如 10/01
-    const end = item                 // 比如 10/09
-
-    const startOdo = Number(start.mileage)
-    const endOdo = Number(end.mileage)
-
-    // 里程必须合法且递增
-    if (
-      !Number.isFinite(startOdo) ||
-      !Number.isFinite(endOdo) ||
-      endOdo <= startOdo
-    ) {
-      lastFullIndex = i
-      continue
-    }
-
-    // 区间内油量：**从起点之后一条开始，到终点这一条**（不含起点加满）
-    let fuelSum = 0
-    for (let j = lastFullIndex + 1; j <= i; j++) {
-      const vStr = asc[j].deltaFuel // 形如 "+28.94"
-      if (!vStr) continue
-      const v = Number(vStr)
-      if (!Number.isFinite(v)) continue
-      fuelSum += Math.abs(v)
-    }
-
-    if (fuelSum <= 0) {
-      lastFullIndex = i
-      continue
-    }
-
-    const distance = endOdo - startOdo
-    if (distance <= 0) {
-      lastFullIndex = i
-      continue
-    }
-
-    // 平均油耗（升/百公里）——你界面写的是“升/百公里”，所以这里 * 100
-    const lPer100km = (fuelSum / distance) * 100
-    const display = lPer100km.toFixed(2)
-
-    // ✅ 只给「起点之后到终点」这几条记录赋值（例如 10/02 + 10/09）
-    for (let j = lastFullIndex + 1; j <= i; j++) {
-      asc[j].consumption = display
-    }
-    // 起点那条（10/01）保持 '--'
-
-    // 下一段的起点变成当前这个满油点
-    lastFullIndex = i
-  }
-
-  // 计算并更新 avgFuelConsumption
-  calculateAvgFuelConsumption()
-}
 
 // 在 `fetchRecords` 中调用 `processRecords`
 const fetchRecords = async () => {
@@ -376,7 +292,7 @@ const fetchRecords = async () => {
       totalAmount:
         s.totalAmount != null ? Number(s.totalAmount).toFixed(2) : '--',
       avgFuel:
-        '--',
+        s.avgFuelConsumption != null ? Number(s.avgFuelConsumption).toFixed(2) : '--',
       pricePerLiter:
         s.avgPricePerL != null ? Number(s.avgPricePerL).toFixed(2) : '--',
       mileage:
@@ -393,7 +309,7 @@ const fetchRecords = async () => {
       type: 'record',
       id: r._id,
       date: r.monthDay || '--',
-      consumption: '--', // 这里先统一 '--'，后面用 full-tank 方法重算
+      consumption: r.consumption != null ? Number(r.consumption).toFixed(2) : '--',
       mileage: !Number.isNaN(odometerNum)
         ? String(Math.round(odometerNum))
         : '--',
@@ -419,9 +335,6 @@ const fetchRecords = async () => {
     }
   })
 
-  // 🔥 这里调用刚刚那一坨逻辑
-  recomputeConsumptionFromFullTanks()
-
   } catch (err) {
     console.error('fetchRecords error:', err);
     uni.showToast({
@@ -433,22 +346,6 @@ const fetchRecords = async () => {
   }
 };
 
-// 新方法：计算 `avgFuelConsumption`
-const calculateAvgFuelConsumption = () => {
-  const validRecords = records.value.filter(item => item.consumption !== '--')
-  if (validRecords.length === 0) {
-    summaryCard.value.avgFuel = '--'
-    return
-  }
-
-  // 计算 `consumption` 的平均值
-  const totalConsumption = validRecords.reduce((sum, item) => {
-    return sum + (Number(item.consumption) || 0)
-  }, 0)
-
-  const avgConsumption = totalConsumption / validRecords.length
-  summaryCard.value.avgFuel = avgConsumption.toFixed(2)
-}
 const handleLoginRequired = () => {
   if (!isLoggedIn.value) {
     showLoginSheet.value = true
