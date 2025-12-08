@@ -64,7 +64,7 @@
             <view class="record-date">
               <text class="record-date__value">{{ entry.date }}</text>
             </view>
-            <view class="record-consumption">
+            <view class="record-consumption" v-if="entry.consumption !== '--'">
               <text class="record-consumption__value">{{
                 entry.consumption
               }}</text>
@@ -127,10 +127,15 @@
           :style="getListAnimatedStyle(entryIndex, 'comparison')"
         >
           <!-- 3333-{{ isExpanded(entry.id) }} -->
-          <view class="comparison-value">{{ entry.pricePerKm ? entry.pricePerKm + '元/公里' : '--' }}</view>
-          <view class="comparison-value">{{ entry.fuelConsumption ? entry.fuelConsumption + '升' : '--' }}</view>
-          <view class="comparison-value">{{ entry.deltaMileage ? entry.deltaMileage + '公里' : '--' }}</view>
-          <text class="comparison-arrow iconfont icon-xiangyou"></text>
+          <view v-if="entry.consumption !== '--'">
+            <view class="comparison-value">{{ entry.pricePerKm ? entry.pricePerKm + '元/公里' : '--' }}</view>
+            <view class="comparison-value">{{ entry.fuelConsumption ? entry.fuelConsumption + '升' : '--' }}</view>
+            <view class="comparison-value">{{ entry.deltaMileage ? entry.deltaMileage + '公里' : '--' }}</view>
+            <text class="comparison-arrow iconfont icon-xiangyou"></text>
+          </view>
+          <view v-else>
+            <text>需要加满两次，才能算出油耗</text>
+          </view>
         </view>
       </template>
     </view>
@@ -254,102 +259,196 @@ const toggleRecord = (entry: FuelRecordItem) => {
   expandedRecordMap.value = next
 }
 
+const recomputeConsumptionFromFullTanks = () => {
+  if (!records.value.length) return
+
+  // 先全部重置为 '--'
+  records.value.forEach((item) => {
+    if (item.type === 'record') {
+      item.consumption = '--'
+    }
+  })
+
+  // 按时间正序处理：复制一份反转数组（对象引用仍然是同一个）
+  const asc = [...records.value].reverse() as FuelRecordItem[]
+
+  // 记录上一段“起始加满”的下标（正序下标）
+  let lastFullIndex: number | null = null
+
+  for (let i = 0; i < asc.length; i++) {
+    const item = asc[i]
+    if (item.type !== 'record') continue
+
+    const isFull = item.fillStatus === '加满'
+    if (!isFull) continue
+
+    // 第一次遇到“加满”，只是记起点，不计算
+    if (lastFullIndex === null) {
+      lastFullIndex = i
+      continue
+    }
+
+    // 这里是第二次(及之后)遇到“加满”，形成一个区间 [lastFullIndex, i]
+    const start = asc[lastFullIndex] // 比如 10/01
+    const end = item                 // 比如 10/09
+
+    const startOdo = Number(start.mileage)
+    const endOdo = Number(end.mileage)
+
+    // 里程必须合法且递增
+    if (
+      !Number.isFinite(startOdo) ||
+      !Number.isFinite(endOdo) ||
+      endOdo <= startOdo
+    ) {
+      lastFullIndex = i
+      continue
+    }
+
+    // 区间内油量：**从起点之后一条开始，到终点这一条**（不含起点加满）
+    let fuelSum = 0
+    for (let j = lastFullIndex + 1; j <= i; j++) {
+      const vStr = asc[j].deltaFuel // 形如 "+28.94"
+      if (!vStr) continue
+      const v = Number(vStr)
+      if (!Number.isFinite(v)) continue
+      fuelSum += Math.abs(v)
+    }
+
+    if (fuelSum <= 0) {
+      lastFullIndex = i
+      continue
+    }
+
+    const distance = endOdo - startOdo
+    if (distance <= 0) {
+      lastFullIndex = i
+      continue
+    }
+
+    // 平均油耗（升/百公里）——你界面写的是“升/百公里”，所以这里 * 100
+    const lPer100km = (fuelSum / distance) * 100
+    const display = lPer100km.toFixed(2)
+
+    // ✅ 只给「起点之后到终点」这几条记录赋值（例如 10/02 + 10/09）
+    for (let j = lastFullIndex + 1; j <= i; j++) {
+      asc[j].consumption = display
+    }
+    // 起点那条（10/01）保持 '--'
+
+    // 下一段的起点变成当前这个满油点
+    lastFullIndex = i
+  }
+
+  // 计算并更新 avgFuelConsumption
+  calculateAvgFuelConsumption()
+}
+
+// 在 `fetchRecords` 中调用 `processRecords`
 const fetchRecords = async () => {
   if (!isLoggedIn.value) {
-    records.value = []
+    records.value = [];
     summaryCard.value = {
       totalAmount: '--',
       avgFuel: '--',
       pricePerLiter: '--',
       mileage: '--'
-    }
-    return
+    };
+    return;
   }
 
   try {
-    uni.showLoading({ title: '加载中...', mask: true })
+    uni.showLoading({ title: '加载中...', mask: true });
 
-    const res = await axios.get('/api/refuels/list?year=' + currentYear.value)
-    console.log(503, res)
+    const res = await axios.get('/api/refuels/list?year=' + currentYear.value);
+    console.log(503, res);
 
-    // const response = res as { success?: boolean; data?: any }
-    // console.log(508, res)
     if (!res || res.success !== true) {
-      throw new Error('接口返回异常')
+      throw new Error('接口返回异常');
     }
 
-    const payload = res.data || {}
-    const s = payload.summary || {}
-    const list = (payload.records || []) as any[]
+    const payload = res.data || {};
+    const s = payload.summary || {};
+    const list = (payload.records || []) as any[];
 
     // 顶部 summary 卡片
     summaryCard.value = {
       totalAmount:
         s.totalAmount != null ? Number(s.totalAmount).toFixed(2) : '--',
       avgFuel:
-        s.avgFuelConsumption != null
-          ? Number(s.avgFuelConsumption).toFixed(2)
-          : '--',
+        '--',
       pricePerLiter:
         s.avgPricePerL != null ? Number(s.avgPricePerL).toFixed(2) : '--',
       mileage:
       s.coverageDistance != null ? String(Math.round(Number(s.coverageDistance))) : '--'
-    }
+    };
+
     // 列表项映射到你现有的结构
     records.value = list.map((r): FuelRecordItem => {
-      const distanceNum =
-        r.distance != null ? Number(r.distance) : NaN
-      const volumeNum = r.volume != null ? Number(r.volume) : NaN
-      const odometerNum = r.odometer != null ? Number(r.odometer) : NaN
+    const distanceNum = r.distance != null ? Number(r.distance) : NaN
+    const volumeNum = r.volume != null ? Number(r.volume) : NaN
+    const odometerNum = r.odometer != null ? Number(r.odometer) : NaN
 
-      return {
-        type: 'record',
-        id: r._id,
-        date: r.monthDay || '--',
-        consumption:
-          r.lPer100km != null ? Number(r.lPer100km).toFixed(2) : '--',
-        mileage: !Number.isNaN(odometerNum) ? String(Math.round(odometerNum)) : '--',
-        amount:
-          r.amount != null ? Number(r.amount).toFixed(2) : undefined,
-        pricePerLiter:
-          r.pricePerL != null ? Number(r.pricePerL).toFixed(2) : undefined,
-        deltaFuel:
-          !Number.isNaN(volumeNum)
-            ? `+${volumeNum.toFixed(2)}`
-            : undefined,
-        oilType: r.fuelGrade ? `${r.fuelGrade}汽油` : undefined,
-        fillStatus: r.isFullTank ? '加满' : '',
-        fillStatusTone: r.isFullTank ? 'danger' : undefined,
-        compact: true, // 你原来都是 compact 视图
-        highlight: undefined,
+    return {
+      type: 'record',
+      id: r._id,
+      date: r.monthDay || '--',
+      consumption: '--', // 这里先统一 '--'，后面用 full-tank 方法重算
+      mileage: !Number.isNaN(odometerNum)
+        ? String(Math.round(odometerNum))
+        : '--',
+      amount: r.amount != null ? Number(r.amount).toFixed(2) : undefined,
+      pricePerLiter:
+        r.pricePerL != null ? Number(r.pricePerL).toFixed(2) : undefined,
+      deltaFuel: !Number.isNaN(volumeNum)
+        ? `+${volumeNum.toFixed(2)}`
+        : undefined,
+      oilType: r.fuelGrade ? `${r.fuelGrade}汽油` : undefined,
+      fillStatus: r.isFullTank ? '加满' : '',
+      fillStatusTone: r.isFullTank ? 'danger' : undefined,
+      compact: true,
+      highlight: undefined,
+      fuelConsumption: !Number.isNaN(volumeNum)
+        ? `-${volumeNum.toFixed(2)}`
+        : undefined,
+      deltaMileage: !Number.isNaN(distanceNum)
+        ? `+${Math.round(distanceNum)}`
+        : undefined,
+      pricePerKm:
+        r.pricePerKm != null ? Number(r.pricePerKm).toFixed(2) : undefined
+    }
+  })
 
-        // 展开卡片里的“消耗油量”/“里程变化”保持用区间数据
-        fuelConsumption:
-          !Number.isNaN(volumeNum)
-            ? `-${volumeNum.toFixed(2)}`
-            : undefined,
-        deltaMileage:
-          !Number.isNaN(distanceNum)
-            ? `+${Math.round(distanceNum)}`
-            : undefined,
-        pricePerKm:
-          r.pricePerKm != null
-            ? Number(r.pricePerKm).toFixed(2)
-            : undefined
-      }
-    })
-    // console.log(573, records.value)
+  // 🔥 这里调用刚刚那一坨逻辑
+  recomputeConsumptionFromFullTanks()
+
   } catch (err) {
-    console.error('fetchRecords error:', err)
+    console.error('fetchRecords error:', err);
     uni.showToast({
       title: '加载失败，请稍后再试',
       icon: 'none'
-    })
+    });
   } finally {
-    uni.hideLoading()
+    uni.hideLoading();
   }
-}
+};
 
+// 新方法：计算 `avgFuelConsumption`
+const calculateAvgFuelConsumption = () => {
+  const validRecords = records.value.filter(item => item.consumption !== '--')
+  if (validRecords.length === 0) {
+    summaryCard.value.avgFuel = '--'
+    return
+  }
+
+  // 计算 `consumption` 的平均值
+  const totalConsumption = validRecords.reduce((sum, item) => {
+    return sum + (Number(item.consumption) || 0)
+  }, 0)
+
+  const avgConsumption = totalConsumption / validRecords.length
+  summaryCard.value.avgFuel = avgConsumption.toFixed(2)
+}
 const handleLoginRequired = () => {
   if (!isLoggedIn.value) {
     showLoginSheet.value = true
