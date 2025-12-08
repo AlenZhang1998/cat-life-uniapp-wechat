@@ -510,7 +510,7 @@ const monthlyRangeOptions: { key: RangeKey; label: string }[] = [
   { key: '1y', label: '一年' },
   { key: 'all', label: '全部' }
 ]
-const monthlyRange = ref(monthlyRangeOptions[1]) // 默认半年
+const monthlyRange = ref(monthlyRangeOptions[3]) // 默认半年
 const showMonthlyPicker = ref(false)
 const pendingMonthlyRange = ref<RangeKey>(monthlyRangeOptions[1].key)
 const monthlyChartData = ref<MonthlyBarPoint[]>([])
@@ -602,12 +602,12 @@ const yearlyRangeOptions: { key: RangeKey; label: string }[] = [
   { key: '2y', label: '两年' },
   { key: '3y', label: '三年' } // 这里 UI 先保留，实际后端还是用 1y / all 兜底
 ]
-const yearlyRange = ref(yearlyRangeOptions[0])
+const yearlyRange = ref(yearlyRangeOptions[2])
 const showYearlyPicker = ref(false)
 const pendingYearlyRange = ref<RangeKey>(yearlyRangeOptions[0].key)
 const yearlyChartData = ref<YearlyLinePoint[]>([])
 
-// 从 refuels 记录里按月份统计“平均油耗”（lPer100km）
+// 从 refuels 记录里按月份统计“平均油耗”（使用 consumption 有值的记录）
 const fetchYearlyTrend = async (
   rangeKey: RangeKey = yearlyRange.value.key
 ) => {
@@ -633,14 +633,17 @@ const fetchYearlyTrend = async (
     >() // 月份 -> {总油耗, 次数}
 
     list.forEach((item) => {
-      if (item.lPer100km == null) return
+      const consumption = item?.consumption
+      if (consumption === '--' || consumption == null) return
+      const consumptionNum = Number(consumption)
+      if (!Number.isFinite(consumptionNum)) return
       const dateStr = item.date || item.refuelDate
       if (!dateStr) return
       const d = new Date(String(dateStr).replace(/-/g, '/'))
       if (Number.isNaN(d.getTime())) return
       const m = d.getMonth() + 1
       const bucket = map.get(m) || { sum: 0, count: 0 }
-      bucket.sum += Number(item.lPer100km)
+      bucket.sum += consumptionNum
       bucket.count += 1
       map.set(m, bucket)
     })
