@@ -311,7 +311,7 @@ const HERO_RANGE_OPTIONS: { key: RangeKey; label: string }[] = [
   { key: 'all', label: '全部' }
 ]
 
-const heroRange = ref(HERO_RANGE_OPTIONS[2]) // 默认一年
+const heroRange = ref(HERO_RANGE_OPTIONS[4]) // 默认一年
 const showHeroPicker = ref(false)
 const pendingHeroRange = ref<RangeKey>(heroRange.value.key)
 
@@ -362,7 +362,7 @@ const fetchHeroData = async (rangeKey: RangeKey = heroRange.value.key) => {
     const s = payload.summary || {}
     const list = (payload.records || []) as any[]
 
-    // 总油费
+    // 计算总油费
     const totalOilNum =
       typeof s.totalAmount === 'number'
         ? Number(s.totalAmount)
@@ -386,17 +386,21 @@ const fetchHeroData = async (rangeKey: RangeKey = heroRange.value.key) => {
         ? s.dateRangeDays
         : calcDateRangeDays(s.startDate, s.endDate)
 
+    // 计算爱车相伴天数
     const heroDaysNum = calcHeroDays(profileDeliveryDate.value)
 
+    // 计算油费/公里
     const fuelPerKm =
       coverageDistance > 0 ? totalOilNum / coverageDistance : 0
+    // 计算成本/天
     const costPerDay =
-      dateRangeDays && dateRangeDays > 0 ? totalSpendNum / dateRangeDays : 0
+      dateRangeDays && dateRangeDays > 0 ? totalSpendNum / heroDaysNum : 0
 
+    // 更新 heroOverview 数据
     heroOverview.value = {
-      total: totalSpendNum.toFixed(1),
-      fuel: totalOilNum.toFixed(1),
-      other: otherTotalNum.toFixed(1),
+      total: totalSpendNum.toFixed(1),  // 总支出
+      fuel: totalOilNum.toFixed(1),  // 油费
+      other: otherTotalNum.toFixed(1),  // 其他支出
       metrics: [
         {
           key: 'days',
