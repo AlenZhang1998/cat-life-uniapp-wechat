@@ -37,7 +37,9 @@
         </view>
         <view class="summary-stat">
           <text class="summary-stat__label">平均油价</text>
-          <text class="summary-stat__value">{{ summaryCard.pricePerLiter }}</text>
+          <text class="summary-stat__value">{{
+            summaryCard.pricePerLiter
+          }}</text>
         </view>
         <view class="summary-stat">
           <text class="summary-stat__label">总里程</text>
@@ -58,8 +60,8 @@
             {
               'record-card--compact': entry.compact,
               'record-card--alert': entry.highlight === 'danger',
-              'record-card--expanded': isExpanded(entry.id)
-            }
+              'record-card--expanded': isExpanded(entry.id),
+            },
           ]"
           :style="getListAnimatedStyle(entryIndex)"
           @tap="toggleRecord(entry)"
@@ -109,7 +111,7 @@
                     'record-remark__status--danger':
                       entry.fillStatusTone === 'danger',
                     'record-remark__status--accent':
-                      entry.fillStatusTone === 'accent'
+                      entry.fillStatusTone === 'accent',
                   }"
                 >
                   {{ entry.fillStatus }}
@@ -126,15 +128,21 @@
             'comparison-card',
             'comparison-card--success',
             'list-animated',
-            { 'list-animated--visible': isPageAnimated }
+            { 'list-animated--visible': isPageAnimated },
           ]"
           :style="getListAnimatedStyle(entryIndex, 'comparison')"
         >
           <!-- 3333-{{ isExpanded(entry.id) }} -->
           <view v-if="entry.consumption !== '--'">
-            <view class="comparison-value">{{ entry.pricePerKm ? entry.pricePerKm + '元/公里' : '--' }}</view>
-            <view class="comparison-value">{{ entry.fuelConsumption ? entry.fuelConsumption + '升' : '--' }}</view>
-            <view class="comparison-value">{{ entry.deltaMileage ? entry.deltaMileage + '公里' : '--' }}</view>
+            <view class="comparison-value">{{
+              entry.pricePerKm ? entry.pricePerKm + '元/公里' : '--'
+            }}</view>
+            <view class="comparison-value">{{
+              entry.fuelConsumption ? entry.fuelConsumption + '升' : '--'
+            }}</view>
+            <view class="comparison-value">{{
+              entry.deltaMileage ? entry.deltaMileage + '公里' : '--'
+            }}</view>
             <text class="comparison-arrow iconfont icon-xiangyou"></text>
           </view>
           <view v-else>
@@ -153,149 +161,151 @@
 </template>
 
 <script setup lang="ts">
-import { onShow } from '@dcloudio/uni-app'
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
-import BottomActionBar from '@/components/BottomActionBar.vue'
-import LoginOverlay from '@/components/LoginOverlay.vue'
-import { useAuth } from '@/utils/auth'
-import { axios } from '@/utils/request'
+import { onShow } from '@dcloudio/uni-app';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import BottomActionBar from '@/components/BottomActionBar.vue';
+import LoginOverlay from '@/components/LoginOverlay.vue';
+import { useAuth } from '@/utils/auth';
+import { axios } from '@/utils/request';
 
 type FuelRecordItem = {
-  type: 'record'
-  id: string
-  date: string
-  week?: string
-  consumption: string
-  mileage: string
-  amount?: string
-  pricePerLiter?: string
-  deltaFuel?: string
-  oilType?: string
-  fillStatus?: string
-  fillStatusTone?: 'danger' | 'accent'
-  compact?: boolean
-  highlight?: 'danger'
-  fuelConsumption?: string
-  deltaMileage?: string
-  pricePerKm?: string
-}
+  type: 'record';
+  id: string;
+  date: string;
+  week?: string;
+  consumption: string;
+  mileage: string;
+  amount?: string;
+  pricePerLiter?: string;
+  deltaFuel?: string;
+  oilType?: string;
+  fillStatus?: string;
+  fillStatusTone?: 'danger' | 'accent';
+  compact?: boolean;
+  highlight?: 'danger';
+  fuelConsumption?: string;
+  deltaMileage?: string;
+  pricePerKm?: string;
+};
 
 type ComparisonItem = {
-  type: 'comparison'
-  id: string
-  pricePerKm: string
-  deltaFuel: string
-  deltaMileage: string
-  tone?: 'success'
-}
+  type: 'comparison';
+  id: string;
+  pricePerKm: string;
+  deltaFuel: string;
+  deltaMileage: string;
+  tone?: 'success';
+};
 
-type FuelRecord = FuelRecordItem | ComparisonItem
+type FuelRecord = FuelRecordItem | ComparisonItem;
 
 type SummarySnapshot = {
-  totalAmount: string
-  avgFuel: string
-  pricePerLiter: string
-  mileage: string
-}
+  totalAmount: string;
+  avgFuel: string;
+  pricePerLiter: string;
+  mileage: string;
+};
 
-const { isLoggedIn, refreshLoginState } = useAuth()
-const showLoginSheet = ref(false)
+const { isLoggedIn, refreshLoginState } = useAuth();
+const showLoginSheet = ref(false);
 
 // ===== 年份筛选：默认“全部”，后端用 range=all =====
-const yearOptions = ['全部', '2025', '2024', '2023']
-const selectedYearIndex = ref(0) // 默认选中“全部”
+const yearOptions = ['全部', '2025', '2024', '2023'];
+const selectedYearIndex = ref(0); // 默认选中“全部”
 
 // picker 显示的文字
 const currentYear = computed(
   () => yearOptions[selectedYearIndex.value] || '全部'
-)
+);
 
 // 是否选中了“全部”
-const isAllYear = computed(() => currentYear.value === '全部')
+const isAllYear = computed(() => currentYear.value === '全部');
 
 const summaryCard = ref<SummarySnapshot>({
   totalAmount: '--',
   avgFuel: '--',
   pricePerLiter: '--',
-  mileage: '--'
-})
+  mileage: '--',
+});
 
-const records = ref<FuelRecordItem[]>([])
+const records = ref<FuelRecordItem[]>([]);
 
-const visibleRecords = computed(() => records.value)
+const visibleRecords = computed(() => records.value);
 
-const isPageAnimated = ref(false)
-let enterAnimationTimer: ReturnType<typeof setTimeout> | null = null
+const isPageAnimated = ref(false);
+let enterAnimationTimer: ReturnType<typeof setTimeout> | null = null;
 
 const runPageEnterAnimation = () => {
   if (enterAnimationTimer) {
-    clearTimeout(enterAnimationTimer)
-    enterAnimationTimer = null
+    clearTimeout(enterAnimationTimer);
+    enterAnimationTimer = null;
   }
-  isPageAnimated.value = false
+  isPageAnimated.value = false;
   enterAnimationTimer = setTimeout(() => {
-    isPageAnimated.value = true
-  }, 40)
-}
+    isPageAnimated.value = true;
+  }, 40);
+};
 
 const getListAnimatedStyle = (
   index: number,
   variant: 'card' | 'comparison' = 'card'
 ) => {
-  const limitedIndex = Math.min(index, 6)
-  const baseOffset = variant === 'comparison' ? 140 : 60
+  const limitedIndex = Math.min(index, 6);
+  const baseOffset = variant === 'comparison' ? 140 : 60;
   return {
-    '--list-delay': `${limitedIndex * 70 + baseOffset}ms`
-  }
-}
+    '--list-delay': `${limitedIndex * 70 + baseOffset}ms`,
+  };
+};
 
 // picker 改变年份
 const handleYearChange = (event: { detail: { value: number } }) => {
-  selectedYearIndex.value = Number(event.detail.value)
-}
+  selectedYearIndex.value = Number(event.detail.value);
+};
 
 const isRecordItem = (entry: FuelRecord): entry is FuelRecordItem =>
-  entry.type === 'record'
+  entry.type === 'record';
 
-const expandedRecordMap = ref<Record<string, boolean>>({})
+const expandedRecordMap = ref<Record<string, boolean>>({});
 
-const isExpanded = (id: string) => Boolean(expandedRecordMap.value[id])
+const isExpanded = (id: string) => Boolean(expandedRecordMap.value[id]);
 
 const toggleRecord = (entry: FuelRecordItem) => {
   const next = {
     ...expandedRecordMap.value,
-    [entry.id]: !expandedRecordMap.value[entry.id]
-  }
-  expandedRecordMap.value = next
-}
+    [entry.id]: !expandedRecordMap.value[entry.id],
+  };
+  expandedRecordMap.value = next;
+};
 
 // ================== 核心：请求列表 ==================
 const fetchRecords = async () => {
   if (!isLoggedIn.value) {
-    records.value = []
+    records.value = [];
     summaryCard.value = {
       totalAmount: '--',
       avgFuel: '--',
       pricePerLiter: '--',
-      mileage: '--'
-    }
-    return
+      mileage: '--',
+    };
+    return;
   }
 
   try {
-    uni.showLoading({ title: '加载中...', mask: true })
+    uni.showLoading({ title: '加载中...', mask: true });
 
     // const url = `/api/refuels/list?range=${resolvedRange || 'all'}`
-    const res = await axios.get(`/api/refuels/list?range=${isAllYear.value ? 'all' : currentYear.value}`)
-    console.log('records res:', res)
+    const res = await axios.get(
+      `/api/refuels/list?range=${isAllYear.value ? 'all' : currentYear.value}`
+    );
+    console.log('records res:', res);
 
     if (!res || res.success !== true) {
-      throw new Error('接口返回异常')
+      throw new Error('接口返回异常');
     }
 
-    const payload = res.data || {}
-    const s = payload.summary || {}
-    const list = (payload.records || []) as any[]
+    const payload = res.data || {};
+    const s = payload.summary || {};
+    const list = (payload.records || []) as any[];
 
     // 顶部 summary 卡片
     summaryCard.value = {
@@ -310,14 +320,14 @@ const fetchRecords = async () => {
       mileage:
         s.coverageDistance != null
           ? String(Math.round(Number(s.coverageDistance)))
-          : '--'
-    }
+          : '--',
+    };
 
     // 列表项映射到你现有的结构
     records.value = list.map((r): FuelRecordItem => {
-      const distanceNum = r.distance != null ? Number(r.distance) : NaN
-      const volumeNum = r.volume != null ? Number(r.volume) : NaN
-      const odometerNum = r.odometer != null ? Number(r.odometer) : NaN
+      const distanceNum = r.distance != null ? Number(r.distance) : NaN;
+      const volumeNum = r.volume != null ? Number(r.volume) : NaN;
+      const odometerNum = r.odometer != null ? Number(r.odometer) : NaN;
 
       return {
         type: 'record',
@@ -346,60 +356,60 @@ const fetchRecords = async () => {
           ? `+${Math.round(distanceNum)}`
           : undefined,
         pricePerKm:
-          r.pricePerKm != null ? Number(r.pricePerKm).toFixed(2) : undefined
-      }
-    })
+          r.pricePerKm != null ? Number(r.pricePerKm).toFixed(2) : undefined,
+      };
+    });
   } catch (err) {
-    console.error('fetchRecords error:', err)
+    console.error('fetchRecords error:', err);
     uni.showToast({
       title: '加载失败，请稍后再试',
-      icon: 'none'
-    })
+      icon: 'none',
+    });
   } finally {
-    uni.hideLoading()
+    uni.hideLoading();
   }
-}
+};
 
 const handleLoginRequired = () => {
   if (!isLoggedIn.value) {
-    showLoginSheet.value = true
+    showLoginSheet.value = true;
   }
-}
+};
 
 // 编辑记录
 const handleEdit = (entry: FuelRecordItem) => {
-  handleLoginRequired()
+  handleLoginRequired();
 
-  console.log(590, 'handleEdit', entry)
+  console.log(590, 'handleEdit', entry);
   uni.navigateTo({
-    url: `/pages/add/index?id=${entry.id}`
-  })
-}
+    url: `/pages/add/index?id=${entry.id}`,
+  });
+};
 
 // 切换年份时，重置展开状态 + 重新拉数据
 watch(currentYear, () => {
-  expandedRecordMap.value = {}
-  runPageEnterAnimation()
-  fetchRecords()
-})
+  expandedRecordMap.value = {};
+  runPageEnterAnimation();
+  fetchRecords();
+});
 
 onShow(() => {
-  refreshLoginState()
-  runPageEnterAnimation()
-  fetchRecords()
-})
+  refreshLoginState();
+  runPageEnterAnimation();
+  fetchRecords();
+});
 
 // 只做动画就行，不必再拉数据
 onMounted(() => {
-  runPageEnterAnimation()
-})
+  runPageEnterAnimation();
+});
 
 onUnmounted(() => {
   if (enterAnimationTimer) {
-    clearTimeout(enterAnimationTimer)
-    enterAnimationTimer = null
+    clearTimeout(enterAnimationTimer);
+    enterAnimationTimer = null;
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>
@@ -431,7 +441,8 @@ onUnmounted(() => {
   .list-animated {
     opacity: 0;
     transform: translate3d(0, 32rpx, 0);
-    transition: opacity 0.45s ease, transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+    transition: opacity 0.45s ease,
+      transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
     transition-delay: var(--list-delay, 0ms);
     will-change: opacity, transform;
   }
@@ -460,15 +471,28 @@ onUnmounted(() => {
     }
 
     &::before {
-      background: radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.7), transparent 45%),
-        radial-gradient(circle at 100% 20%, rgba(255, 255, 255, 0.35), transparent 40%);
+      background: radial-gradient(
+          circle at 0% 0%,
+          rgba(255, 255, 255, 0.7),
+          transparent 45%
+        ),
+        radial-gradient(
+          circle at 100% 20%,
+          rgba(255, 255, 255, 0.35),
+          transparent 40%
+        );
       opacity: 0.65;
       mix-blend-mode: screen;
       animation: summaryGlow 12s ease-in-out infinite alternate;
     }
 
     &::after {
-      background: linear-gradient(120deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.5) 45%, rgba(255, 255, 255, 0) 80%);
+      background: linear-gradient(
+        120deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.5) 45%,
+        rgba(255, 255, 255, 0) 80%
+      );
       transform: translateX(-60%);
       animation: summarySweep 6s linear infinite;
       opacity: 0.4;
@@ -607,7 +631,11 @@ onUnmounted(() => {
       }
 
       &::before {
-        background: linear-gradient(135deg, rgba(64, 160, 255, 0.08), rgba(30, 193, 95, 0.12));
+        background: linear-gradient(
+          135deg,
+          rgba(64, 160, 255, 0.08),
+          rgba(30, 193, 95, 0.12)
+        );
         opacity: 0;
         transition: opacity 0.35s ease;
       }
@@ -615,7 +643,12 @@ onUnmounted(() => {
       &::after {
         inset: -60% -30% auto -30%;
         height: 140rpx;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0));
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0),
+          rgba(255, 255, 255, 0.55),
+          rgba(255, 255, 255, 0)
+        );
         transform: translate3d(0, -50%, 0) rotate(-8deg);
         animation: cardShimmer 7s linear infinite;
         opacity: 0.2;
@@ -635,9 +668,8 @@ onUnmounted(() => {
           .record-date__value {
             font-size: 32rpx;
             // font-weight: 700;
-          }center
-
-          .record-date__week {
+          }
+          center .record-date__week {
             display: block;
             font-size: 22rpx;
             color: $muted-text;
@@ -717,7 +749,7 @@ onUnmounted(() => {
         .record-meta {
           display: flex;
           justify-content: space-between;
-        align-items: center;
+          align-items: center;
           margin-bottom: 20rpx;
           gap: 12rpx;
 
@@ -819,7 +851,11 @@ onUnmounted(() => {
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(90deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.1),
+          rgba(255, 255, 255, 0)
+        );
         animation: comparisonSweep 6s linear infinite;
         opacity: 0.6;
         pointer-events: none;
