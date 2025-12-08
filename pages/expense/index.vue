@@ -528,11 +528,37 @@ const showMonthlyPicker = ref(false);
 const pendingMonthlyRange = ref<RangeKey>(monthlyRangeOptions[1].key);
 const monthlyChartData = ref<MonthlyBarPoint[]>([]);
 
-// 用所有柱子的平均值做一条虚线参考
+// 用所有柱子的总和 / 横轴覆盖的月份数量 作为虚线参考
 const monthlyBaseline = computed(() => {
-  if (!monthlyChartData.value.length) return '0';
-  const sum = monthlyChartData.value.reduce((s, p) => s + p.value, 0);
-  const avg = sum / monthlyChartData.value.length;
+  const data = monthlyChartData.value;
+  if (!data.length) return '0';
+
+  // 1. 找到最早、最晚的 year-month
+  let minYear = data[0].year;
+  let maxYear = data[0].year;
+  let minMonth = parseInt(data[0].month, 10); // '10月' => 10
+  let maxMonth = parseInt(data[0].month, 10);
+
+  for (const item of data) {
+    const y = item.year;
+    const m = parseInt(item.month, 10);
+    if (y < minYear || (y === minYear && m < minMonth)) {
+      minYear = y;
+      minMonth = m;
+    }
+    if (y > maxYear || (y === maxYear && m > maxMonth)) {
+      maxYear = y;
+      maxMonth = m;
+    }
+  }
+
+  // 2. 计算横轴一共跨了多少个月（包含头尾）
+  const monthCount = (maxYear - minYear) * 12 + (maxMonth - minMonth) + 1;
+
+  // 3. 所有柱子的总油费
+  const sum = data.reduce((s, p) => s + p.value, 0);
+
+  const avg = monthCount > 0 ? sum / monthCount : 0;
   return avg.toFixed(1);
 });
 
@@ -702,18 +728,14 @@ let monthlyExpenseChart: any = null;
 let yearlyExpenseChart: any = null;
 
 const buildMonthlyOption = () => {
-  // 1）x 轴类目：就是每个点的 month
   const categories = monthlyChartData.value.map((item) => item.month);
   const years = monthlyChartData.value.map((item) => item.year);
 
-  // 2）不同年份对应不同颜色
   const yearColors: Record<number, string> = {
-    2024: '#E34CFF', // 粉色
-    2025: '#3A7AFE', // 蓝色
-    // 将来再加 2026 / 2027 自己往这里加就行
+    2024: '#E34CFF',
+    2025: '#3A7AFE',
   };
 
-  // 3）series 数据：每个点根据 year 上不同的颜色
   const seriesData = monthlyChartData.value.map((item) => ({
     value: item.value,
     itemStyle: {
@@ -721,27 +743,18 @@ const buildMonthlyOption = () => {
     },
   }));
 
-  // 4）x 轴 label：每个年份的第一个月带上“24年/25年”前缀
   const labelFormatter = (value: string, index: number) => {
     const year = years[index];
     const prevYear = index > 0 ? years[index - 1] : null;
-    // 当前是这个年份的第一个点，就带上年份
     if (index === 0 || year !== prevYear) {
-      // 只显示后两位：24年10月
       const shortYear = String(year).slice(-2);
       return `${shortYear}年${value}`;
     }
     return value;
   };
 
-  // 5）计算平均值，用来画红色虚线
-  const total = monthlyChartData.value.reduce(
-    (sum, item) => sum + item.value,
-    0
-  );
-  const avg = monthlyChartData.value.length
-    ? Number((total / monthlyChartData.value.length).toFixed(2))
-    : 0;
+  // 这里直接取刚才算好的 baseline
+  const avg = Number(monthlyBaseline.value);
 
   return {
     grid: { left: 32, right: 16, top: 36, bottom: 40 },
@@ -774,7 +787,6 @@ const buildMonthlyOption = () => {
       axisTick: { show: false },
       axisLabel: { color: '#8a93a0', fontSize: 12 },
     },
-    // 6）底部“平均 xx 元”的红虚线
     series: [
       {
         name: '油费',
