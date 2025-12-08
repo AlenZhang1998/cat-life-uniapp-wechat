@@ -364,7 +364,7 @@ const getBadgeStyle = (level: EfficiencyLevel) => ({
 // ⭐ 根据最新油耗计算评级
 const getGradeByFuel = (val: number): 'S' | 'A' | 'B' | 'C' | 'D' => {
   if (val <= 5) return 'S'
-  if (val <= 6) return 'A'
+  if (val <= 6.5) return 'A'
   if (val <= 7.5) return 'B'
   if (val <= 9) return 'C'
   return 'D'
@@ -528,13 +528,16 @@ const fetchRefuelData = async (rangeKey: RangeKey = rangeOptions[3].key) => {
     // 是否有加油记录 -> 控制“没有记录”提示条
     hasRecentRefuel.value = Array.isArray(list) && list.length > 0
 
-    // ===== 最新油耗：取最近一条有 lPer100km 的记录 =====
-    const firstWithL = list.find((item: any) => item.lPer100km != null)
-    if (firstWithL) {
-      latestFuel.value = Number(firstWithL.lPer100km).toFixed(2)
-    } else {
-      latestFuel.value = '0'
-    }
+    // ===== 最新油耗：取最近一条有有效 consumption 的记录（非 '--'） =====
+    const latestWithConsumption = list.find((item: any) => {
+      const val = item?.consumption
+      if (val === '--' || val == null) return false
+      const num = Number(val)
+      return Number.isFinite(num)
+    })
+    latestFuel.value = latestWithConsumption
+      ? Number(latestWithConsumption.consumption).toFixed(2)
+      : '0'
 
     // ===== 统计区块数据 =====
     const avgFuel =
@@ -642,19 +645,19 @@ const fetchTrendData = async (rangeKey: RangeKey = rangeOptions[3].key) => {
     const cityHigh = Number((base * 1.15).toFixed(2))
     const cityLow = Number((base * 0.85).toFixed(2))
 
-    // 列表接口是「最近在前」，趋势要按时间正序画，所以要 reverse 一下
+    // 列表接口是「最近在前」，趋势要按时间正序画，所以要 reverse 一下，仅保留有有效 consumption 的记录
     const points = list
       .slice()
       .reverse()
-      .filter(
-        (item: any) =>
-          item.lPer100km != null &&
-          item.distance != null &&
-          Number(item.distance) > 0
-      )
+      .filter((item: any) => {
+        const consumption = item?.consumption
+        if (consumption === '--' || consumption == null) return false
+        const num = Number(consumption)
+        return Number.isFinite(num)
+      })
       .map((item: any) => ({
         day: item.monthDay || '',                                // X轴标签
-        value: Number(Number(item.lPer100km).toFixed(2)),        // 当前车油耗
+        value: Number(Number(item.consumption).toFixed(2)),      // 当前车油耗
         cityHigh,
         cityLow
       }))
