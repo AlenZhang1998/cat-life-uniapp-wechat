@@ -17,14 +17,18 @@
           <view class="summary-year">
             <text>{{ currentYear }}</text>
             <text class="iconfont icon-youjiantou"></text>
-            <!-- <text class="iconfont icon-youjiantou"></text> -->
           </view>
         </picker>
-        <view class="summary-chip">年度油耗概况</view>
+        <view class="summary-chip">
+          {{ currentYear === '全部' ? '油耗概况' : '年度油耗概况' }}
+        </view>
       </view>
+
       <view class="summary-total">
         <text class="summary-total__value">{{ summaryCard.totalAmount }}</text>
-        <text class="summary-total__label">本年总花费</text>
+        <text class="summary-total__label">
+          {{ currentYear === '全部' ? '总花费' : '本年总花费' }}
+        </text>
       </view>
       <view class="summary-grid">
         <view class="summary-stat">
@@ -197,8 +201,17 @@ type SummarySnapshot = {
 const { isLoggedIn, refreshLoginState } = useAuth()
 const showLoginSheet = ref(false)
 
-const yearOptions = ['2025', '2024', '2023']
-const selectedYearIndex = ref(0)
+// ===== 年份筛选：默认“全部”，后端用 range=all =====
+const yearOptions = ['全部', '2025', '2024', '2023']
+const selectedYearIndex = ref(0) // 默认选中“全部”
+
+// picker 显示的文字
+const currentYear = computed(
+  () => yearOptions[selectedYearIndex.value] || '全部'
+)
+
+// 是否选中了“全部”
+const isAllYear = computed(() => currentYear.value === '全部')
 
 const summaryCard = ref<SummarySnapshot>({
   totalAmount: '--',
@@ -210,10 +223,6 @@ const summaryCard = ref<SummarySnapshot>({
 const records = ref<FuelRecordItem[]>([])
 
 const visibleRecords = computed(() => records.value)
-
-const currentYear = computed(
-  () => yearOptions[selectedYearIndex.value] || yearOptions[0]
-)
 
 const isPageAnimated = ref(false)
 let enterAnimationTimer: ReturnType<typeof setTimeout> | null = null
@@ -240,6 +249,7 @@ const getListAnimatedStyle = (
   }
 }
 
+// picker 改变年份
 const handleYearChange = (event: { detail: { value: number } }) => {
   selectedYearIndex.value = Number(event.detail.value)
 }
@@ -259,92 +269,96 @@ const toggleRecord = (entry: FuelRecordItem) => {
   expandedRecordMap.value = next
 }
 
-
-// 在 `fetchRecords` 中调用 `processRecords`
+// ================== 核心：请求列表 ==================
 const fetchRecords = async () => {
   if (!isLoggedIn.value) {
-    records.value = [];
+    records.value = []
     summaryCard.value = {
       totalAmount: '--',
       avgFuel: '--',
       pricePerLiter: '--',
       mileage: '--'
-    };
-    return;
+    }
+    return
   }
 
   try {
-    uni.showLoading({ title: '加载中...', mask: true });
+    uni.showLoading({ title: '加载中...', mask: true })
 
-    const res = await axios.get('/api/refuels/list?year=' + currentYear.value);
-    console.log(503, res);
+    // const url = `/api/refuels/list?range=${resolvedRange || 'all'}`
+    const res = await axios.get(`/api/refuels/list?range=${isAllYear.value ? 'all' : currentYear.value}`)
+    console.log('records res:', res)
 
     if (!res || res.success !== true) {
-      throw new Error('接口返回异常');
+      throw new Error('接口返回异常')
     }
 
-    const payload = res.data || {};
-    const s = payload.summary || {};
-    const list = (payload.records || []) as any[];
+    const payload = res.data || {}
+    const s = payload.summary || {}
+    const list = (payload.records || []) as any[]
 
     // 顶部 summary 卡片
     summaryCard.value = {
       totalAmount:
         s.totalAmount != null ? Number(s.totalAmount).toFixed(2) : '--',
       avgFuel:
-        s.avgFuelConsumption != null ? Number(s.avgFuelConsumption).toFixed(2) : '--',
+        s.avgFuelConsumption != null
+          ? Number(s.avgFuelConsumption).toFixed(2)
+          : '--',
       pricePerLiter:
         s.avgPricePerL != null ? Number(s.avgPricePerL).toFixed(2) : '--',
       mileage:
-      s.coverageDistance != null ? String(Math.round(Number(s.coverageDistance))) : '--'
-    };
+        s.coverageDistance != null
+          ? String(Math.round(Number(s.coverageDistance)))
+          : '--'
+    }
 
     // 列表项映射到你现有的结构
     records.value = list.map((r): FuelRecordItem => {
-    const distanceNum = r.distance != null ? Number(r.distance) : NaN
-    const volumeNum = r.volume != null ? Number(r.volume) : NaN
-    const odometerNum = r.odometer != null ? Number(r.odometer) : NaN
+      const distanceNum = r.distance != null ? Number(r.distance) : NaN
+      const volumeNum = r.volume != null ? Number(r.volume) : NaN
+      const odometerNum = r.odometer != null ? Number(r.odometer) : NaN
 
-    return {
-      type: 'record',
-      id: r._id,
-      date: r.monthDay || '--',
-      consumption: r.consumption != null ? Number(r.consumption).toFixed(2) : '--',
-      mileage: !Number.isNaN(odometerNum)
-        ? String(Math.round(odometerNum))
-        : '--',
-      amount: r.amount != null ? Number(r.amount).toFixed(2) : undefined,
-      pricePerLiter:
-        r.pricePerL != null ? Number(r.pricePerL).toFixed(2) : undefined,
-      deltaFuel: !Number.isNaN(volumeNum)
-        ? `+${volumeNum.toFixed(2)}`
-        : undefined,
-      oilType: r.fuelGrade ? `${r.fuelGrade}汽油` : undefined,
-      fillStatus: r.isFullTank ? '加满' : '',
-      fillStatusTone: r.isFullTank ? 'danger' : undefined,
-      compact: true,
-      highlight: undefined,
-      fuelConsumption: !Number.isNaN(volumeNum)
-        ? `-${volumeNum.toFixed(2)}`
-        : undefined,
-      deltaMileage: !Number.isNaN(distanceNum)
-        ? `+${Math.round(distanceNum)}`
-        : undefined,
-      pricePerKm:
-        r.pricePerKm != null ? Number(r.pricePerKm).toFixed(2) : undefined
-    }
-  })
-
+      return {
+        type: 'record',
+        id: r._id,
+        date: r.monthDay || '--',
+        consumption:
+          r.consumption != null ? Number(r.consumption).toFixed(2) : '--',
+        mileage: !Number.isNaN(odometerNum)
+          ? String(Math.round(odometerNum))
+          : '--',
+        amount: r.amount != null ? Number(r.amount).toFixed(2) : undefined,
+        pricePerLiter:
+          r.pricePerL != null ? Number(r.pricePerL).toFixed(2) : undefined,
+        deltaFuel: !Number.isNaN(volumeNum)
+          ? `+${volumeNum.toFixed(2)}`
+          : undefined,
+        oilType: r.fuelGrade ? `${r.fuelGrade}汽油` : undefined,
+        fillStatus: r.isFullTank ? '加满' : '',
+        fillStatusTone: r.isFullTank ? 'danger' : undefined,
+        compact: true,
+        highlight: undefined,
+        fuelConsumption: !Number.isNaN(volumeNum)
+          ? `-${volumeNum.toFixed(2)}`
+          : undefined,
+        deltaMileage: !Number.isNaN(distanceNum)
+          ? `+${Math.round(distanceNum)}`
+          : undefined,
+        pricePerKm:
+          r.pricePerKm != null ? Number(r.pricePerKm).toFixed(2) : undefined
+      }
+    })
   } catch (err) {
-    console.error('fetchRecords error:', err);
+    console.error('fetchRecords error:', err)
     uni.showToast({
       title: '加载失败，请稍后再试',
       icon: 'none'
-    });
+    })
   } finally {
-    uni.hideLoading();
+    uni.hideLoading()
   }
-};
+}
 
 const handleLoginRequired = () => {
   if (!isLoggedIn.value) {
@@ -355,14 +369,14 @@ const handleLoginRequired = () => {
 // 编辑记录
 const handleEdit = (entry: FuelRecordItem) => {
   handleLoginRequired()
-  
+
   console.log(590, 'handleEdit', entry)
   uni.navigateTo({
     url: `/pages/add/index?id=${entry.id}`
   })
 }
 
-// 切换年份时，重置展开状态
+// 切换年份时，重置展开状态 + 重新拉数据
 watch(currentYear, () => {
   expandedRecordMap.value = {}
   runPageEnterAnimation()
