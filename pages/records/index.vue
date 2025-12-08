@@ -133,7 +133,7 @@
           :style="getListAnimatedStyle(entryIndex, 'comparison')"
         >
           <!-- 3333-{{ isExpanded(entry.id) }} -->
-          <view v-if="entry.consumption !== '--'">
+          <view v-if="entry.consumption !== '--'" class="comparison-value-box">
             <view class="comparison-value">{{
               entry.pricePerKm ? entry.pricePerKm + '元/公里' : '--'
             }}</view>
@@ -839,9 +839,7 @@ onUnmounted(() => {
       background: #f5fbf6;
       border-radius: 28rpx;
       padding: 26rpx;
-      display: flex;
-      align-items: center;
-      gap: 16rpx;
+
       border: 2rpx solid rgba(30, 193, 95, 0.1);
       position: relative;
       overflow: hidden;
@@ -860,18 +858,22 @@ onUnmounted(() => {
         opacity: 0.6;
         pointer-events: none;
       }
+      .comparison-value-box {
+        display: flex;
+        align-items: center;
+        gap: 16rpx;
+        .comparison-value {
+          flex: 1;
+          font-size: 28rpx;
+          font-weight: 600;
+          color: #1f2329;
+          text-align: center;
+        }
 
-      .comparison-value {
-        flex: 1;
-        font-size: 28rpx;
-        font-weight: 600;
-        color: #1f2329;
-        text-align: center;
-      }
-
-      .comparison-arrow {
-        font-size: 26rpx;
-        color: $muted-text;
+        .comparison-arrow {
+          font-size: 26rpx;
+          color: $muted-text;
+        }
       }
     }
 
