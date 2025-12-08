@@ -1,7 +1,10 @@
 <template>
   <view
     class="expense-page"
-    :class="{ 'expense-page--locked': showHeroPicker || showMonthlyPicker || showYearlyPicker }"
+    :class="{
+      'expense-page--locked':
+        showHeroPicker || showMonthlyPicker || showYearlyPicker,
+    }"
   >
     <view class="hero-card">
       <view class="hero-card__title-row">
@@ -48,7 +51,11 @@
       <view class="hero-divider"></view>
 
       <view class="hero-card__metrics">
-        <view class="hero-metric" v-for="metric in heroOverview.metrics" :key="metric.key">
+        <view
+          class="hero-metric"
+          v-for="metric in heroOverview.metrics"
+          :key="metric.key"
+        >
           <view class="equation-label">
             <text>{{ metric.label }}</text>
             <text class="info-badge">?</text>
@@ -79,7 +86,9 @@
         ></ec-canvas>
         <!-- #endif -->
         <!-- #ifndef MP-WEIXIN -->
-        <view class="chart-placeholder">请在微信小程序端查看油费月度统计图</view>
+        <view class="chart-placeholder"
+          >请在微信小程序端查看油费月度统计图</view
+        >
         <!-- #endif -->
       </view>
     </view>
@@ -104,7 +113,9 @@
         ></ec-canvas>
         <!-- #endif -->
         <!-- #ifndef MP-WEIXIN -->
-        <view class="chart-placeholder">请在微信小程序端查看油耗年度统计图</view>
+        <view class="chart-placeholder"
+          >请在微信小程序端查看油耗年度统计图</view
+        >
         <!-- #endif -->
       </view>
     </view>
@@ -180,17 +191,17 @@
 </template>
 
 <script setup lang="ts">
-import { onShow } from '@dcloudio/uni-app'
-import { computed, onUnmounted, ref } from 'vue'
-import BottomActionBar from '@/components/BottomActionBar.vue'
-import RangePickerOverlay from '@/components/RangePickerOverlay.vue'
-import LoginOverlay from '@/components/LoginOverlay.vue'
-import { useAuth } from '@/utils/auth'
-import { axios } from '@/utils/request'
+import { onShow } from '@dcloudio/uni-app';
+import { computed, onUnmounted, ref } from 'vue';
+import BottomActionBar from '@/components/BottomActionBar.vue';
+import RangePickerOverlay from '@/components/RangePickerOverlay.vue';
+import LoginOverlay from '@/components/LoginOverlay.vue';
+import { useAuth } from '@/utils/auth';
+import { axios } from '@/utils/request';
 
 // uCharts 官方 ECharts 适配仅支持 CJS 导入，这里使用 require 方式以兼容编译到小程序端
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const echarts = require('../../wxcomponents/ec-canvas/echarts')
+const echarts = require('../../wxcomponents/ec-canvas/echarts');
 
 // ============= 类型 & 常量 =============
 type ExpenseCategory =
@@ -199,106 +210,117 @@ type ExpenseCategory =
   | 'parking'
   | 'charging'
   | 'insurance'
-  | 'wash'
+  | 'wash';
 
-type RangeKey = '3m' | '6m' | '1y' | '2y' | 'all'
-type BackendRangeKey = '3m' | '6m' | '1y' | 'all'
+type RangeKey = '3m' | '6m' | '1y' | '2y' | 'all';
+type BackendRangeKey = '3m' | '6m' | '1y' | 'all';
 
 type HeroMetric = {
-  key: string
-  label: string
-  value: string
-  unit: string
-}
+  key: string;
+  label: string;
+  value: string;
+  unit: string;
+};
 
 type HeroOverview = {
-  total: string
-  fuel: string
-  other: string
-  metrics: HeroMetric[]
-}
+  total: string;
+  fuel: string;
+  other: string;
+  metrics: HeroMetric[];
+};
 
 type MonthlyBarPoint = {
-  month: string
-  value: number
-}
+  year: number; // 2024 / 2025
+  month: string; // '10月' '11月'
+  value: number;
+};
 
 type YearlyLinePoint = {
-  month: string
-  value: number
-}
+  month: string;
+  value: number;
+};
 
 const CATEGORY_META: Record<
   ExpenseCategory,
   { label: string; icon: string; color: string; badgeBg: string }
 > = {
   fuel: { label: '加油', icon: '⛽', color: '#1EC15F', badgeBg: '#E4FAED' },
-  maintenance: { label: '保养', icon: '🛠️', color: '#3A7AFE', badgeBg: '#E2EAFF' },
+  maintenance: {
+    label: '保养',
+    icon: '🛠️',
+    color: '#3A7AFE',
+    badgeBg: '#E2EAFF',
+  },
   parking: { label: '停车', icon: '🅿️', color: '#FFB74D', badgeBg: '#FFF2E1' },
   charging: { label: '充电', icon: '⚡', color: '#00B8D9', badgeBg: '#D4F7FF' },
-  insurance: { label: '保险', icon: '🛡️', color: '#8E64FF', badgeBg: '#F0E7FF' },
-  wash: { label: '洗车', icon: '💦', color: '#00BFA5', badgeBg: '#DDF8F3' }
-}
+  insurance: {
+    label: '保险',
+    icon: '🛡️',
+    color: '#8E64FF',
+    badgeBg: '#F0E7FF',
+  },
+  wash: { label: '洗车', icon: '💦', color: '#00BFA5', badgeBg: '#DDF8F3' },
+};
 
 // ============= 登录状态 =============
-const { isLoggedIn, refreshLoginState } = useAuth()
-const showLoginSheet = ref(false)
+const { isLoggedIn, refreshLoginState } = useAuth();
+const showLoginSheet = ref(false);
 
 const handleLoginRequired = () => {
   if (!isLoggedIn.value) {
-    showLoginSheet.value = true
+    showLoginSheet.value = true;
   }
-}
+};
 
 // ============= 公共日期工具 =============
-const DAY_MS = 24 * 60 * 60 * 1000
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 const normalizeDateOnly = (value?: string | Date | null) => {
-  if (!value) return null
+  if (!value) return null;
   const date =
-    value instanceof Date ? value : new Date(String(value).replace(/-/g, '/'))
-  if (Number.isNaN(date.getTime())) return null
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate())
-}
+    value instanceof Date ? value : new Date(String(value).replace(/-/g, '/'));
+  if (Number.isNaN(date.getTime())) return null;
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+};
 
 const calcDateRangeDays = (
   start?: string | Date | null,
   end?: string | Date | null
 ): number | null => {
-  const startDate = normalizeDateOnly(start)
-  const endDate = normalizeDateOnly(end)
+  const startDate = normalizeDateOnly(start);
+  const endDate = normalizeDateOnly(end);
   if (!startDate || !endDate || endDate.getTime() < startDate.getTime()) {
-    return null
+    return null;
   }
-  const diff = endDate.getTime() - startDate.getTime()
-  return Math.floor(diff / DAY_MS) + 1
-}
+  const diff = endDate.getTime() - startDate.getTime();
+  return Math.floor(diff / DAY_MS) + 1;
+};
 
 // 计算“爱车相伴天数”（和首页保持一致）
 const calcHeroDays = (deliveryDate?: string | null) => {
-  if (!deliveryDate) return 0
-  const parsed = new Date(deliveryDate.replace(/-/g, '/'))
-  if (Number.isNaN(parsed.getTime())) return 0
-  const diff = Date.now() - parsed.getTime()
-  if (diff < 0) return 0
-  const days = Math.floor(diff / DAY_MS)
-  return days + 1
-}
+  if (!deliveryDate) return 0;
+  const parsed = new Date(deliveryDate.replace(/-/g, '/'));
+  if (Number.isNaN(parsed.getTime())) return 0;
+  const diff = Date.now() - parsed.getTime();
+  if (diff < 0) return 0;
+  const days = Math.floor(diff / DAY_MS);
+  return days + 1;
+};
 
 // ============= 用户交车日期（用于统计卡片） =============
-const profileDeliveryDate = ref<string | null>(null)
+const profileDeliveryDate = ref<string | null>(null);
 
 const fetchProfile = async () => {
-  if (!isLoggedIn.value) return
+  if (!isLoggedIn.value) return;
   try {
-    const res = await axios.get('/api/profile')
-    const resp = res as any
-    const data = resp.data || resp || {}
-    profileDeliveryDate.value = data.deliveryDate || ''
+    const res = await axios.get('/api/profile');
+    const resp = res as any;
+    const data = resp.data || resp || {};
+    profileDeliveryDate.value = data.deliveryDate || '';
   } catch (err) {
-    console.warn('fetchProfile error:', err)
+    console.warn('fetchProfile error:', err);
   }
-}
+};
 
 // ============= 顶部「统计」卡片 =============
 
@@ -308,12 +330,12 @@ const HERO_RANGE_OPTIONS: { key: RangeKey; label: string }[] = [
   { key: '6m', label: '半年' },
   { key: '1y', label: '一年' },
   { key: '2y', label: '两年' },
-  { key: 'all', label: '全部' }
-]
+  { key: 'all', label: '全部' },
+];
 
-const heroRange = ref(HERO_RANGE_OPTIONS[4]) // 默认一年
-const showHeroPicker = ref(false)
-const pendingHeroRange = ref<RangeKey>(heroRange.value.key)
+const heroRange = ref(HERO_RANGE_OPTIONS[4]); // 默认一年
+const showHeroPicker = ref(false);
+const pendingHeroRange = ref<RangeKey>(heroRange.value.key);
 
 // 顶部统计数据（异步填充）
 const heroOverview = ref<HeroOverview>({
@@ -323,16 +345,16 @@ const heroOverview = ref<HeroOverview>({
   metrics: [
     { key: 'days', label: '爱车相伴', value: '--', unit: '天' },
     { key: 'fuelKm', label: '油费/公里', value: '--', unit: '元' },
-    { key: 'perDay', label: '成本/天', value: '--', unit: '元' }
-  ]
-})
+    { key: 'perDay', label: '成本/天', value: '--', unit: '元' },
+  ],
+});
 
 // 前端范围 key -> 后端 range 参数
 const mapRangeToBackend = (key: RangeKey): BackendRangeKey => {
-  if (key === '3m' || key === '6m' || key === '1y') return key
+  if (key === '3m' || key === '6m' || key === '1y') return key;
   // '2y' 和 'all' 目前都用 all 兜底
-  return 'all'
-}
+  return 'all';
+};
 
 // 拉取「统计」所需的 refuel 数据
 const fetchHeroData = async (rangeKey: RangeKey = heroRange.value.key) => {
@@ -344,61 +366,61 @@ const fetchHeroData = async (rangeKey: RangeKey = heroRange.value.key) => {
       metrics: [
         { key: 'days', label: '爱车相伴', value: '--', unit: '天' },
         { key: 'fuelKm', label: '油费/公里', value: '--', unit: '元' },
-        { key: 'perDay', label: '成本/天', value: '--', unit: '元' }
-      ]
-    }
-    return
+        { key: 'perDay', label: '成本/天', value: '--', unit: '元' },
+      ],
+    };
+    return;
   }
 
   try {
-    const backendRange = mapRangeToBackend(rangeKey)
-    const res = await axios.get(`/api/refuels/list?range=${backendRange}`)
-    const resp = res as any
+    const backendRange = mapRangeToBackend(rangeKey);
+    const res = await axios.get(`/api/refuels/list?range=${backendRange}`);
+    const resp = res as any;
     if (!resp || resp.success !== true) {
-      throw new Error('接口返回异常')
+      throw new Error('接口返回异常');
     }
 
-    const payload = resp.data || resp || {}
-    const s = payload.summary || {}
-    const list = (payload.records || []) as any[]
+    const payload = resp.data || resp || {};
+    const s = payload.summary || {};
+    const list = (payload.records || []) as any[];
 
     // 计算总油费（当前筛选范围内的所有加油金额）
     const totalOilNum =
       typeof s.totalAmount === 'number'
         ? Number(s.totalAmount)
-        : list.reduce((sum, item) => sum + Number(item.amount || 0), 0)
+        : list.reduce((sum, item) => sum + Number(item.amount || 0), 0);
 
     // 目前只有油费，其它支出为 0，将来有保养/停车等可以在这里加
-    const otherTotalNum = 0
-    const totalSpendNum = totalOilNum + otherTotalNum
+    const otherTotalNum = 0;
+    const totalSpendNum = totalOilNum + otherTotalNum;
 
     // ===== 用“满箱区间”计算油费/公里 =====
 
     // list 是按时间倒序（最新在前），这里翻转成正序处理
-    const asc = [...list].reverse()
+    const asc = [...list].reverse();
 
-    let lastFullIndex: number | null = null
-    let segmentDistanceTotal = 0 // 所有满箱区间的里程和
-    let segmentAmountTotal = 0   // 所有满箱区间的油费和
+    let lastFullIndex: number | null = null;
+    let segmentDistanceTotal = 0; // 所有满箱区间的里程和
+    let segmentAmountTotal = 0; // 所有满箱区间的油费和
 
     for (let i = 0; i < asc.length; i++) {
-      const item = asc[i]
-      const isFull = !!item.isFullTank
+      const item = asc[i];
+      const isFull = !!item.isFullTank;
 
-      if (!isFull) continue
+      if (!isFull) continue;
 
       // 第一次遇到“加满”，记录起点
       if (lastFullIndex === null) {
-        lastFullIndex = i
-        continue
+        lastFullIndex = i;
+        continue;
       }
 
       // 之后再次遇到“加满”，形成一个区间 [lastFullIndex, i]
-      const start = asc[lastFullIndex]
-      const end = item
+      const start = asc[lastFullIndex];
+      const end = item;
 
-      const startOdo = Number(start.odometer)
-      const endOdo = Number(end.odometer)
+      const startOdo = Number(start.odometer);
+      const endOdo = Number(end.odometer);
 
       if (
         !Number.isFinite(startOdo) ||
@@ -406,419 +428,388 @@ const fetchHeroData = async (rangeKey: RangeKey = heroRange.value.key) => {
         endOdo <= startOdo
       ) {
         // 里程非法，跳过这个区间，同时把新的满箱当成下一个区间起点
-        lastFullIndex = i
-        continue
+        lastFullIndex = i;
+        continue;
       }
 
       // 区间油费：起点之后一条到终点这一条（不含起点加满）
-      let segmentAmount = 0
+      let segmentAmount = 0;
       for (let j = lastFullIndex + 1; j <= i; j++) {
-        const amt = Number(asc[j].amount || 0)
+        const amt = Number(asc[j].amount || 0);
         if (Number.isFinite(amt) && amt > 0) {
-          segmentAmount += amt
+          segmentAmount += amt;
         }
       }
 
-      const distance = endOdo - startOdo
+      const distance = endOdo - startOdo;
       if (distance > 0 && segmentAmount > 0) {
-        segmentDistanceTotal += distance
-        segmentAmountTotal += segmentAmount
+        segmentDistanceTotal += distance;
+        segmentAmountTotal += segmentAmount;
       }
 
       // 当前满箱作为下一段的起点
-      lastFullIndex = i
+      lastFullIndex = i;
     }
 
     const fuelPerKm =
-      segmentDistanceTotal > 0
-        ? segmentAmountTotal / segmentDistanceTotal
-        : 0
+      segmentDistanceTotal > 0 ? segmentAmountTotal / segmentDistanceTotal : 0;
 
     // ===== 爱车相伴天数 & 成本/天 =====
-    const heroDaysNum = calcHeroDays(profileDeliveryDate.value)
+    const heroDaysNum = calcHeroDays(profileDeliveryDate.value);
 
     // 成本/天 = 总支出 / 爱车相伴天数
-    const costPerDay =
-      heroDaysNum > 0 ? totalSpendNum / heroDaysNum : 0
+    const costPerDay = heroDaysNum > 0 ? totalSpendNum / heroDaysNum : 0;
 
     // ===== 更新 heroOverview 数据 =====
     heroOverview.value = {
-      total: totalSpendNum.toFixed(1),      // 总支出
-      fuel: totalOilNum.toFixed(1),         // 油费
-      other: otherTotalNum.toFixed(1),      // 其他支出
+      total: totalSpendNum.toFixed(1), // 总支出
+      fuel: totalOilNum.toFixed(1), // 油费
+      other: otherTotalNum.toFixed(1), // 其他支出
       metrics: [
         {
           key: 'days',
           label: '爱车相伴',
           value: heroDaysNum ? heroDaysNum.toFixed(0) : '--',
-          unit: '天'
+          unit: '天',
         },
         {
           key: 'fuelKm',
           label: '油费/公里',
-          value:
-            segmentDistanceTotal > 0
-              ? fuelPerKm.toFixed(2)
-              : '--',
-          unit: '元'
+          value: segmentDistanceTotal > 0 ? fuelPerKm.toFixed(2) : '--',
+          unit: '元',
         },
         {
           key: 'perDay',
           label: '成本/天',
-          value:
-            heroDaysNum > 0
-              ? costPerDay.toFixed(2)
-              : '--',
-          unit: '元'
-        }
-      ]
-    }
+          value: heroDaysNum > 0 ? costPerDay.toFixed(2) : '--',
+          unit: '元',
+        },
+      ],
+    };
   } catch (err) {
-    console.warn('fetchHeroData error:', err)
+    console.warn('fetchHeroData error:', err);
   }
-}
+};
 
 // 统计卡片筛选弹窗
 const handleHeroRangeTap = () => {
-  pendingHeroRange.value = heroRange.value.key
-  showHeroPicker.value = true
-}
+  pendingHeroRange.value = heroRange.value.key;
+  showHeroPicker.value = true;
+};
 const closeHeroPicker = () => {
-  showHeroPicker.value = false
-}
+  showHeroPicker.value = false;
+};
 const handleHeroRangeSelection = (value: string | null) => {
   if (value) {
-    pendingHeroRange.value = value as RangeKey
+    pendingHeroRange.value = value as RangeKey;
   }
-}
+};
 const confirmHeroPicker = () => {
   const target = HERO_RANGE_OPTIONS.find(
     (option) => option.key === pendingHeroRange.value
-  )
+  );
   if (target) {
-    heroRange.value = target
-    uni.showToast({ title: `已切换到${target.label}`, icon: 'none' })
-    fetchHeroData(target.key)
+    heroRange.value = target;
+    uni.showToast({ title: `已切换到${target.label}`, icon: 'none' });
+    fetchHeroData(target.key);
   }
-  closeHeroPicker()
-}
+  closeHeroPicker();
+};
 
 // ============= 「油费月度统计」 =============
 const monthlyRangeOptions: { key: RangeKey; label: string }[] = [
   { key: '3m', label: '三个月' },
   { key: '6m', label: '半年' },
   { key: '1y', label: '一年' },
-  { key: 'all', label: '全部' }
-]
-const monthlyRange = ref(monthlyRangeOptions[3]) // 默认半年
-const showMonthlyPicker = ref(false)
-const pendingMonthlyRange = ref<RangeKey>(monthlyRangeOptions[1].key)
-const monthlyChartData = ref<MonthlyBarPoint[]>([])
+  { key: 'all', label: '全部' },
+];
+const monthlyRange = ref(monthlyRangeOptions[3]); // 默认半年
+const showMonthlyPicker = ref(false);
+const pendingMonthlyRange = ref<RangeKey>(monthlyRangeOptions[1].key);
+const monthlyChartData = ref<MonthlyBarPoint[]>([]);
 
 // 用所有柱子的平均值做一条虚线参考
 const monthlyBaseline = computed(() => {
-  if (!monthlyChartData.value.length) return '0'
-  const sum = monthlyChartData.value.reduce((s, p) => s + p.value, 0)
-  const avg = sum / monthlyChartData.value.length
-  return avg.toFixed(1)
-})
+  if (!monthlyChartData.value.length) return '0';
+  const sum = monthlyChartData.value.reduce((s, p) => s + p.value, 0);
+  const avg = sum / monthlyChartData.value.length;
+  return avg.toFixed(1);
+});
 
 const fetchMonthlyCost = async (
   rangeKey: RangeKey = monthlyRange.value.key
 ) => {
   if (!isLoggedIn.value) {
-    monthlyChartData.value = []
-    return
+    monthlyChartData.value = [];
+    return;
   }
   try {
-    const backendRange = mapRangeToBackend(rangeKey)
-    const res = await axios.get(`/api/refuels/list?range=${backendRange}`)
-    const resp = res as any
+    const backendRange = mapRangeToBackend(rangeKey);
+    const res = await axios.get(`/api/refuels/list?range=${backendRange}`);
+    const resp = res as any;
     if (!resp || resp.success !== true) {
-      throw new Error('接口返回异常')
+      throw new Error('接口返回异常');
     }
-    const payload = resp.data || resp || {}
-    const list = (payload.records || []) as any[]
+    const payload = resp.data || resp || {};
+    const list = (payload.records || []) as any[];
 
-    const map = new Map<string, number>() // '2025-07' -> 金额
+    const map = new Map<string, number>(); // '2025-07' -> 金额
     list.forEach((item) => {
-      const dateStr = item.date || item.refuelDate
-      if (!dateStr) return
-      const d = new Date(String(dateStr).replace(/-/g, '/'))
-      if (Number.isNaN(d.getTime())) return
+      const dateStr = item.date || item.refuelDate;
+      if (!dateStr) return;
+      const d = new Date(String(dateStr).replace(/-/g, '/'));
+      if (Number.isNaN(d.getTime())) return;
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
         2,
         '0'
-      )}`
-      const prev = map.get(key) || 0
-      map.set(key, prev + Number(item.amount || 0))
-    })
+      )}`;
+      const prev = map.get(key) || 0;
+      map.set(key, prev + Number(item.amount || 0));
+    });
 
     monthlyChartData.value = Array.from(map.entries())
       .sort(([a], [b]) => (a > b ? 1 : -1))
       .map(([ym, amount]) => {
-        const m = Number(ym.slice(5))
+        const [yearStr, monthStr] = ym.split('-');
+        const year = Number(yearStr);
+        const monthNum = Number(monthStr);
         return {
-          month: `${m}月`,
-          value: Number(amount.toFixed(0))
-        }
-      })
+          year,
+          month: `${monthNum}月`,
+          value: Number(amount.toFixed(0)),
+        } as MonthlyBarPoint;
+      });
 
-    refreshMonthlyExpenseChart()
+    refreshMonthlyExpenseChart();
   } catch (err) {
-    console.warn('fetchMonthlyCost error:', err)
-    monthlyChartData.value = []
-    refreshMonthlyExpenseChart()
+    console.warn('fetchMonthlyCost error:', err);
+    monthlyChartData.value = [];
+    refreshMonthlyExpenseChart();
   }
-}
+};
 
 const cycleMonthlyRange = () => {
-  pendingMonthlyRange.value = monthlyRange.value.key
-  showMonthlyPicker.value = true
-}
+  pendingMonthlyRange.value = monthlyRange.value.key;
+  showMonthlyPicker.value = true;
+};
 const closeMonthlyPicker = () => {
-  showMonthlyPicker.value = false
-}
+  showMonthlyPicker.value = false;
+};
 const handleMonthlyRangeSelection = (value: string | null) => {
   if (value) {
-    pendingMonthlyRange.value = value as RangeKey
+    pendingMonthlyRange.value = value as RangeKey;
   }
-}
+};
 const confirmMonthlyPicker = () => {
   const target = monthlyRangeOptions.find(
     (option) => option.key === pendingMonthlyRange.value
-  )
+  );
   if (target) {
-    monthlyRange.value = target
-    uni.showToast({ title: `已切换到${target.label}`, icon: 'none' })
-    fetchMonthlyCost(target.key)
+    monthlyRange.value = target;
+    uni.showToast({ title: `已切换到${target.label}`, icon: 'none' });
+    fetchMonthlyCost(target.key);
   }
-  closeMonthlyPicker()
-}
+  closeMonthlyPicker();
+};
 
 // ============= 「油耗年度对比统计」 =============
 const yearlyRangeOptions: { key: RangeKey; label: string }[] = [
   { key: '1y', label: '一年' },
   { key: '2y', label: '两年' },
-  { key: '3y', label: '三年' } // 这里 UI 先保留，实际后端还是用 1y / all 兜底
-]
-const yearlyRange = ref(yearlyRangeOptions[2])
-const showYearlyPicker = ref(false)
-const pendingYearlyRange = ref<RangeKey>(yearlyRangeOptions[0].key)
-const yearlyChartData = ref<YearlyLinePoint[]>([])
+  { key: '3y', label: '三年' }, // 这里 UI 先保留，实际后端还是用 1y / all 兜底
+];
+const yearlyRange = ref(yearlyRangeOptions[2]);
+const showYearlyPicker = ref(false);
+const pendingYearlyRange = ref<RangeKey>(yearlyRangeOptions[0].key);
+const yearlyChartData = ref<YearlyLinePoint[]>([]);
 
 // 从 refuels 记录里按月份统计“平均油耗”（使用 consumption 有值的记录）
-const fetchYearlyTrend = async (
-  rangeKey: RangeKey = yearlyRange.value.key
-) => {
+const fetchYearlyTrend = async (rangeKey: RangeKey = yearlyRange.value.key) => {
   if (!isLoggedIn.value) {
-    yearlyChartData.value = []
-    return
+    yearlyChartData.value = [];
+    return;
   }
   try {
     // 为简单起见，这里 1y/2y/3y 都先按 1y 或 all 处理
-    const backendRange: BackendRangeKey =
-      rangeKey === '1y' ? '1y' : 'all'
-    const res = await axios.get(`/api/refuels/list?range=${backendRange}`)
-    const resp = res as any
+    const backendRange: BackendRangeKey = rangeKey === '1y' ? '1y' : 'all';
+    const res = await axios.get(`/api/refuels/list?range=${backendRange}`);
+    const resp = res as any;
     if (!resp || resp.success !== true) {
-      throw new Error('接口返回异常')
+      throw new Error('接口返回异常');
     }
-    const payload = resp.data || resp || {}
-    const list = (payload.records || []) as any[]
+    const payload = resp.data || resp || {};
+    const list = (payload.records || []) as any[];
 
-    const map = new Map<
-      number,
-      { sum: number; count: number }
-    >() // 月份 -> {总油耗, 次数}
+    const map = new Map<number, { sum: number; count: number }>(); // 月份 -> {总油耗, 次数}
 
     list.forEach((item) => {
-      const consumption = item?.consumption
-      if (consumption === '--' || consumption == null) return
-      const consumptionNum = Number(consumption)
-      if (!Number.isFinite(consumptionNum)) return
-      const dateStr = item.date || item.refuelDate
-      if (!dateStr) return
-      const d = new Date(String(dateStr).replace(/-/g, '/'))
-      if (Number.isNaN(d.getTime())) return
-      const m = d.getMonth() + 1
-      const bucket = map.get(m) || { sum: 0, count: 0 }
-      bucket.sum += consumptionNum
-      bucket.count += 1
-      map.set(m, bucket)
-    })
+      const consumption = item?.consumption;
+      if (consumption === '--' || consumption == null) return;
+      const consumptionNum = Number(consumption);
+      if (!Number.isFinite(consumptionNum)) return;
+      const dateStr = item.date || item.refuelDate;
+      if (!dateStr) return;
+      const d = new Date(String(dateStr).replace(/-/g, '/'));
+      if (Number.isNaN(d.getTime())) return;
+      const m = d.getMonth() + 1;
+      const bucket = map.get(m) || { sum: 0, count: 0 };
+      bucket.sum += consumptionNum;
+      bucket.count += 1;
+      map.set(m, bucket);
+    });
 
     yearlyChartData.value = Array.from(map.entries())
       .sort(([a], [b]) => a - b)
       .map(([m, { sum, count }]) => ({
         month: `${m}月`,
-        value: count > 0 ? Number((sum / count).toFixed(2)) : 0
-      }))
+        value: count > 0 ? Number((sum / count).toFixed(2)) : 0,
+      }));
 
-    refreshYearlyExpenseChart()
+    refreshYearlyExpenseChart();
   } catch (err) {
-    console.warn('fetchYearlyTrend error:', err)
-    yearlyChartData.value = []
-    refreshYearlyExpenseChart()
+    console.warn('fetchYearlyTrend error:', err);
+    yearlyChartData.value = [];
+    refreshYearlyExpenseChart();
   }
-}
+};
 
 const cycleYearlyRange = () => {
-  pendingYearlyRange.value = yearlyRange.value.key
-  showYearlyPicker.value = true
-}
+  pendingYearlyRange.value = yearlyRange.value.key;
+  showYearlyPicker.value = true;
+};
 const closeYearlyPicker = () => {
-  showYearlyPicker.value = false
-}
+  showYearlyPicker.value = false;
+};
 const handleYearlyRangeSelection = (value: string | null) => {
   if (value) {
-    pendingYearlyRange.value = value as RangeKey
+    pendingYearlyRange.value = value as RangeKey;
   }
-}
+};
 const confirmYearlyPicker = () => {
   const target = yearlyRangeOptions.find(
     (option) => option.key === pendingYearlyRange.value
-  )
+  );
   if (target) {
-    yearlyRange.value = target
-    uni.showToast({ title: `已切换到${target.label}`, icon: 'none' })
-    fetchYearlyTrend(target.key)
+    yearlyRange.value = target;
+    uni.showToast({ title: `已切换到${target.label}`, icon: 'none' });
+    fetchYearlyTrend(target.key);
   }
-  closeYearlyPicker()
-}
+  closeYearlyPicker();
+};
 
 // ============= ECharts 配置 =============
-let monthlyExpenseChart: any = null
-let yearlyExpenseChart: any = null
+let monthlyExpenseChart: any = null;
+let yearlyExpenseChart: any = null;
 
 const buildMonthlyOption = () => {
-  const categories = monthlyChartData.value.map((item) => item.month)
-  const seriesData = monthlyChartData.value.map((item) => item.value)
+  // 1）x 轴类目：就是每个点的 month
+  const categories = monthlyChartData.value.map((item) => item.month);
+  const years = monthlyChartData.value.map((item) => item.year);
 
-  // 空数据时给一个占位，避免 ECharts 报错
-  if (!categories.length) {
-    return {
-      title: {
-        text: '暂无数据',
-        left: 'center',
-        top: 'middle',
-        textStyle: { color: '#9ca3af', fontSize: 12 }
-      }
+  // 2）不同年份对应不同颜色
+  const yearColors: Record<number, string> = {
+    2024: '#E34CFF', // 粉色
+    2025: '#3A7AFE', // 蓝色
+    // 将来再加 2026 / 2027 自己往这里加就行
+  };
+
+  // 3）series 数据：每个点根据 year 上不同的颜色
+  const seriesData = monthlyChartData.value.map((item) => ({
+    value: item.value,
+    itemStyle: {
+      color: yearColors[item.year] || '#3A7AFE',
+    },
+  }));
+
+  // 4）x 轴 label：每个年份的第一个月带上“24年/25年”前缀
+  const labelFormatter = (value: string, index: number) => {
+    const year = years[index];
+    const prevYear = index > 0 ? years[index - 1] : null;
+    // 当前是这个年份的第一个点，就带上年份
+    if (index === 0 || year !== prevYear) {
+      // 只显示后两位：24年10月
+      const shortYear = String(year).slice(-2);
+      return `${shortYear}年${value}`;
     }
-  }
+    return value;
+  };
 
-  // 动态算一个稍微高一点的 max，让柱子不要顶到头
-  const maxVal = Math.max(...seriesData)
-  const yMax = maxVal > 0 ? Math.ceil(maxVal * 1.15) : 100
+  // 5）计算平均值，用来画红色虚线
+  const total = monthlyChartData.value.reduce(
+    (sum, item) => sum + item.value,
+    0
+  );
+  const avg = monthlyChartData.value.length
+    ? Number((total / monthlyChartData.value.length).toFixed(2))
+    : 0;
 
   return {
-    grid: { left: 36, right: 20, top: 24, bottom: 40 },
+    grid: { left: 32, right: 16, top: 36, bottom: 40 },
     tooltip: {
       trigger: 'axis',
-      // axisPointer: { type: 'shadow' },
+      axisPointer: { type: 'shadow' },
       formatter: (params: any[]) => {
-        const p = params[0]
-        // ✅ 用 \n，而不是 <br/>
-        return `${p.axisValue}\n油费：${p.data} 元`
-        // 如果你不想换行，也可以写成：
-        // return `${p.axisValue}  油费：${p.data} 元`
+        const p = params[0];
+        const idx = p.dataIndex;
+        const item = monthlyChartData.value[idx];
+        return `${item.year}年${item.month}<br/>油费：${item.value} 元`;
       },
-      backgroundColor: 'rgba(31,35,41,0.9)',
-      borderWidth: 0,
-      textStyle: { color: '#fff', fontSize: 11, lineHeight: 16 },
-      padding: [6, 8]
     },
     xAxis: {
       type: 'category',
       data: categories,
-      axisLine: { lineStyle: { color: '#d4d7de' } },
+      axisLine: { lineStyle: { color: '#d0d7e3' } },
       axisTick: { show: false },
-      axisLabel: { color: '#6b7280', fontSize: 11 }
+      axisLabel: {
+        color: '#5f6673',
+        fontSize: 12,
+        interval: 0,
+        formatter: labelFormatter,
+      },
     },
     yAxis: {
       type: 'value',
-      max: yMax,
-      splitLine: { lineStyle: { color: '#e5e7eb', type: 'dashed' } },
+      splitLine: { lineStyle: { color: '#eef1f5', type: 'dashed' } },
       axisLine: { show: false },
       axisTick: { show: false },
-      axisLabel: {
-        color: '#9ca3af',
-        fontSize: 11,
-        formatter: (val: number) => (val === 0 ? '0' : val.toFixed(0))
-      }
+      axisLabel: { color: '#8a93a0', fontSize: 12 },
     },
+    // 6）底部“平均 xx 元”的红虚线
     series: [
       {
         name: '油费',
         type: 'bar',
         data: seriesData,
-        barWidth: 20,
-        itemStyle: {
-          borderRadius: [8, 8, 4, 4],
-          shadowColor: 'rgba(15, 118, 110, 0.25)',
-          shadowBlur: 8,
-          shadowOffsetY: 4,
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: '#34d399' },   // 上：浅绿
-            { offset: 1, color: '#059669' }    // 下：深绿
-          ])
-        },
-        emphasis: {
-          itemStyle: {
-            shadowBlur: 12,
-            shadowOffsetY: 6,
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: '#6ee7b7' },
-              { offset: 1, color: '#10b981' }
-            ])
-          }
-        },
+        barWidth: 26,
         label: {
           show: true,
           position: 'top',
-          fontSize: 11,
-          color: '#374151',
-          formatter: '{c}'
+          color: '#1f2329',
+          fontSize: 12,
         },
         markLine: {
-          symbol: 'none',        // 去掉两端小圆点
+          symbol: 'none',
           label: {
             show: true,
-            position: 'middle',     // ✅ 不要默认 auto
-            verticalAlign: 'middle',  // 垂直居中
-            align: 'center',     // 水平居中
-            // formatter: `平均 ${monthlyBaseline.value} 元`,
-            // color: '#ff6b6b',
-            // fontSize: 11,
-            // padding: [2, 6],
-            // backgroundColor: 'rgba(255,107,107,0.3)',
-            // borderRadius: 6
+            position: 'middle', // ✅ 不要默认 auto
+            verticalAlign: 'middle', // 垂直居中
+            formatter: `${avg} 元`,
+            color: '#ff6b6b',
           },
-          // lineStyle: {
-          //   type: 'dashed',
-          //   color: '#ff6b6b',
-          //   width: 1
-          // },
-          data: [
-            {
-              yAxis: Number(monthlyBaseline.value),
-              lineStyle: { type: 'dashed', color: '#ff6b6b' },
-              label: {
-                formatter: `${monthlyBaseline.value} 元`,
-                color: '#ff6b6b'
-              }
-            }
-          ]
-        }
-      }
-    ]
-  }
-}
-
+          lineStyle: {
+            type: 'dashed',
+            color: '#ff6b6b',
+          },
+          data: [{ yAxis: avg }],
+        },
+      },
+    ],
+  };
+};
 
 const buildYearlyOption = () => {
-  const categories = yearlyChartData.value.map((item) => item.month)
-  const seriesData = yearlyChartData.value.map((item) => item.value)
+  const categories = yearlyChartData.value.map((item) => item.month);
+  const seriesData = yearlyChartData.value.map((item) => item.value);
 
   if (!categories.length) {
     return {
@@ -826,15 +817,15 @@ const buildYearlyOption = () => {
         text: '暂无数据',
         left: 'center',
         top: 'middle',
-        textStyle: { color: '#9ca3af', fontSize: 12 }
-      }
-    }
+        textStyle: { color: '#9ca3af', fontSize: 12 },
+      },
+    };
   }
 
-  const maxVal = Math.max(...seriesData)
-  const minVal = Math.min(...seriesData)
-  const yMax = Math.max(9, Math.ceil(maxVal + 0.5))
-  const yMin = Math.min(4, Math.floor(minVal - 0.5))
+  const maxVal = Math.max(...seriesData);
+  const minVal = Math.min(...seriesData);
+  const yMax = Math.max(9, Math.ceil(maxVal + 0.5));
+  const yMin = Math.min(4, Math.floor(minVal - 0.5));
 
   return {
     grid: { left: 40, right: 20, top: 30, bottom: 36 },
@@ -846,9 +837,9 @@ const buildYearlyOption = () => {
       padding: [6, 8],
       textStyle: { color: '#fff', fontSize: 11 },
       formatter: (params: any[]) => {
-        const p = params[0]
-        return `${p.axisValue}\n油耗：${p.data.toFixed(1)} L/100km`
-      }
+        const p = params[0];
+        return `${p.axisValue}\n油耗：${p.data.toFixed(1)} L/100km`;
+      },
     },
     xAxis: {
       type: 'category',
@@ -856,7 +847,7 @@ const buildYearlyOption = () => {
       boundaryGap: false,
       axisLine: { lineStyle: { color: '#d4d7de' } },
       axisTick: { show: false },
-      axisLabel: { color: '#6b7280', fontSize: 11 }
+      axisLabel: { color: '#6b7280', fontSize: 11 },
     },
     yAxis: {
       type: 'value',
@@ -869,8 +860,8 @@ const buildYearlyOption = () => {
       axisLabel: {
         color: '#9ca3af',
         fontSize: 11,
-        formatter: (val: number) => val.toFixed(1)
-      }
+        formatter: (val: number) => val.toFixed(1),
+      },
     },
     series: [
       {
@@ -882,24 +873,23 @@ const buildYearlyOption = () => {
         symbolSize: 6,
         lineStyle: {
           width: 2,
-          color: '#3b82f6'
+          color: '#3b82f6',
         },
         itemStyle: {
           color: '#2563eb',
           borderColor: '#eff6ff',
-          borderWidth: 2
+          borderWidth: 2,
         },
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
             { offset: 0, color: 'rgba(59,130,246,0.22)' },
-            { offset: 1, color: 'rgba(59,130,246,0.02)' }
-          ])
-        }
-      }
-    ]
-  }
-}
-
+            { offset: 1, color: 'rgba(59,130,246,0.02)' },
+          ]),
+        },
+      },
+    ],
+  };
+};
 
 const initMonthlyExpenseChart = (
   canvas: any,
@@ -907,12 +897,16 @@ const initMonthlyExpenseChart = (
   height: number,
   dpr: number
 ) => {
-  const chart = echarts.init(canvas, null, { width, height, devicePixelRatio: dpr })
-  canvas.setChart?.(chart)
-  chart.setOption(buildMonthlyOption())
-  monthlyExpenseChart = chart
-  return chart
-}
+  const chart = echarts.init(canvas, null, {
+    width,
+    height,
+    devicePixelRatio: dpr,
+  });
+  canvas.setChart?.(chart);
+  chart.setOption(buildMonthlyOption());
+  monthlyExpenseChart = chart;
+  return chart;
+};
 
 const initYearlyExpenseChart = (
   canvas: any,
@@ -920,44 +914,54 @@ const initYearlyExpenseChart = (
   height: number,
   dpr: number
 ) => {
-  const chart = echarts.init(canvas, null, { width, height, devicePixelRatio: dpr })
-  canvas.setChart?.(chart)
-  chart.setOption(buildYearlyOption())
-  yearlyExpenseChart = chart
-  return chart
-}
+  const chart = echarts.init(canvas, null, {
+    width,
+    height,
+    devicePixelRatio: dpr,
+  });
+  canvas.setChart?.(chart);
+  chart.setOption(buildYearlyOption());
+  yearlyExpenseChart = chart;
+  return chart;
+};
 
 const refreshMonthlyExpenseChart = () => {
-  monthlyExpenseChart?.setOption(buildMonthlyOption(), true)
-}
+  monthlyExpenseChart?.setOption(buildMonthlyOption(), true);
+};
 
 const refreshYearlyExpenseChart = () => {
-  yearlyExpenseChart?.setOption(buildYearlyOption(), true)
-}
+  yearlyExpenseChart?.setOption(buildYearlyOption(), true);
+};
 
-const monthlyExpenseEc = ref({ lazyLoad: false, onInit: initMonthlyExpenseChart })
-const yearlyExpenseEc = ref({ lazyLoad: false, onInit: initYearlyExpenseChart })
+const monthlyExpenseEc = ref({
+  lazyLoad: false,
+  onInit: initMonthlyExpenseChart,
+});
+const yearlyExpenseEc = ref({
+  lazyLoad: false,
+  onInit: initYearlyExpenseChart,
+});
 
 // ============= 生命周期 =============
 onUnmounted(() => {
-  monthlyExpenseChart?.dispose()
-  yearlyExpenseChart?.dispose()
-  monthlyExpenseChart = null
-  yearlyExpenseChart = null
-})
+  monthlyExpenseChart?.dispose();
+  yearlyExpenseChart?.dispose();
+  monthlyExpenseChart = null;
+  yearlyExpenseChart = null;
+});
 
 onShow(() => {
-  refreshLoginState()
+  refreshLoginState();
   fetchProfile().then(() => {
     // 先拿到交车日期，再拉统计
-    fetchHeroData(heroRange.value.key)
-  })
-  fetchMonthlyCost(monthlyRange.value.key)
-  fetchYearlyTrend(yearlyRange.value.key)
-})
+    fetchHeroData(heroRange.value.key);
+  });
+  fetchMonthlyCost(monthlyRange.value.key);
+  fetchYearlyTrend(yearlyRange.value.key);
+});
 
 // 时间线现在用不到真实数据，先保留工具函数（以后扩展用）
-const getCategoryMeta = (category: ExpenseCategory) => CATEGORY_META[category]
+const getCategoryMeta = (category: ExpenseCategory) => CATEGORY_META[category];
 </script>
 
 <style lang="scss" scoped>
@@ -987,7 +991,6 @@ const getCategoryMeta = (category: ExpenseCategory) => CATEGORY_META[category]
   overflow: hidden;
 }
 
-
 .hero-card__title-row,
 .hero-card__equation,
 .hero-divider,
@@ -1005,7 +1008,11 @@ const getCategoryMeta = (category: ExpenseCategory) => CATEGORY_META[category]
 }
 
 .hero-card::before {
-  background: radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.8), transparent 55%),
+  background: radial-gradient(
+      circle at 15% 20%,
+      rgba(255, 255, 255, 0.8),
+      transparent 55%
+    ),
     radial-gradient(circle at 85% 0%, rgba(255, 255, 255, 0.6), transparent 45%);
   opacity: 0.8;
 }
@@ -1013,7 +1020,12 @@ const getCategoryMeta = (category: ExpenseCategory) => CATEGORY_META[category]
 .hero-card::after {
   inset: auto -50% -60% -50%;
   height: 180rpx;
-  background: linear-gradient(120deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 255, 255, 0.05) 100%);
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
   filter: blur(6rpx);
 }
 
