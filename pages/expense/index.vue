@@ -723,17 +723,19 @@ const buildMonthlyOption = () => {
           formatter: '{c}'
         },
         markLine: {
-          // symbol: 'none',        // 去掉两端小圆点
-          // label: {
-          //   show: true,
-          //   position: 'end',     // ✅ 不要默认 auto
-          //   formatter: `平均 ${monthlyBaseline.value} 元`,
-          //   color: '#ff6b6b',
-          //   fontSize: 11,
-          //   padding: [2, 6],
-          //   backgroundColor: 'rgba(255,107,107,0.3)',
-          //   borderRadius: 6
-          // },
+          symbol: 'none',        // 去掉两端小圆点
+          label: {
+            show: true,
+            position: 'middle',     // ✅ 不要默认 auto
+            verticalAlign: 'middle',  // 垂直居中
+            align: 'center',     // 水平居中
+            // formatter: `平均 ${monthlyBaseline.value} 元`,
+            // color: '#ff6b6b',
+            // fontSize: 11,
+            // padding: [2, 6],
+            // backgroundColor: 'rgba(255,107,107,0.3)',
+            // borderRadius: 6
+          },
           // lineStyle: {
           //   type: 'dashed',
           //   color: '#ff6b6b',
