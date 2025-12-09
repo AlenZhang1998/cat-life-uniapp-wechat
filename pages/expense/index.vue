@@ -236,31 +236,56 @@ type MonthlyBarPoint = {
 };
 
 type YearlyLinePoint = {
-  month: string;
-  value: number;
+  year: number; // 年份，例如 2024
+  month: number; // 1-12
+  x: number; // 用来画图的横坐标（带一点偏移）
+  value: number; // 当次记录的油耗（consumption）
 };
 
-const CATEGORY_META: Record<
-  ExpenseCategory,
-  { label: string; icon: string; color: string; badgeBg: string }
-> = {
-  fuel: { label: '加油', icon: '⛽', color: '#1EC15F', badgeBg: '#E4FAED' },
-  maintenance: {
-    label: '保养',
-    icon: '🛠️',
-    color: '#3A7AFE',
-    badgeBg: '#E2EAFF',
-  },
-  parking: { label: '停车', icon: '🅿️', color: '#FFB74D', badgeBg: '#FFF2E1' },
-  charging: { label: '充电', icon: '⚡', color: '#00B8D9', badgeBg: '#D4F7FF' },
-  insurance: {
-    label: '保险',
-    icon: '🛡️',
-    color: '#8E64FF',
-    badgeBg: '#F0E7FF',
-  },
-  wash: { label: '洗车', icon: '💦', color: '#00BFA5', badgeBg: '#DDF8F3' },
+// ===== 年份颜色工具：通用给所有“按年份上色”的图用 =====
+
+// 一组基础调色板，可以按需再加
+const YEAR_COLOR_POOL = [
+  '#E34CFF', // 粉
+  '#3A7AFE', // 蓝
+  '#1EC15F', // 绿
+  '#FF9F0A', // 橙
+  '#FF4D4F', // 红
+  '#8B5CF6', // 紫
+  '#14B8A6', // 青
+  '#F97316', // 深橙
+  '#22C55E', // 深绿
+  '#0EA5E9', // 天蓝
+];
+
+// 根据年份稳定取色（同一年永远是同一个颜色）
+const getYearColor = (year: number) => {
+  if (!Number.isFinite(year)) return '#3A7AFE'; // 兜底色
+  const idx = Math.abs(year) % YEAR_COLOR_POOL.length;
+  return YEAR_COLOR_POOL[idx];
 };
+
+// const CATEGORY_META: Record<
+//   ExpenseCategory,
+//   { label: string; icon: string; color: string; badgeBg: string }
+// > = {
+//   fuel: { label: '加油', icon: '⛽', color: '#1EC15F', badgeBg: '#E4FAED' },
+//   maintenance: {
+//     label: '保养',
+//     icon: '🛠️',
+//     color: '#3A7AFE',
+//     badgeBg: '#E2EAFF',
+//   },
+//   parking: { label: '停车', icon: '🅿️', color: '#FFB74D', badgeBg: '#FFF2E1' },
+//   charging: { label: '充电', icon: '⚡', color: '#00B8D9', badgeBg: '#D4F7FF' },
+//   insurance: {
+//     label: '保险',
+//     icon: '🛡️',
+//     color: '#8E64FF',
+//     badgeBg: '#F0E7FF',
+//   },
+//   wash: { label: '洗车', icon: '💦', color: '#00BFA5', badgeBg: '#DDF8F3' },
+// };
 
 // ============= 登录状态 =============
 const { isLoggedIn, refreshLoginState } = useAuth();
@@ -283,18 +308,18 @@ const normalizeDateOnly = (value?: string | Date | null) => {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 };
 
-const calcDateRangeDays = (
-  start?: string | Date | null,
-  end?: string | Date | null
-): number | null => {
-  const startDate = normalizeDateOnly(start);
-  const endDate = normalizeDateOnly(end);
-  if (!startDate || !endDate || endDate.getTime() < startDate.getTime()) {
-    return null;
-  }
-  const diff = endDate.getTime() - startDate.getTime();
-  return Math.floor(diff / DAY_MS) + 1;
-};
+// const calcDateRangeDays = (
+//   start?: string | Date | null,
+//   end?: string | Date | null
+// ): number | null => {
+//   const startDate = normalizeDateOnly(start);
+//   const endDate = normalizeDateOnly(end);
+//   if (!startDate || !endDate || endDate.getTime() < startDate.getTime()) {
+//     return null;
+//   }
+//   const diff = endDate.getTime() - startDate.getTime();
+//   return Math.floor(diff / DAY_MS) + 1;
+// };
 
 // 计算“爱车相伴天数”（和首页保持一致）
 const calcHeroDays = (deliveryDate?: string | null) => {
@@ -680,48 +705,67 @@ const showYearlyPicker = ref(false);
 const pendingYearlyRange = ref<RangeKey>(yearlyRangeOptions[0].key);
 const yearlyChartData = ref<YearlyLinePoint[]>([]);
 
-// 从 refuels 记录里按月份统计“平均油耗”（使用 consumption 有值的记录）
+// 从 refuels 记录里，找出所有 consumption 有值的记录，
+// 每条记录都作为一个点画出来
 const fetchYearlyTrend = async (rangeKey: RangeKey = yearlyRange.value.key) => {
   if (!isLoggedIn.value) {
     yearlyChartData.value = [];
     return;
   }
   try {
-    // 为简单起见，这里 1y/2y/3y 都先按 1y 或 all 处理
+    // 简化：1y 用 1y，其它（2y/3y/all）都用 all
     const backendRange: BackendRangeKey = rangeKey === '1y' ? '1y' : 'all';
     const res = await axios.get(`/api/refuels/list?range=${backendRange}`);
     const resp = res as any;
     if (!resp || resp.success !== true) {
       throw new Error('接口返回异常');
     }
+
     const payload = resp.data || resp || {};
     const list = (payload.records || []) as any[];
 
-    const map = new Map<number, { sum: number; count: number }>(); // 月份 -> {总油耗, 次数}
+    const points: YearlyLinePoint[] = [];
+
+    // 统计同一年同一月已有多少条，用来做轻微横坐标偏移
+    const bucketCount = new Map<string, number>(); // key: "2025-10" -> n
 
     list.forEach((item) => {
       const consumption = item?.consumption;
-      if (consumption === '--' || consumption == null) return;
+      if (consumption == null || consumption === '--') return;
+
       const consumptionNum = Number(consumption);
       if (!Number.isFinite(consumptionNum)) return;
+
       const dateStr = item.date || item.refuelDate;
       if (!dateStr) return;
+
       const d = new Date(String(dateStr).replace(/-/g, '/'));
       if (Number.isNaN(d.getTime())) return;
-      const m = d.getMonth() + 1;
-      const bucket = map.get(m) || { sum: 0, count: 0 };
-      bucket.sum += consumptionNum;
-      bucket.count += 1;
-      map.set(m, bucket);
+
+      const year = d.getFullYear();
+      const month = d.getMonth() + 1; // 1-12
+
+      const key = `${year}-${month}`;
+      const prevCount = bucketCount.get(key) || 0;
+      bucketCount.set(key, prevCount + 1);
+
+      // 为了避免完全重合，让同一月份的第 1/2/3 条记录分别偏移一点点
+      const offsetIndex = prevCount; // 0,1,2,...
+      const offset = (offsetIndex - 0.5) * 0.12; // -0.06, 0.06, 0.18 ...
+      const x = month + offset; // 例如 10.06、9.94 之类
+
+      points.push({
+        year,
+        month,
+        x,
+        value: Number(consumptionNum.toFixed(2)),
+      });
     });
 
-    yearlyChartData.value = Array.from(map.entries())
-      .sort(([a], [b]) => a - b)
-      .map(([m, { sum, count }]) => ({
-        month: `${m}月`,
-        value: count > 0 ? Number((sum / count).toFixed(2)) : 0,
-      }));
+    // 先按年份，再按 x 坐标排序
+    points.sort((a, b) => (a.year === b.year ? a.x - b.x : a.year - b.year));
 
+    yearlyChartData.value = points;
     refreshYearlyExpenseChart();
   } catch (err) {
     console.warn('fetchYearlyTrend error:', err);
@@ -762,15 +806,10 @@ const buildMonthlyOption = () => {
   const categories = monthlyChartData.value.map((item) => item.month);
   const years = monthlyChartData.value.map((item) => item.year);
 
-  const yearColors: Record<number, string> = {
-    2024: '#E34CFF',
-    2025: '#3A7AFE',
-  };
-
   const seriesData = monthlyChartData.value.map((item) => ({
     value: item.value,
     itemStyle: {
-      color: yearColors[item.year] || '#3A7AFE',
+      color: getYearColor(item.year), // ✅ 按年份自动取色
     },
   }));
 
@@ -851,10 +890,8 @@ const buildMonthlyOption = () => {
 };
 
 const buildYearlyOption = () => {
-  const categories = yearlyChartData.value.map((item) => item.month);
-  const seriesData = yearlyChartData.value.map((item) => item.value);
-
-  if (!categories.length) {
+  const data = yearlyChartData.value;
+  if (!data.length) {
     return {
       title: {
         text: '暂无数据',
@@ -865,13 +902,53 @@ const buildYearlyOption = () => {
     };
   }
 
-  const maxVal = Math.max(...seriesData);
-  const minVal = Math.min(...seriesData);
+  // 所有出现过的年份
+  const years = Array.from(new Set(data.map((p) => p.year))).sort(
+    (a, b) => a - b
+  );
+
+  // Y 轴范围只看真实有值的点
+  const allValues = data.map((p) => p.value);
+  const maxVal = Math.max(...allValues);
+  const minVal = Math.min(...allValues);
   const yMax = Math.max(9, Math.ceil(maxVal + 0.5));
   const yMin = Math.min(4, Math.floor(minVal - 0.5));
 
+  // 每年一条折线
+  const series = years.map((year) => {
+    const points = data.filter((p) => p.year === year);
+
+    const color = getYearColor(year); // ✅ 按年份自动取色
+
+    return {
+      name: `${year}年`,
+      type: 'line',
+      smooth: true,
+      connectNulls: true,
+      symbol: 'circle',
+      symbolSize: 6,
+      lineStyle: {
+        width: 2,
+        color,
+      },
+      itemStyle: {
+        color,
+        borderColor: '#ffffff',
+        borderWidth: 2,
+      },
+      // 用数值型 x 轴：value = [x, y]
+      data: points.map((p) => [p.x, p.value]),
+    };
+  });
+
   return {
-    grid: { left: 40, right: 20, top: 30, bottom: 36 },
+    grid: { left: 40, right: 20, top: 30, bottom: 46 },
+    legend: {
+      bottom: 4,
+      data: years.map((y) => `${y}年`),
+      icon: 'circle',
+      textStyle: { color: '#6b7280', fontSize: 11 },
+    },
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'line' },
@@ -880,17 +957,33 @@ const buildYearlyOption = () => {
       padding: [6, 8],
       textStyle: { color: '#fff', fontSize: 11 },
       formatter: (params: any[]) => {
-        const p = params[0];
-        return `${p.axisValue}\n油耗：${p.data.toFixed(1)} L/100km`;
+        if (!params.length) return '';
+        const lines = params.map((p) => {
+          const xVal = p.value[0]; // [x,y]
+          const month = Math.round(xVal); // 10.06 -> 10 月
+          return `${p.marker} ${p.seriesName}：${p.value[1].toFixed(
+            2
+          )} L/100km`;
+        });
+        const firstX = params[0].value[0];
+        const monthLabel = `${Math.round(firstX)}月`;
+        return [monthLabel, ...lines].join('\n');
       },
     },
+    // X 轴：1~12 的数值轴，显示成「n 月」
     xAxis: {
-      type: 'category',
-      data: categories,
+      type: 'value',
+      min: 1,
+      max: 12,
+      interval: 1,
       boundaryGap: false,
       axisLine: { lineStyle: { color: '#d4d7de' } },
       axisTick: { show: false },
-      axisLabel: { color: '#6b7280', fontSize: 11 },
+      axisLabel: {
+        color: '#6b7280',
+        fontSize: 11,
+        formatter: (val: number) => `${val}月`,
+      },
     },
     yAxis: {
       type: 'value',
@@ -906,31 +999,7 @@ const buildYearlyOption = () => {
         formatter: (val: number) => val.toFixed(1),
       },
     },
-    series: [
-      {
-        name: '油耗',
-        type: 'line',
-        data: seriesData,
-        smooth: true,
-        symbol: 'circle',
-        symbolSize: 6,
-        lineStyle: {
-          width: 2,
-          color: '#3b82f6',
-        },
-        itemStyle: {
-          color: '#2563eb',
-          borderColor: '#eff6ff',
-          borderWidth: 2,
-        },
-        areaStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(59,130,246,0.22)' },
-            { offset: 1, color: 'rgba(59,130,246,0.02)' },
-          ]),
-        },
-      },
-    ],
+    series,
   };
 };
 
