@@ -11,18 +11,10 @@
           hover-class="location-row__hover"
           @tap="navigateToCity"
         >
-          <image
-            class="location-icon"
-            :src="locationIcon"
-            mode="aspectFit"
-          />
+          <image class="location-icon" :src="locationIcon" mode="aspectFit" />
           <text class="location-text">{{ city }}</text>
           <!-- <text class="location-arrow">v</text> -->
-          <image
-            class="dingwei_right"
-            :src="dingwei_right"
-            mode="aspectFit"
-          />
+          <image class="dingwei_right" :src="dingwei_right" mode="aspectFit" />
         </view>
         <view class="header-actions">
           <view class="chip primary">
@@ -40,10 +32,7 @@
         <!-- <text class="car-trim">{{ carInfo.trim }}</text> -->
       </view>
 
-      <view
-        v-if="oilPriceList.length"
-        class="price-row"
-      >
+      <view v-if="oilPriceList.length" class="price-row">
         <swiper
           class="price-swiper"
           :autoplay="oilPriceList.length > 1"
@@ -51,10 +40,7 @@
           :interval="2600"
           vertical
         >
-          <swiper-item
-            v-for="item in oilPriceList"
-            :key="item.label"
-          >
+          <swiper-item v-for="item in oilPriceList" :key="item.label">
             <view class="price-item">
               <text class="oil-type">{{ item.label }}</text>
               <text class="oil-price">
@@ -65,10 +51,7 @@
           </swiper-item>
         </swiper>
       </view>
-      <view
-        v-else
-        class="price-row"
-      >
+      <view v-else class="price-row">
         <text class="oil-type">{{ oilPrice.label }}</text>
         <text class="oil-price">
           <text class="price-number">{{ oilPrice.value }}</text>
@@ -105,7 +88,9 @@
             class="rating-badge"
             v-for="level in efficiencyLevels"
             :key="level.label"
-            :class="{ active: level.label === currentEfficiency.label && isLoggedIn }"
+            :class="{
+              active: level.label === currentEfficiency.label && isLoggedIn,
+            }"
             :style="getBadgeStyle(level)"
           >
             <text>{{ level.label }}</text>
@@ -202,259 +187,251 @@
 </template>
 
 <script setup lang="ts">
-import { onShow } from '@dcloudio/uni-app'
-import { onMounted, onUnmounted, ref, watch } from 'vue'
-import { STORAGE_KEYS } from '@/constants/storage'
-import { CITY_LIST } from '@/data/cities'
-import { normalizeCityName } from '@/utils/location'
-import locationIcon from '@/static/icons/dingwei.png'
-import dingwei_right from '@/static/icons/dingwei_right.png'
-import BottomActionBar from '@/components/BottomActionBar.vue'
-import RangePickerOverlay from '@/components/RangePickerOverlay.vue'
-import LoginOverlay from '@/components/LoginOverlay.vue'
-import { useAuth } from '@/utils/auth'
-import { axios } from '@/utils/request'
+import { onShow } from '@dcloudio/uni-app';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { STORAGE_KEYS } from '@/constants/storage';
+import { CITY_LIST } from '@/data/cities';
+import { normalizeCityName } from '@/utils/location';
+import locationIcon from '@/static/icons/dingwei.png';
+import dingwei_right from '@/static/icons/dingwei_right.png';
+import BottomActionBar from '@/components/BottomActionBar.vue';
+import RangePickerOverlay from '@/components/RangePickerOverlay.vue';
+import LoginOverlay from '@/components/LoginOverlay.vue';
+import { useAuth } from '@/utils/auth';
+import { axios } from '@/utils/request';
 
 // uCharts 官方 ECharts 适配仅支持 CJS 导入，这里使用 require 方式以兼容编译到小程序端
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const echarts = require('../../wxcomponents/ec-canvas/echarts')
+const echarts = require('../../wxcomponents/ec-canvas/echarts');
 
 // ================= 基础展示数据 =================
-const DEFAULT_CITY = '未定位'
+const DEFAULT_CITY = '未定位';
 const normalizeOrDefault = (value?: string | null) =>
-  normalizeCityName(value) || DEFAULT_CITY
+  normalizeCityName(value) || DEFAULT_CITY;
 
-const cityProvinceMap = new Map<string, string>()
+const cityProvinceMap = new Map<string, string>();
 
 const buildCityProvinceMap = () => {
   CITY_LIST.forEach((item) => {
-    const normalized = normalizeCityName(item.name)
+    const normalized = normalizeCityName(item.name);
     if (normalized && !cityProvinceMap.has(normalized)) {
-      cityProvinceMap.set(normalized, item.province)
+      cityProvinceMap.set(normalized, item.province);
     }
     if (!cityProvinceMap.has(item.name)) {
-      cityProvinceMap.set(item.name, item.province)
+      cityProvinceMap.set(item.name, item.province);
     }
-  })
-}
+  });
+};
 
-buildCityProvinceMap()
+buildCityProvinceMap();
 
 const resolveProvinceByCity = (cityName?: string | null) => {
-  if (!cityName) return ''
-  const normalized = normalizeCityName(cityName)
-  return (
-    cityProvinceMap.get(normalized) ||
-    cityProvinceMap.get(cityName) ||
-    ''
-  )
-}
+  if (!cityName) return '';
+  const normalized = normalizeCityName(cityName);
+  return cityProvinceMap.get(normalized) || cityProvinceMap.get(cityName) || '';
+};
 
-const { isLoggedIn, refreshLoginState } = useAuth()
-const showLoginSheet = ref(false)
+const { isLoggedIn, refreshLoginState } = useAuth();
+const showLoginSheet = ref(false);
 
-const city = ref(normalizeOrDefault(DEFAULT_CITY))
-const province = ref(resolveProvinceByCity(city.value))
+const city = ref(normalizeOrDefault(DEFAULT_CITY));
+const province = ref(resolveProvinceByCity(city.value));
 
 const applyCity = (value: string) => {
-  city.value = normalizeOrDefault(value)
-  province.value = resolveProvinceByCity(value)
-  console.log(233, 'applyCity = ', city.value, province.value)
-}
+  city.value = normalizeOrDefault(value);
+  province.value = resolveProvinceByCity(value);
+  console.log(233, 'applyCity = ', city.value, province.value);
+};
 watch(
   () => province.value,
   (v) => {
-    if (v) fetchOilPrice() // 有了省份，就获取油价
+    if (v) fetchOilPrice(); // 有了省份，就获取油价
   },
   { immediate: true }
-)
+);
 const syncSelectedCity = () => {
-  const stored = uni.getStorageSync(
-    STORAGE_KEYS.selectedCity
-  ) as string | null
+  const stored = uni.getStorageSync(STORAGE_KEYS.selectedCity) as string | null;
   if (stored) {
-    applyCity(stored)
+    applyCity(stored);
   }
-}
+};
 
-syncSelectedCity()
+syncSelectedCity();
 const carInfo = ref({
   brand: '思域',
   model: '2025款 240TURBO CVT',
   trim: '智趣Plus',
   name: '--', // 思域 · 2025款 240TURBO CVT
-  heroDays: 0
-})
+  heroDays: 0,
+});
 type OilPrice = {
-  label: string
-  value: string
-}
+  label: string;
+  value: string;
+};
 
 const oilPrice = ref<OilPrice>({
   label: '92#',
-  value: '--'
-})
+  value: '--',
+});
 const oilPriceList = ref<OilPrice[]>([
   // {label: "92#", value: "6.91"},
   // {label: "95#", value: "7.48"},
   // {label: "98#", value: "9.48"},
   // {label: "0#", value: "6.53"}
-])
-const oilLoading = ref(false)
-const oilError = ref('')
+]);
+const oilLoading = ref(false);
+const oilError = ref('');
 
 // 获取今日油价
 const fetchOilPrice = async () => {
   // if (!isLoggedIn.value) {
   //   return
   // }
-  if (!province.value) return
-  oilLoading.value = true
-  oilError.value = ''
+  if (!province.value) return;
+  oilLoading.value = true;
+  oilError.value = '';
 
   try {
-    const res = await axios.get('/api/oil-price?province=' + province.value)
+    const res = await axios.get('/api/oil-price?province=' + province.value);
 
-    const data = res as any
+    const data = res as any;
     if (!data?.success || !Array.isArray(data.prices)) {
-      oilError.value = '油价数据异常'
-      return
+      oilError.value = '油价数据异常';
+      return;
     }
-    console.log(276, 'data = ', data)
-    oilPriceList.value = data.prices
+    console.log(276, 'data = ', data);
+    oilPriceList.value = data.prices;
     if (data.prices.length) {
-      oilPrice.value = data.prices[0]
+      oilPrice.value = data.prices[0];
     }
-
   } catch (err) {
-    console.warn('fetchOilPrice error:', err)
-    oilError.value = '获取油价失败'
+    console.warn('fetchOilPrice error:', err);
+    oilError.value = '获取油价失败';
   } finally {
-    oilLoading.value = false
+    oilLoading.value = false;
   }
-}
+};
 
 // 用于控制提醒条是否展示，这里默认没有记录
-const hasRecentRefuel = ref(false)
+const hasRecentRefuel = ref(false);
 
 // 最新油耗展示值，默认0
-const latestFuel = ref('0')
+const latestFuel = ref('0');
 
 // 评级标签以静态数组呈现，方便后续根据接口高亮不同等级
 type EfficiencyLevel = {
-  label: string
-  badgeBg: string
-  badgeColor: string
-}
+  label: string;
+  badgeBg: string;
+  badgeColor: string;
+};
 
 const efficiencyLevels = ref<EfficiencyLevel[]>([
   { label: 'S', badgeBg: '#e4faed', badgeColor: '#07c263' },
   { label: 'A', badgeBg: '#f0f9e7', badgeColor: '#94d951' },
   { label: 'B', badgeBg: '#f4faeb', badgeColor: '#c7e969' },
   { label: 'C', badgeBg: '#fff7e4', badgeColor: '#f7d36c' },
-  { label: 'D', badgeBg: '#fff1df', badgeColor: '#fabb59' }
-])
-const currentEfficiency = ref<EfficiencyLevel>(efficiencyLevels.value[0])
+  { label: 'D', badgeBg: '#fff1df', badgeColor: '#fabb59' },
+]);
+const currentEfficiency = ref<EfficiencyLevel>(efficiencyLevels.value[0]);
 
 const getBadgeStyle = (level: EfficiencyLevel) => ({
   '--badge-bg': level.badgeBg,
-  '--badge-color': level.badgeColor
-})
+  '--badge-color': level.badgeColor,
+});
 
 // ⭐ 根据最新油耗计算评级
 const getGradeByFuel = (val: number): 'S' | 'A' | 'B' | 'C' | 'D' => {
-  if (val <= 5) return 'S'
-  if (val <= 6.5) return 'A'
-  if (val <= 7.5) return 'B'
-  if (val <= 9) return 'C'
-  return 'D'
-}
+  if (val <= 5) return 'S';
+  if (val <= 6.5) return 'A';
+  if (val <= 7.5) return 'B';
+  if (val <= 9) return 'C';
+  return 'D';
+};
 
 watch(latestFuel, (newVal) => {
-  const num = Number(newVal)
+  const num = Number(newVal);
   if (Number.isNaN(num)) {
-    currentEfficiency.value = efficiencyLevels.value[0]
-    return
+    currentEfficiency.value = efficiencyLevels.value[0];
+    return;
   }
-  const grade = getGradeByFuel(num)
+  const grade = getGradeByFuel(num);
   const target =
     efficiencyLevels.value.find((item) => item.label === grade) ||
-    efficiencyLevels.value[0]
-  currentEfficiency.value = target
+    efficiencyLevels.value[0];
+  currentEfficiency.value = target;
   // console.log(1111, currentEfficiency.value)
-})
+});
 
 // 计算爱车相伴天数
 const calcHeroDays = (deliveryDate?: string | null) => {
-  if (!deliveryDate) return 0
-  const parsed = new Date(deliveryDate.replace(/-/g, '/'))
-  if (Number.isNaN(parsed.getTime())) return 0
-  const diff = Date.now() - parsed.getTime()
-  if (diff < 0) return 0
-  const days = Math.floor(diff / (24 * 60 * 60 * 1000))
-  return days + 1 // 当天算第 1 天
-}
+  if (!deliveryDate) return 0;
+  const parsed = new Date(deliveryDate.replace(/-/g, '/'));
+  if (Number.isNaN(parsed.getTime())) return 0;
+  const diff = Date.now() - parsed.getTime();
+  if (diff < 0) return 0;
+  const days = Math.floor(diff / (24 * 60 * 60 * 1000));
+  return days + 1; // 当天算第 1 天
+};
 
 // 获取用户资料信息
 const fetchProfile = async () => {
   if (!isLoggedIn.value) {
-    return
+    return;
   }
   try {
-    const res = await axios.get('/api/profile')
+    const res = await axios.get('/api/profile');
     // console.log(1111, res)
-    const resp = res as any
-    const data = resp.data || resp || {}
+    const resp = res as any;
+    const data = resp.data || resp || {};
 
-    carInfo.value.name = data.favoriteCarModel
-    carInfo.value.heroDays = calcHeroDays(data.deliveryDate)
+    carInfo.value.name = data.favoriteCarModel;
+    carInfo.value.heroDays = calcHeroDays(data.deliveryDate);
   } catch (err) {
-    console.warn('fetchProfile error:', err)
+    console.warn('fetchProfile error:', err);
   }
-}
+};
 
 // 统计口径筛选
-type RangeKey = '3m' | '6m' | '1y' | 'all'
+type RangeKey = '3m' | '6m' | '1y' | 'all';
 
 type RangeOption = {
-  key: RangeKey
-  label: string
-}
+  key: RangeKey;
+  label: string;
+};
 
 const rangeOptions: RangeOption[] = [
   { key: '3m', label: '三个月' },
   { key: '6m', label: '半年' },
   { key: '1y', label: '一年' },
-  { key: 'all', label: '全部' }
-]
+  { key: 'all', label: '全部' },
+];
 
-const DAY_MS = 24 * 60 * 60 * 1000
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 const normalizeDateOnly = (value?: string | Date | null) => {
-  if (!value) return null
+  if (!value) return null;
   const date =
-    value instanceof Date ? value : new Date(String(value).replace(/-/g, '/'))
+    value instanceof Date ? value : new Date(String(value).replace(/-/g, '/'));
 
-  if (Number.isNaN(date.getTime())) return null
+  if (Number.isNaN(date.getTime())) return null;
 
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate())
-}
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+};
 
 const calcDateRangeDays = (
   start?: string | Date | null,
   end?: string | Date | null
 ): number | null => {
-  const startDate = normalizeDateOnly(start)
-  const endDate = normalizeDateOnly(end)
+  const startDate = normalizeDateOnly(start);
+  const endDate = normalizeDateOnly(end);
 
   if (!startDate || !endDate || endDate.getTime() < startDate.getTime()) {
-    return null
+    return null;
   }
 
-  const diff = endDate.getTime() - startDate.getTime()
-  return Math.floor(diff / DAY_MS) + 1
-}
-
+  const diff = endDate.getTime() - startDate.getTime();
+  return Math.floor(diff / DAY_MS) + 1;
+};
 
 // 统计区块的数据源，这里把单位也一起放进来，便于展示
 const stats = ref([
@@ -463,110 +440,110 @@ const stats = ref([
     label: '平均油耗',
     value: '0',
     unit: '升/百公里',
-    accent: true
+    accent: true,
   },
   {
     key: 'mileageAvg',
     label: '平均行程',
     value: '0',
-    unit: '公里/天'
+    unit: '公里/天',
   },
   {
     key: 'costAvg',
     label: '平均油费',
     value: '0',
     unit: '元/公里',
-    accent: true
+    accent: true,
   },
   {
     key: 'mileageTotal',
     label: '累计行程',
     value: '0',
-    unit: '公里'
+    unit: '公里',
   },
   {
     key: 'costTotal',
     label: '累计油费',
     value: '0',
-    unit: '元'
+    unit: '元',
   },
   {
     key: 'discountTotal',
     label: '总计优惠',
     value: '0',
-    unit: '元'
-  }
-])
+    unit: '元',
+  },
+]);
 
 const fetchRefuelData = async (rangeKey: RangeKey = rangeOptions[3].key) => {
   if (!isLoggedIn.value) {
-    hasRecentRefuel.value = false
-    latestFuel.value = '0'
-    return
+    hasRecentRefuel.value = false;
+    latestFuel.value = '0';
+    return;
   }
 
   try {
     // const year = new Date().getFullYear()
-    const resolvedRange = rangeKey || rangeOptions[3].key
+    const resolvedRange = rangeKey || rangeOptions[3].key;
     // let url = `/api/refuels/list?year=${year}`
-    
+
     // if (resolvedRange !== 'all') {
     //   url += `&range=${resolvedRange}`
     // }
-    const url = `/api/refuels/list?range=${resolvedRange || 'all'}`
+    const url = `/api/refuels/list?range=${resolvedRange || 'all'}`;
 
-    const res = await axios.get(url)
-    const resp = res as any
+    const res = await axios.get(url);
+    const resp = res as any;
 
     if (!resp || resp.success !== true) {
-      throw new Error('接口返回异常')
+      throw new Error('接口返回异常');
     }
-    const payload = resp.data || resp || {}
-    const s = payload.summary || {}
-    const list = (payload.records || []) as any[]
+    const payload = resp.data || resp || {};
+    const s = payload.summary || {};
+    const list = (payload.records || []) as any[];
 
     // 是否有加油记录 -> 控制“没有记录”提示条
-    hasRecentRefuel.value = Array.isArray(list) && list.length > 0
+    hasRecentRefuel.value = Array.isArray(list) && list.length > 0;
 
     // ===== 最新油耗：取最近一条有有效 consumption 的记录（非 '--'） =====
     const latestWithConsumption = list.find((item: any) => {
-      const val = item?.consumption
-      if (val === '--' || val == null) return false
-      const num = Number(val)
-      return Number.isFinite(num)
-    })
+      const val = item?.consumption;
+      if (val === '--' || val == null) return false;
+      const num = Number(val);
+      return Number.isFinite(num);
+    });
     latestFuel.value = latestWithConsumption
       ? Number(latestWithConsumption.consumption).toFixed(2)
-      : '0'
+      : '0';
 
     // ===== 统计区块数据 =====
     const avgFuel =
       s.avgFuelConsumption != null
         ? Number(s.avgFuelConsumption).toFixed(2)
-        : '--'
+        : '--';
     const totalDistanceNum =
-      s.totalDistance != null ? Number(s.totalDistance) : NaN
+      s.totalDistance != null ? Number(s.totalDistance) : NaN;
     const totalDistance = Number.isFinite(totalDistanceNum)
       ? String(Math.round(totalDistanceNum))
-      : '--'
+      : '--';
     const totalAmount =
-      s.totalAmount != null ? Number(s.totalAmount).toFixed(2) : '--'
+      s.totalAmount != null ? Number(s.totalAmount).toFixed(2) : '--';
     const avgPricePerL =
-      s.avgPricePerL != null ? Number(s.avgPricePerL).toFixed(2) : '--'
+      s.avgPricePerL != null ? Number(s.avgPricePerL).toFixed(2) : '--';
 
     const resolvedDateRangeDays =
       typeof s.dateRangeDays === 'number'
         ? s.dateRangeDays
-        : calcDateRangeDays(s.startDate, s.endDate)
+        : calcDateRangeDays(s.startDate, s.endDate);
     const validDateRangeDays =
       typeof resolvedDateRangeDays === 'number' && resolvedDateRangeDays > 0
         ? resolvedDateRangeDays
-        : null
+        : null;
 
     const mileageAvg =
       Number.isFinite(totalDistanceNum) && validDateRangeDays
         ? (totalDistanceNum / validDateRangeDays).toFixed(2)
-        : '--'
+        : '--';
 
     stats.value = [
       {
@@ -574,108 +551,119 @@ const fetchRefuelData = async (rangeKey: RangeKey = rangeOptions[3].key) => {
         label: '平均油耗',
         value: avgFuel,
         unit: '升/百公里',
-        accent: true
+        accent: true,
       },
       {
         key: 'mileageAvg',
         label: '平均行程',
         value: mileageAvg,
-        unit: '公里/天'
+        unit: '公里/天',
       },
       {
         key: 'costAvg',
         label: '平均油费',
         value: avgPricePerL === '--' ? '--' : avgPricePerL,
         unit: '元/升',
-        accent: true
+        accent: true,
       },
       {
         key: 'mileageTotal',
         label: '累计行程',
         value: totalDistance,
-        unit: '公里'
+        unit: '公里',
       },
       {
         key: 'costTotal',
         label: '累计油费',
         value: totalAmount,
-        unit: '元'
+        unit: '元',
       },
       {
         key: 'discountTotal',
         label: '总计优惠',
         value: '0',
-        unit: '元'
-      }
-    ]
-    
+        unit: '元',
+      },
+    ];
   } catch (err) {
-    console.warn('fetchRefuelData error:', err)
+    console.warn('fetchRefuelData error:', err);
   }
-}
-
-
+};
 
 // ================ 油耗趋势图 ================
 
 // 根据加油记录构造油耗趋势数据
 const fetchTrendData = async (rangeKey: RangeKey = rangeOptions[3].key) => {
   if (!isLoggedIn.value) {
-    trendData.value = []
-    return
+    trendData.value = [];
+    return;
   }
 
   try {
-    const resolvedRange = rangeKey || rangeOptions[3].key
-    const url = `/api/refuels/list?range=${resolvedRange || 'all'}`
+    const resolvedRange = rangeKey || rangeOptions[3].key;
+    const url = `/api/refuels/list?range=${resolvedRange || 'all'}`;
 
-    const res = await axios.get(url)
-    const resp = res as any
+    const res = await axios.get(url);
+    const resp = res as any;
 
-    const payload = resp.data || resp || {}
-    const s = payload.summary || {}
-    const list = (payload.records || []) as any[]
+    const payload = resp.data || resp || {};
+    const s = payload.summary || {};
+    const list = (payload.records || []) as any[];
 
     // 基准油耗（用于城市高/低位线）：用平均油耗做一个 ±15% 的区间
     const base =
       typeof s.avgFuelConsumption === 'number' && s.avgFuelConsumption > 0
         ? Number(s.avgFuelConsumption)
-        : 7 // 没数据给个兜底值
+        : 7; // 没数据给个兜底值
 
-    const cityHigh = Number((base * 1.15).toFixed(2))
-    const cityLow = Number((base * 0.85).toFixed(2))
+    const cityHigh = Number((base * 1.15).toFixed(2));
+    const cityLow = Number((base * 0.85).toFixed(2));
 
     // 列表接口是「最近在前」，趋势要按时间正序画，所以要 reverse 一下，仅保留有有效 consumption 的记录
     const points = list
       .slice()
       .reverse()
       .filter((item: any) => {
-        const consumption = item?.consumption
-        if (consumption === '--' || consumption == null) return false
-        const num = Number(consumption)
-        return Number.isFinite(num)
+        const consumption = item?.consumption;
+        if (consumption === '--' || consumption == null) return false;
+        const num = Number(consumption);
+        return Number.isFinite(num);
       })
-      .map((item: any) => ({
-        day: item.monthDay || '',                                // X轴标签
-        value: Number(Number(item.consumption).toFixed(2)),      // 当前车油耗
-        cityHigh,
-        cityLow
-      }))
+      .map((item: any) => {
+        const dateStr = item.date || item.refuelDate;
+        let year = NaN;
 
-    trendData.value = points
+        if (dateStr) {
+          const d = new Date(String(dateStr).replace(/-/g, '/'));
+          if (!Number.isNaN(d.getTime())) {
+            year = d.getFullYear();
+          }
+        }
+
+        return {
+          day: item.monthDay || '', // X 轴显示用，比如 10/09
+          year, // 用来判断是否跨年
+          value: Number(Number(item.consumption).toFixed(2)), // 当前车油耗
+          cityHigh,
+          cityLow,
+        };
+      });
+
+    trendData.value = points;
   } catch (err) {
-    console.warn('fetchTrendData error:', err)
-    trendData.value = []
+    console.warn('fetchTrendData error:', err);
+    trendData.value = [];
   }
-}
+};
 
 // 油耗趋势数据，value 直接对应折线的高度
 type TrendPoint = {
-  day: string
-  value: number
-  cityHigh: number
-  cityLow: number
-}
+  day: string; // '10/09'
+  year: number; // 2024 / 2025
+  value: number;
+  cityHigh: number;
+  cityLow: number;
+};
 
 const trendData = ref<TrendPoint[]>([
   // { day: '2025-10-01', value: 4.9, cityHigh: 8.2, cityLow: 6.1 },
@@ -683,99 +671,100 @@ const trendData = ref<TrendPoint[]>([
   // { day: '2025-10-04', value: 8.1, cityHigh: 8.05, cityLow: 6.0 },
   // { day: '2025-10-06', value: 7.3, cityHigh: 8.0, cityLow: 5.96 },
   // { day: '2025-10-09', value: 4.8, cityHigh: 7.95, cityLow: 5.92 }
-])
+]);
 
-type RangeTarget = 'stats' | 'trend'
+type RangeTarget = 'stats' | 'trend';
 
-const statsRange = ref<RangeOption>(rangeOptions[3])
-const trendRange = ref<RangeOption>(rangeOptions[3])
-const showRangePicker = ref(false)
-const pendingRangeKey = ref<RangeKey>(rangeOptions[3].key)
-const activeRangeTarget = ref<RangeTarget>('stats')
-const isPageAnimated = ref(false)
-let enterAnimationTimer: ReturnType<typeof setTimeout> | null = null
+const statsRange = ref<RangeOption>(rangeOptions[3]);
+const trendRange = ref<RangeOption>(rangeOptions[3]);
+const showRangePicker = ref(false);
+const pendingRangeKey = ref<RangeKey>(rangeOptions[3].key);
+const activeRangeTarget = ref<RangeTarget>('stats');
+const isPageAnimated = ref(false);
+let enterAnimationTimer: ReturnType<typeof setTimeout> | null = null;
 
 const resolveTargetRange = (target: RangeTarget) =>
-  target === 'stats' ? statsRange : trendRange
+  target === 'stats' ? statsRange : trendRange;
 
 const runPageEnterAnimation = () => {
   if (enterAnimationTimer) {
-    clearTimeout(enterAnimationTimer)
-    enterAnimationTimer = null
+    clearTimeout(enterAnimationTimer);
+    enterAnimationTimer = null;
   }
   // Reset visible state before re-triggering the transition
-  isPageAnimated.value = false
+  isPageAnimated.value = false;
   enterAnimationTimer = setTimeout(() => {
-    isPageAnimated.value = true
-  }, 30)
-}
+    isPageAnimated.value = true;
+  }, 30);
+};
 
 const openRangePicker = (target: RangeTarget) => {
-  activeRangeTarget.value = target
-  pendingRangeKey.value = resolveTargetRange(target).value.key
-  showRangePicker.value = true
-}
+  activeRangeTarget.value = target;
+  pendingRangeKey.value = resolveTargetRange(target).value.key;
+  showRangePicker.value = true;
+};
 
 const closeRangePicker = () => {
-  showRangePicker.value = false
-}
+  showRangePicker.value = false;
+};
 
 const handlePendingRangeChange = (value: RangeKey | null) => {
   if (value) {
-    pendingRangeKey.value = value
+    pendingRangeKey.value = value;
   }
-}
+};
 
 const applyRangeSelection = (target: RangeTarget, key: RangeKey) => {
-  const targetOption = rangeOptions.find((option) => option.key === key)
-  if (!targetOption) return
+  const targetOption = rangeOptions.find((option) => option.key === key);
+  if (!targetOption) return;
 
-  const rangeRef = resolveTargetRange(target)
-  const changed = rangeRef.value.key !== targetOption.key
-  rangeRef.value = targetOption
-  pendingRangeKey.value = targetOption.key
+  const rangeRef = resolveTargetRange(target);
+  const changed = rangeRef.value.key !== targetOption.key;
+  rangeRef.value = targetOption;
+  pendingRangeKey.value = targetOption.key;
 
   if (changed) {
     if (target === 'stats') {
-      fetchRefuelData(targetOption.key)
+      fetchRefuelData(targetOption.key);
     } else {
       // 趋势卡片的筛选变化时，单独拉趋势数据
-      fetchTrendData(targetOption.key)
+      fetchTrendData(targetOption.key);
     }
   }
 
-  const targetLabel = target === 'stats' ? '统计' : '趋势'
+  const targetLabel = target === 'stats' ? '统计' : '趋势';
   uni.showToast({
     title: `${targetLabel}已切换到${targetOption.label}`,
-    icon: 'none'
-  })
-}
+    icon: 'none',
+  });
+};
 
 const confirmRangePicker = (value?: RangeKey | null) => {
-  const finalKey = value || pendingRangeKey.value
+  const finalKey = value || pendingRangeKey.value;
   if (finalKey) {
-    applyRangeSelection(activeRangeTarget.value, finalKey)
+    applyRangeSelection(activeRangeTarget.value, finalKey);
   }
-  closeRangePicker()
-}
+  closeRangePicker();
+};
 
-let fuelTrendChart: any = null
+let fuelTrendChart: any = null;
 
 const buildTrendOption = () => {
-  const categories = trendData.value.map((item) => item.day)
-  const actualSeries = trendData.value.map((item) => item.value)
-  const highSeries = trendData.value.map((item) => item.cityHigh)
-  const lowSeries = trendData.value.map((item) => item.cityLow)
-  const cityLegendHigh = `${city.value}油耗参考-高位`
-  const cityLegendLow = `${city.value}油耗参考-低位`
+  const years = trendData.value.map((item) => item.year); // ⭐ 新增：每个点对应的年份
+  const categories = trendData.value.map((item) => item.day);
+  const actualSeries = trendData.value.map((item) => item.value);
+  const highSeries = trendData.value.map((item) => item.cityHigh);
+  const lowSeries = trendData.value.map((item) => item.cityLow);
+  const cityLegendHigh = `${city.value}油耗参考-高位`;
+  const cityLegendLow = `${city.value}油耗参考-低位`;
   const allValues = [...actualSeries, ...highSeries, ...lowSeries].filter(
     (v) => typeof v === 'number' && !Number.isNaN(v)
-  )
+  );
 
   const yMin =
-    allValues.length > 0 ? Math.floor(Math.min(...allValues) - 0.5) : 4
+    allValues.length > 0 ? Math.floor(Math.min(...allValues) - 0.5) : 4;
   const yMax =
-    allValues.length > 0 ? Math.ceil(Math.max(...allValues) + 0.5) : 9
+    allValues.length > 0 ? Math.ceil(Math.max(...allValues) + 0.5) : 9;
 
   return {
     color: ['#F47274', '#11B561', '#AEB5C0'],
@@ -788,9 +777,9 @@ const buildTrendOption = () => {
       itemHeight: 6,
       textStyle: {
         color: '#5F6673',
-        fontSize: 8
+        fontSize: 8,
       },
-      data: [cityLegendHigh, '油耗', cityLegendLow]
+      data: [cityLegendHigh, '油耗', cityLegendLow],
     },
     tooltip: {
       trigger: 'axis',
@@ -798,22 +787,22 @@ const buildTrendOption = () => {
       borderWidth: 0,
       textStyle: {
         color: '#fff',
-        fontSize: 12
+        fontSize: 12,
       },
       axisPointer: {
         type: 'line',
         lineStyle: {
           color: '#0AB068',
           width: 1,
-          type: 'dashed'
-        }
-      }
+          type: 'dashed',
+        },
+      },
     },
     grid: {
       left: 40,
       right: 30,
       top: 40,
-      bottom: 60
+      bottom: 60,
     },
     xAxis: {
       type: 'category',
@@ -824,9 +813,28 @@ const buildTrendOption = () => {
       axisLabel: {
         color: '#8a93a0',
         fontSize: 12,
-        margin: 16
+        margin: 16,
+        interval: 0,
+        formatter: (value: string, index: number) => {
+          const year = years[index];
+          const prevYear = index > 0 ? years[index - 1] : null;
+
+          // year 解析失败，就正常显示
+          if (!year || Number.isNaN(year)) {
+            return value;
+          }
+
+          // 第一个点，或者年份发生变化 -> 带上年份前缀：24年10/09
+          if (index === 0 || year !== prevYear) {
+            const shortYear = String(year).slice(-2);
+            return `${shortYear}年${value}`;
+          }
+
+          // 同一年 -> 只显示日期：10/09
+          return value;
+        },
       },
-      splitLine: { show: false }
+      splitLine: { show: false },
     },
     yAxis: {
       type: 'value',
@@ -840,11 +848,11 @@ const buildTrendOption = () => {
       axisLabel: {
         color: '#8a93a0',
         fontSize: 12,
-        formatter: (value: number) => value.toFixed(1)
+        formatter: (value: number) => value.toFixed(1),
       },
       splitLine: {
-        lineStyle: { color: '#E1E6EF', type: 'dashed' }
-      }
+        lineStyle: { color: '#E1E6EF', type: 'dashed' },
+      },
     },
     series: [
       {
@@ -854,7 +862,7 @@ const buildTrendOption = () => {
         smooth: true,
         showSymbol: true,
         symbolSize: 2,
-        lineStyle: { width: 1 }
+        lineStyle: { width: 1 },
       },
       {
         name: '油耗',
@@ -874,10 +882,10 @@ const buildTrendOption = () => {
             y2: 1,
             colorStops: [
               { offset: 0, color: 'rgba(17,181,97,0.18)' },
-              { offset: 1, color: 'rgba(17,181,97,0)' }
-            ]
-          }
-        }
+              { offset: 1, color: 'rgba(17,181,97,0)' },
+            ],
+          },
+        },
       },
       {
         name: cityLegendLow,
@@ -887,11 +895,11 @@ const buildTrendOption = () => {
         showSymbol: true,
         symbolSize: 2,
         lineStyle: { width: 1, type: 'dashed', color: '#AEB5C0' },
-        itemStyle: { color: '#AEB5C0' }
-      }
-    ]
-  }
-}
+        itemStyle: { color: '#AEB5C0' },
+      },
+    ],
+  };
+};
 
 const initFuelTrendChart = (
   canvas: any,
@@ -900,47 +908,47 @@ const initFuelTrendChart = (
   dpr: number
 ) => {
   if (!canvas) {
-    return null
+    return null;
   }
   const chart = echarts.init(canvas, null, {
     width,
     height,
-    devicePixelRatio: dpr
-  })
-  canvas.setChart?.(chart)
-  chart.setOption(buildTrendOption())
-  fuelTrendChart = chart
-  return chart
-}
+    devicePixelRatio: dpr,
+  });
+  canvas.setChart?.(chart);
+  chart.setOption(buildTrendOption());
+  fuelTrendChart = chart;
+  return chart;
+};
 
 const fuelTrendEc = ref({
   lazyLoad: false,
-  onInit: initFuelTrendChart
-})
+  onInit: initFuelTrendChart,
+});
 
 const refreshFuelTrendChart = () => {
   if (fuelTrendChart) {
-    fuelTrendChart.setOption(buildTrendOption(), true)
+    fuelTrendChart.setOption(buildTrendOption(), true);
   }
-}
+};
 
 watch(
   trendData,
   () => {
-    refreshFuelTrendChart()
+    refreshFuelTrendChart();
   },
   { deep: true }
-)
+);
 
 watch(city, () => {
-  refreshFuelTrendChart()
-})
+  refreshFuelTrendChart();
+});
 
 const handleLoginRequired = () => {
   if (!isLoggedIn.value) {
-    showLoginSheet.value = true
+    showLoginSheet.value = true;
   }
-}
+};
 
 /**
  * 统一处理页面跳转或后续功能入口
@@ -949,9 +957,9 @@ const handleLoginRequired = () => {
 const handleNavigate = (actionKey: string) => {
   uni.showToast({
     title: `功能 ${actionKey} 开发中`,
-    icon: 'none'
-  })
-}
+    icon: 'none',
+  });
+};
 
 const navigateToCity = () => {
   uni.navigateTo({
@@ -959,36 +967,36 @@ const navigateToCity = () => {
     events: {
       'city-selected': (selectedCity: string) => {
         if (selectedCity) {
-          applyCity(selectedCity)
+          applyCity(selectedCity);
         }
-      }
-    }
-  })
-}
+      },
+    },
+  });
+};
 
 onShow(() => {
-  refreshLoginState()
-  syncSelectedCity()
-  runPageEnterAnimation()
+  refreshLoginState();
+  syncSelectedCity();
+  runPageEnterAnimation();
 
   // 获取用户资料信息和加油记录数据
-  fetchProfile()
-  fetchRefuelData(statsRange.value.key)
+  fetchProfile();
+  fetchRefuelData(statsRange.value.key);
   // 获取趋势数据
-  fetchTrendData(trendRange.value.key)
-})
+  fetchTrendData(trendRange.value.key);
+});
 
 onMounted(() => {
-  runPageEnterAnimation()
-})
+  runPageEnterAnimation();
+});
 onUnmounted(() => {
-  fuelTrendChart?.dispose()
-  fuelTrendChart = null
+  fuelTrendChart?.dispose();
+  fuelTrendChart = null;
   if (enterAnimationTimer) {
-    clearTimeout(enterAnimationTimer)
-    enterAnimationTimer = null
+    clearTimeout(enterAnimationTimer);
+    enterAnimationTimer = null;
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>
@@ -997,7 +1005,9 @@ onUnmounted(() => {
 .home-page {
   // padding: 24rpx 32rpx 120rpx;
   padding: 24rpx 32rpx calc(180rpx + env(safe-area-inset-bottom, 0px));
-  padding-top: calc(34rpx + var(--status-bar-height, env(safe-area-inset-top, 0px)));
+  padding-top: calc(
+    34rpx + var(--status-bar-height, env(safe-area-inset-top, 0px))
+  );
   box-sizing: border-box;
 
   &.home-page--locked {
@@ -1403,7 +1413,6 @@ onUnmounted(() => {
   .filter.filter__hover {
     opacity: 0.7;
   }
-
 }
 
 @keyframes heroGradient {
@@ -1429,5 +1438,4 @@ onUnmounted(() => {
     opacity: 0.35;
   }
 }
-
 </style>
