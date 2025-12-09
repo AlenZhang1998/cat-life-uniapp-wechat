@@ -299,10 +299,8 @@ const fetchRecords = async () => {
   try {
     uni.showLoading({ title: '加载中...', mask: true });
 
-    // const url = `/api/refuels/list?range=${resolvedRange || 'all'}`
-    const res = await axios.get(
-      `/api/refuels/list?range=${isAllYear.value ? 'all' : currentYear.value}`
-    );
+    // 前端筛选，接口始终取全部
+    const res = await axios.get(`/api/refuels/list?range=all`);
     console.log('records res:', res);
 
     if (!res || res.success !== true) {
@@ -310,28 +308,64 @@ const fetchRecords = async () => {
     }
 
     const payload = res.data || {};
-    const s = payload.summary || {};
     const list = (payload.records || []) as any[];
     const currentYearNum = new Date().getFullYear();
+    const targetYearNum = Number(currentYear.value);
 
-    // 顶部 summary 卡片
+    // 前端按年份过滤
+    const filteredList = list.filter((item) => {
+      if (isAllYear.value) return true;
+      const dateStr = item.date || item.refuelDate;
+      if (!dateStr) return false;
+      const parsed = new Date(String(dateStr).replace(/-/g, '/'));
+      if (Number.isNaN(parsed.getTime())) return false;
+      return parsed.getFullYear() === targetYearNum;
+    });
+
+    // 顶部 summary：基于筛选后的列表
+    const totalAmountNum = filteredList.reduce((sum, item) => {
+      const val = Number(item.amount);
+      return sum + (Number.isFinite(val) ? val : 0);
+    }, 0);
+
+    const consumptionValues = filteredList
+      .map((item) => Number(item.consumption))
+      .filter((val) => Number.isFinite(val));
+    const avgFuelNum =
+      consumptionValues.length > 0
+        ? consumptionValues.reduce((s, v) => s + v, 0) /
+          consumptionValues.length
+        : null;
+
+    const pricePerLValues = filteredList
+      .map((item) => Number(item.pricePerL))
+      .filter((val) => Number.isFinite(val));
+    const avgPricePerLNum =
+      pricePerLValues.length > 0
+        ? pricePerLValues.reduce((s, v) => s + v, 0) /
+          pricePerLValues.length
+        : null;
+
+    const totalDistanceNum = filteredList.reduce((sum, item) => {
+      const val = Number(item.distance);
+      return sum + (Number.isFinite(val) ? val : 0);
+    }, 0);
+
     summaryCard.value = {
       totalAmount:
-        s.totalAmount != null ? Number(s.totalAmount).toFixed(2) : '--',
+        totalAmountNum > 0 ? totalAmountNum.toFixed(2) : '--',
       avgFuel:
-        s.avgFuelConsumption != null
-          ? Number(s.avgFuelConsumption).toFixed(2)
-          : '--',
+        avgFuelNum != null ? Number(avgFuelNum).toFixed(2) : '--',
       pricePerLiter:
-        s.avgPricePerL != null ? Number(s.avgPricePerL).toFixed(2) : '--',
+        avgPricePerLNum != null ? Number(avgPricePerLNum).toFixed(2) : '--',
       mileage:
-        s.coverageDistance != null
-          ? String(Math.round(Number(s.coverageDistance)))
+        totalDistanceNum > 0
+          ? String(Math.round(totalDistanceNum))
           : '--',
     };
 
     // 列表项映射到你现有的结构
-    records.value = list.map((r): FuelRecordItem => {
+    records.value = filteredList.map((r): FuelRecordItem => {
       const distanceNum = r.distance != null ? Number(r.distance) : NaN;
       const volumeNum = r.volume != null ? Number(r.volume) : NaN;
       const odometerNum = r.odometer != null ? Number(r.odometer) : NaN;
