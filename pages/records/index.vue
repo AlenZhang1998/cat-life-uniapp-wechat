@@ -328,15 +328,79 @@ const fetchRecords = async () => {
       return sum + (Number.isFinite(val) ? val : 0);
     }, 0);
 
-    const consumptionValues = filteredList
-      .map((item) => Number(item.consumption))
-      .filter((val) => Number.isFinite(val));
-    const avgFuelNum =
-      consumptionValues.length > 0
-        ? consumptionValues.reduce((s, v) => s + v, 0) /
-          consumptionValues.length
-        : null;
+    // ===== 平均油耗 avgFuel 计算 =====
+    let avgFuelNum: number | null = null;
 
+    if (isAllYear.value) {
+      // 「全部」：按你的新规则
+      // 列表是「最新在前」，所以索引越小越新，越大越旧
+      const consumptionIndexes: number[] = [];
+
+      filteredList.forEach((item, idx) => {
+        const c = item.consumption;
+        if (c === '--' || c == null) return;
+        const num = Number(c);
+        if (!Number.isFinite(num)) return;
+        consumptionIndexes.push(idx);
+      });
+
+      if (consumptionIndexes.length >= 2) {
+        // 第一条 & 最后一条（按当前列表顺序：最新在前）
+        const firstIdx = Math.min(...consumptionIndexes); // 列表中最靠前（最新）的那条
+        const lastIdx = Math.max(...consumptionIndexes); // 列表中最靠后（最旧）的那条
+
+        // 「最后一条 consumption 有值的下一条记录」
+        const nextIdx =
+          lastIdx + 1 < filteredList.length ? lastIdx + 1 : lastIdx;
+
+        const first = filteredList[firstIdx];
+        const nextAfterLast = filteredList[nextIdx];
+
+        const firstOdo = Number(first.odometer);
+        const nextOdo = Number(nextAfterLast.odometer);
+
+        let distance = NaN;
+        if (Number.isFinite(firstOdo) && Number.isFinite(nextOdo)) {
+          // 根据你的例子：1587 - 10
+          distance = firstOdo - nextOdo;
+        }
+
+        // 分子：从 firstIdx 到 lastIdx 之间（含）的 volume 之和
+        let volumeSum = 0;
+        for (let i = firstIdx; i <= lastIdx; i++) {
+          const v = Number(filteredList[i].volume);
+          if (Number.isFinite(v) && v > 0) {
+            volumeSum += v;
+          }
+        }
+
+        if (distance > 0 && volumeSum > 0) {
+          // L / 100km
+          avgFuelNum = (volumeSum / distance) * 100;
+        } else {
+          avgFuelNum = null;
+        }
+      } else {
+        // 有效 consumption 少于 2 条，没法算这种「区间油耗」
+        avgFuelNum = null;
+      }
+    } else {
+      // 非「全部」：按「consumption 求平均」来算
+      const consumptionValues = filteredList
+        .map((item) => item.consumption)
+        .filter((val) => val !== null && val !== '--')
+        .map((val) => Number(val))
+        .filter((val) => Number.isFinite(val));
+
+      if (consumptionValues.length > 0) {
+        const sum = consumptionValues.reduce((s, v) => s + v, 0);
+        avgFuelNum = sum / consumptionValues.length;
+      } else {
+        avgFuelNum = null;
+      }
+    }
+
+    // 平均油价 & 总里程仍按原来的方式
     const pricePerLValues = filteredList
       .map((item) => Number(item.pricePerL))
       .filter((val) => Number.isFinite(val));
@@ -352,7 +416,7 @@ const fetchRecords = async () => {
 
     summaryCard.value = {
       totalAmount: totalAmountNum > 0 ? totalAmountNum.toFixed(2) : '--',
-      avgFuel: avgFuelNum != null ? Number(avgFuelNum).toFixed(2) : '--',
+      avgFuel: avgFuelNum != null ? avgFuelNum.toFixed(2) : '--',
       pricePerLiter:
         avgPricePerLNum != null ? Number(avgPricePerLNum).toFixed(2) : '--',
       mileage:
