@@ -952,10 +952,10 @@ const buildYearlyOption = () => {
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'line' },
-      backgroundColor: 'rgba(31,35,41,0.9)',
-      borderWidth: 0,
-      padding: [6, 8],
-      textStyle: { color: '#fff', fontSize: 11 },
+      // backgroundColor: 'rgba(31,35,41,0.9)',
+      // borderWidth: 0,
+      // padding: [6, 8],
+      // textStyle: { color: '#fff', fontSize: 11 },
       formatter: (params: any[]) => {
         if (!params.length) return '';
         const lines = params.map((p) => {
@@ -979,6 +979,10 @@ const buildYearlyOption = () => {
       boundaryGap: false,
       axisLine: { lineStyle: { color: '#d4d7de' } },
       axisTick: { show: false },
+      // ✅ 关键：关闭竖线
+      splitLine: {
+        show: false,
+      },
       axisLabel: {
         color: '#6b7280',
         fontSize: 11,
