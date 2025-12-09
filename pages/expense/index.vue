@@ -213,7 +213,7 @@ type ExpenseCategory =
   | 'wash';
 
 type RangeKey = '3m' | '6m' | '1y' | '2y' | '3y' | 'all';
-type BackendRangeKey = '3m' | '6m' | '1y' | 'all';
+type BackendRangeKey = '3m' | '6m' | '1y' | '2y' | '3y' | 'all';
 
 type HeroMetric = {
   key: string;
@@ -376,8 +376,15 @@ const heroOverview = ref<HeroOverview>({
 
 // 前端范围 key -> 后端 range 参数
 const mapRangeToBackend = (key: RangeKey): BackendRangeKey => {
-  if (key === '3m' || key === '6m' || key === '1y') return key;
-  // '2y' 和 'all' 目前都用 all 兜底
+  if (
+    key === '3m' ||
+    key === '6m' ||
+    key === '1y' ||
+    key === '2y' ||
+    key === '3y'
+  ) {
+    return key;
+  }
   return 'all';
 };
 
@@ -543,7 +550,7 @@ const confirmHeroPicker = () => {
 
 // ============= 「油费月度统计」 =============
 const monthlyRangeOptions: { key: RangeKey; label: string }[] = [
-  { key: '1y', label: '今年' },
+  { key: '1y', label: '近一年' },
   { key: '2y', label: '近两年' },
   { key: '3y', label: '近三年' },
   { key: 'all', label: '全部' },
@@ -597,8 +604,9 @@ const fetchMonthlyCost = async (
   }
 
   try {
-    // 这里直接拉全部记录，前端自己按年份筛选
-    const res = await axios.get('/api/refuels/list?range=all');
+    // 先让后端按 range 过滤一遍，再在前端按年份做精确筛选
+    const backendRange = mapRangeToBackend(rangeKey);
+    const res = await axios.get(`/api/refuels/list?range=${backendRange}`);
     const resp = res as any;
     if (!resp || resp.success !== true) {
       throw new Error('接口返回异常');
@@ -612,7 +620,7 @@ const fetchMonthlyCost = async (
     // 根据筛选项，算出需要保留的最早年份
     let minYear = -Infinity;
     switch (rangeKey) {
-      case '1y': // 今年
+      case '1y': // 近一年
         minYear = currentYear;
         break;
       case '2y': // 近两年 = 今年 + 去年
@@ -642,7 +650,7 @@ const fetchMonthlyCost = async (
       const year = d.getFullYear();
       const month = d.getMonth() + 1;
 
-      // 按“今年 / 近两年 / 近三年”过滤
+      // 按“近一年 / 近两年 / 近三年”过滤
       if (year < minYear || year > currentYear) return;
 
       const key = `${year}-${String(month).padStart(2, '0')}`;
