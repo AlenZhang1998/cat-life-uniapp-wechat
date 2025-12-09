@@ -312,6 +312,7 @@ const fetchRecords = async () => {
     const payload = res.data || {};
     const s = payload.summary || {};
     const list = (payload.records || []) as any[];
+    const currentYearNum = new Date().getFullYear();
 
     // 顶部 summary 卡片
     summaryCard.value = {
@@ -334,11 +335,26 @@ const fetchRecords = async () => {
       const distanceNum = r.distance != null ? Number(r.distance) : NaN;
       const volumeNum = r.volume != null ? Number(r.volume) : NaN;
       const odometerNum = r.odometer != null ? Number(r.odometer) : NaN;
+      const rawDateStr = r.date || r.refuelDate || '';
+      let displayDate = r.monthDay || '--';
+      if (rawDateStr) {
+        const parsed = new Date(String(rawDateStr).replace(/-/g, '/'));
+        if (!Number.isNaN(parsed.getTime())) {
+          const y = parsed.getFullYear();
+          const m = String(parsed.getMonth() + 1).padStart(2, '0');
+          const d = String(parsed.getDate()).padStart(2, '0');
+          if (isAllYear.value && y !== currentYearNum) {
+            displayDate = `${y}/${m}/${d}`;
+          } else if (!r.monthDay) {
+            displayDate = `${m}-${d}`;
+          }
+        }
+      }
 
       return {
         type: 'record',
         id: r._id,
-        date: r.monthDay || '--',
+        date: displayDate,
         consumption:
           r.consumption != null ? Number(r.consumption).toFixed(2) : '--',
         mileage: !Number.isNaN(odometerNum)
