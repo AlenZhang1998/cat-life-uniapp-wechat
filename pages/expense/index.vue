@@ -795,7 +795,7 @@ const buildMonthlyOption = () => {
         const p = params[0];
         const idx = p.dataIndex;
         const item = monthlyChartData.value[idx];
-        return `${item.year}年${item.month}<br/>油费：${item.value} 元`;
+        return `${item.year}年${item.month}\n油费：${item.value} 元`;
       },
     },
     xAxis: {
