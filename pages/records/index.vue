@@ -342,8 +342,7 @@ const fetchRecords = async () => {
       .filter((val) => Number.isFinite(val));
     const avgPricePerLNum =
       pricePerLValues.length > 0
-        ? pricePerLValues.reduce((s, v) => s + v, 0) /
-          pricePerLValues.length
+        ? pricePerLValues.reduce((s, v) => s + v, 0) / pricePerLValues.length
         : null;
 
     const totalDistanceNum = filteredList.reduce((sum, item) => {
@@ -352,16 +351,12 @@ const fetchRecords = async () => {
     }, 0);
 
     summaryCard.value = {
-      totalAmount:
-        totalAmountNum > 0 ? totalAmountNum.toFixed(2) : '--',
-      avgFuel:
-        avgFuelNum != null ? Number(avgFuelNum).toFixed(2) : '--',
+      totalAmount: totalAmountNum > 0 ? totalAmountNum.toFixed(2) : '--',
+      avgFuel: avgFuelNum != null ? Number(avgFuelNum).toFixed(2) : '--',
       pricePerLiter:
         avgPricePerLNum != null ? Number(avgPricePerLNum).toFixed(2) : '--',
       mileage:
-        totalDistanceNum > 0
-          ? String(Math.round(totalDistanceNum))
-          : '--',
+        totalDistanceNum > 0 ? String(Math.round(totalDistanceNum)) : '--',
     };
 
     // 列表项映射到你现有的结构
