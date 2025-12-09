@@ -433,6 +433,32 @@ const calcDateRangeDays = (
   return Math.floor(diff / DAY_MS) + 1;
 };
 
+const calcDaysSinceEarliestRecord = (records: any[]): number | null => {
+  if (!Array.isArray(records) || records.length === 0) return null;
+
+  let earliestTime: number | null = null;
+
+  records.forEach((item) => {
+    const dateStr = item?.date || item?.refuelDate;
+    const parsed = normalizeDateOnly(dateStr);
+    if (!parsed) return;
+    const ts = parsed.getTime();
+    if (earliestTime == null || ts < earliestTime) {
+      earliestTime = ts;
+    }
+  });
+
+  if (earliestTime == null) return null;
+
+  const today = normalizeDateOnly(new Date());
+  if (!today) return null;
+
+  const diff = today.getTime() - earliestTime;
+  if (diff < 0) return null;
+
+  return Math.floor(diff / DAY_MS) + 1;
+};
+
 // 统计区块的数据源，这里把单位也一起放进来，便于展示
 const stats = ref([
   {
@@ -582,10 +608,13 @@ const fetchRefuelData = async (rangeKey: RangeKey = rangeOptions[3].key) => {
     const avgPricePerL =
       s.avgPricePerL != null ? Number(s.avgPricePerL).toFixed(2) : '--';
 
+    const resolvedDateRangeDaysFromList = calcDaysSinceEarliestRecord(list);
     const resolvedDateRangeDays =
-      typeof s.dateRangeDays === 'number'
-        ? s.dateRangeDays
-        : calcDateRangeDays(s.startDate, s.endDate);
+      typeof resolvedDateRangeDaysFromList === 'number'
+        ? resolvedDateRangeDaysFromList
+        : typeof s.dateRangeDays === 'number'
+          ? s.dateRangeDays
+          : calcDateRangeDays(s.startDate, s.endDate);
     const validDateRangeDays =
       typeof resolvedDateRangeDays === 'number' && resolvedDateRangeDays > 0
         ? resolvedDateRangeDays
