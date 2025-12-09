@@ -75,7 +75,7 @@
                 class="record-consumption__value"
                 :class="{
                   'record-consumption__value--high':
-                    Number(entry.consumption) > 9
+                    Number(entry.consumption) > 9,
                 }"
               >
                 {{ entry.consumption }}
@@ -797,7 +797,7 @@ onUnmounted(() => {
           }
 
           .record-remark__status--danger {
-            color: #d44848;
+            color: #ff4b46;
           }
 
           .record-remark__status--accent {
@@ -840,7 +840,7 @@ onUnmounted(() => {
 
     .record-card--alert {
       .record-consumption__value {
-        color: #e64a3b;
+        color: #ff4b46;
       }
       .record-consumption__value--high {
         color: #ff4b46;
