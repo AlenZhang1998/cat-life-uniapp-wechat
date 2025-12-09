@@ -672,9 +672,10 @@ const confirmMonthlyPicker = () => {
 const yearlyRangeOptions: { key: RangeKey; label: string }[] = [
   { key: '1y', label: '一年' },
   { key: '2y', label: '两年' },
-  { key: '3y', label: '三年' }, // 这里 UI 先保留，实际后端还是用 1y / all 兜底
+  { key: '3y', label: '三年' },
+  { key: 'all', label: '全部' },
 ];
-const yearlyRange = ref(yearlyRangeOptions[2]);
+const yearlyRange = ref(yearlyRangeOptions[3]);
 const showYearlyPicker = ref(false);
 const pendingYearlyRange = ref<RangeKey>(yearlyRangeOptions[0].key);
 const yearlyChartData = ref<YearlyLinePoint[]>([]);
@@ -1003,7 +1004,7 @@ onShow(() => {
 });
 
 // 时间线现在用不到真实数据，先保留工具函数（以后扩展用）
-const getCategoryMeta = (category: ExpenseCategory) => CATEGORY_META[category];
+// const getCategoryMeta = (category: ExpenseCategory) => CATEGORY_META[category];
 </script>
 
 <style lang="scss" scoped>
