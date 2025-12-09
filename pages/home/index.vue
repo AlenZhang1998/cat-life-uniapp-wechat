@@ -450,7 +450,7 @@ const stats = ref([
   },
   {
     key: 'costAvg',
-    label: '平均油费',
+    label: '平均油价',
     value: '0',
     unit: '元/公里',
     accent: true,
@@ -501,6 +501,7 @@ const fetchRefuelData = async (rangeKey: RangeKey = rangeOptions[3].key) => {
     const payload = resp.data || resp || {};
     const s = payload.summary || {};
     const list = (payload.records || []) as any[];
+    const isAllRange = resolvedRange === 'all';
 
     // 是否有加油记录 -> 控制“没有记录”提示条
     hasRecentRefuel.value = Array.isArray(list) && list.length > 0;
@@ -517,9 +518,59 @@ const fetchRefuelData = async (rangeKey: RangeKey = rangeOptions[3].key) => {
       : '0';
 
     // ===== 统计区块数据 =====
+    let avgFuelNum: number | null = null;
+    if (!isAllRange) {
+      avgFuelNum =
+        typeof s.avgFuelConsumption === 'number'
+          ? Number(s.avgFuelConsumption)
+          : null;
+    } else {
+      const consumptionIndexes: number[] = [];
+      list.forEach((item: any, idx: number) => {
+        const c = item?.consumption;
+        if (c === '--' || c == null) return;
+        const num = Number(c);
+        if (!Number.isFinite(num)) return;
+        consumptionIndexes.push(idx);
+      });
+
+      if (consumptionIndexes.length >= 2) {
+        const firstIdx = Math.min(...consumptionIndexes);
+        const lastIdx = Math.max(...consumptionIndexes);
+        const nextIdx = lastIdx + 1 < list.length ? lastIdx + 1 : lastIdx;
+
+        const first = list[firstIdx] || {};
+        const nextAfterLast = list[nextIdx] || {};
+
+        const firstOdo = Number(first.odometer);
+        const nextOdo = Number(nextAfterLast.odometer);
+
+        let distance = NaN;
+        if (Number.isFinite(firstOdo) && Number.isFinite(nextOdo)) {
+          distance = firstOdo - nextOdo;
+        }
+
+        let volumeSum = 0;
+        for (let i = firstIdx; i <= lastIdx; i++) {
+          const v = Number(list[i]?.volume);
+          if (Number.isFinite(v) && v > 0) {
+            volumeSum += v;
+          }
+        }
+
+        if (distance > 0 && volumeSum > 0) {
+          avgFuelNum = (volumeSum / distance) * 100;
+        } else {
+          avgFuelNum = null;
+        }
+      } else {
+        avgFuelNum = null;
+      }
+    }
+
     const avgFuel =
-      s.avgFuelConsumption != null
-        ? Number(s.avgFuelConsumption).toFixed(2)
+      avgFuelNum != null && Number.isFinite(avgFuelNum)
+        ? Number(avgFuelNum).toFixed(2)
         : '--';
     const totalDistanceNum =
       s.totalDistance != null ? Number(s.totalDistance) : NaN;
@@ -561,7 +612,7 @@ const fetchRefuelData = async (rangeKey: RangeKey = rangeOptions[3].key) => {
       },
       {
         key: 'costAvg',
-        label: '平均油费',
+        label: '平均油价',
         value: avgPricePerL === '--' ? '--' : avgPricePerL,
         unit: '元/升',
         accent: true,
