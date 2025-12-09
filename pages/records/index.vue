@@ -71,9 +71,15 @@
               <text class="record-date__value">{{ entry.date }}</text>
             </view>
             <view class="record-consumption" v-if="entry.consumption !== '--'">
-              <text class="record-consumption__value">{{
-                entry.consumption
-              }}</text>
+              <text
+                class="record-consumption__value"
+                :class="{
+                  'record-consumption__value--high':
+                    Number(entry.consumption) > 9
+                }"
+              >
+                {{ entry.consumption }}
+              </text>
               <text class="record-consumption__unit">升/百公里</text>
             </view>
             <view class="record-mileage">
@@ -698,6 +704,9 @@ onUnmounted(() => {
             font-weight: 600;
             color: $primary-dark;
           }
+          .record-consumption__value--high {
+            color: #ff4b46;
+          }
 
           .record-consumption__unit {
             font-size: 22rpx;
@@ -832,6 +841,9 @@ onUnmounted(() => {
     .record-card--alert {
       .record-consumption__value {
         color: #e64a3b;
+      }
+      .record-consumption__value--high {
+        color: #ff4b46;
       }
     }
 
