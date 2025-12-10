@@ -1045,6 +1045,16 @@ const handleLoginRequired = () => {
  * @param actionKey 操作 key
  */
 const handleNavigate = (actionKey: string) => {
+  if (actionKey === 'trend') {
+    const level = currentEfficiency.value?.label || '';
+    const fuel = latestFuel.value || '';
+    uni.navigateTo({
+      url: `/pages/efficiency/index?level=${encodeURIComponent(
+        level
+      )}&fuel=${encodeURIComponent(fuel)}`,
+    });
+    return;
+  }
   uni.showToast({
     title: `功能 ${actionKey} 开发中`,
     icon: 'none',
