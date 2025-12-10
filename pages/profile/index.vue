@@ -5,7 +5,12 @@
       <view class="identity-header">
         <view class="avatar-ring" @tap="handleAvatarTap">
           <view class="avatar-core">
-            <image v-if="user.avatar && isLoggedIn" :src="user.avatar" class="avatar-image" mode="aspectFill" />
+            <image
+              v-if="user.avatar && isLoggedIn"
+              :src="user.avatar"
+              class="avatar-image"
+              mode="aspectFill"
+            />
             <text v-else-if="isLoggedIn">{{ user.initial }}</text>
             <text v-else class="avatar-placeholder">点我登录</text>
           </view>
@@ -15,7 +20,9 @@
           <text class="user-name">{{ user.name }}</text>
           <text class="user-subtitle">加入于 {{ user.joinDate }}</text>
           <view class="user-tags">
-            <text class="user-tag" v-for="tag in user.tags" :key="tag">{{ tag }}</text>
+            <text class="user-tag" v-for="tag in user.tags" :key="tag">{{
+              tag
+            }}</text>
           </view>
         </view>
         <view class="identity-meta identity-meta--placeholder" v-else>
@@ -36,7 +43,12 @@
         <text class="section-subtitle">体验自定义驾驶日常</text>
       </view>
       <view class="feature-list">
-        <view class="feature-item" v-for="item in features" :key="item.key" @tap="handleFeatureTap(item)">
+        <view
+          class="feature-item"
+          v-for="item in features"
+          :key="item.key"
+          @tap="handleFeatureTap(item)"
+        >
           <view class="feature-icon">{{ item.icon }}</view>
           <view class="feature-content">
             <text class="feature-title">{{ item.title }}</text>
@@ -51,16 +63,23 @@
       <text class="logout-text">退出登录</text>
     </view>
   </view>
-  <LoginOverlay v-model:visible="showLoginSheet" @login-success="handleLoginSuccess" />
-  <BottomActionBar active="profile" :is-logged-in="isLoggedIn" @login-required="handleLoginRequired" />
+  <LoginOverlay
+    v-model:visible="showLoginSheet"
+    @login-success="handleLoginSuccess"
+  />
+  <BottomActionBar
+    active="profile"
+    :is-logged-in="isLoggedIn"
+    @login-required="handleLoginRequired"
+  />
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { onShow } from '@dcloudio/uni-app'
-import BottomActionBar from '@/components/BottomActionBar.vue'
-import LoginOverlay from '@/components/LoginOverlay.vue'
-import { useAuth } from '@/utils/auth'
+import { ref } from 'vue';
+import { onShow } from '@dcloudio/uni-app';
+import BottomActionBar from '@/components/BottomActionBar.vue';
+import LoginOverlay from '@/components/LoginOverlay.vue';
+import { useAuth } from '@/utils/auth';
 
 const defaultProfile = {
   name: 'Alen',
@@ -73,163 +92,174 @@ const defaultProfile = {
   deliveryDate: '',
   carModel: '',
   phone: '',
-  email: ''
-}
+  email: '',
+};
 
-const { isLoggedIn, refreshLoginState, setStoredToken, setStoredProfile } = useAuth()
-const showLoginSheet = ref(false)
-const user = ref({ ...defaultProfile })
+const { isLoggedIn, refreshLoginState, setStoredToken, setStoredProfile } =
+  useAuth();
+const showLoginSheet = ref(false);
+const user = ref({ ...defaultProfile });
 
 const features = ref([
   {
     key: 'garage',
     icon: '🚗',
     title: '个人信息',
-    desc: '编辑个人信息, 爱车型号'
+    desc: '编辑个人信息, 爱车型号',
   },
   {
     key: 'feedback',
     icon: '💡',
     title: '建议反馈',
-    desc: '和我们聊聊你的灵感，持续优化体验'
+    desc: '和我们聊聊你的灵感，持续优化体验',
   },
   {
     key: 'backup',
     icon: '☁️',
     title: '数据备份',
-    desc: '同步到云端，换机无忧'
+    desc: '同步到云端，换机无忧',
   },
-  { key: 'subscription', icon: '🧊', title: '订阅服务', desc: '智驾实验室体验中' },
+  {
+    key: 'subscription',
+    icon: '🧊',
+    title: '订阅服务',
+    desc: '智驾实验室体验中',
+  },
   {
     key: 'settings',
     icon: '⚙️',
     title: '设置中心',
-    desc: '订阅提醒、隐私偏好、一键反馈'
-  }
-])
+    desc: '订阅提醒、隐私偏好、一键反馈',
+  },
+]);
 
 const formatJoinDateLabel = (value: unknown) => {
-  if (!value) return ''
+  if (!value) return '';
 
   if (typeof value === 'string') {
-    const trimmed = value.trim()
-    if (!trimmed) return ''
+    const trimmed = value.trim();
+    if (!trimmed) return '';
     if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
-      return trimmed
+      return trimmed;
     }
-    const parsed = new Date(trimmed)
+    const parsed = new Date(trimmed);
     if (!Number.isNaN(parsed.getTime())) {
-      const year = parsed.getFullYear()
-      const month = `${parsed.getMonth() + 1}`.padStart(2, '0')
-      const day = `${parsed.getDate()}`.padStart(2, '0')
-      return `${year}-${month}-${day}`
+      const year = parsed.getFullYear();
+      const month = `${parsed.getMonth() + 1}`.padStart(2, '0');
+      const day = `${parsed.getDate()}`.padStart(2, '0');
+      return `${year}-${month}-${day}`;
     }
-    return ''
+    return '';
   }
 
-  const date = value instanceof Date ? value : new Date(value as any)
+  const date = value instanceof Date ? value : new Date(value as any);
   if (Number.isNaN(date.getTime())) {
-    return ''
+    return '';
   }
 
-  const year = date.getFullYear()
-  const month = `${date.getMonth() + 1}`.padStart(2, '0')
-  const day = `${date.getDate()}`.padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, '0');
+  const day = `${date.getDate()}`.padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 const resolveJoinDate = (payload?: Record<string, any>) => {
   if (!payload) {
-    return defaultProfile.joinDate
+    return defaultProfile.joinDate;
   }
-  const direct = formatJoinDateLabel(payload.joinDate)
+  const direct = formatJoinDateLabel(payload.joinDate);
   if (direct) {
-    return direct
+    return direct;
   }
-  const formatted = formatJoinDateLabel(payload.joinedAt)
-  return formatted || defaultProfile.joinDate
-}
+  const formatted = formatJoinDateLabel(payload.joinedAt);
+  return formatted || defaultProfile.joinDate;
+};
 
 const applyProfile = (profile?: Record<string, any>) => {
-  const merged = { ...defaultProfile, ...(profile || {}) }
-  merged.joinDate = resolveJoinDate(merged)
-  merged.initial = merged.name ? merged.name.charAt(0) : defaultProfile.initial
-  user.value = merged
-}
+  const merged = { ...defaultProfile, ...(profile || {}) };
+  merged.joinDate = resolveJoinDate(merged);
+  merged.initial = merged.name ? merged.name.charAt(0) : defaultProfile.initial;
+  user.value = merged;
+};
 
 // 从本地缓存里读用户信息
 const initUserFromStorage = () => {
   try {
-    const stored = uni.getStorageSync('userProfile')
-    console.log(117, 'stored', stored)
+    const stored = uni.getStorageSync('userProfile');
+    console.log(117, 'stored', stored);
     if (stored) {
-      applyProfile(typeof stored === 'string' ? JSON.parse(stored) : stored)
+      applyProfile(typeof stored === 'string' ? JSON.parse(stored) : stored);
     } else {
-      user.value = { ...defaultProfile }
+      user.value = { ...defaultProfile };
     }
   } catch (error) {
-    console.warn('读取用户信息失败', error)
-    user.value = { ...defaultProfile }
+    console.warn('读取用户信息失败', error);
+    user.value = { ...defaultProfile };
   }
-  refreshLoginState()
-}
+  refreshLoginState();
+};
 
 onShow(() => {
-  initUserFromStorage()
-})
+  initUserFromStorage();
+});
 
 const handleAvatarTap = () => {
   if (isLoggedIn.value) {
-    return
+    return;
   }
-  showLoginSheet.value = true
-}
-
+  showLoginSheet.value = true;
+};
 
 const handleLoginSuccess = (payload: { token: string; user: any }) => {
-  const { token, user: backendUser } = payload
+  const { token, user: backendUser } = payload;
 
   // 把后端返回的 user 映射成你页面用的结构
   const finalProfile = {
     ...defaultProfile,
     name: backendUser.username || defaultProfile.name,
     avatar: backendUser.userAvatar || backendUser.avatarUrl,
-    joinDate: resolveJoinDate(backendUser)
+    joinDate: resolveJoinDate(backendUser),
     // 你后面可以再加：gender / deliveryDate / carModel 等
-  }
-  console.log(152, 'finalProfile = ', finalProfile)
+  };
+  console.log(152, 'finalProfile = ', finalProfile);
 
   // 存本地，跟 initUserFromStorage 对上
-  uni.setStorageSync('token', token)
-  uni.setStorageSync('userProfile', finalProfile)
+  uni.setStorageSync('token', token);
+  uni.setStorageSync('userProfile', finalProfile);
 
-  applyProfile(finalProfile)
-  refreshLoginState()
-  showLoginSheet.value = false
-}
+  applyProfile(finalProfile);
+  refreshLoginState();
+  showLoginSheet.value = false;
+};
 
 const handleLoginRequired = () => {
   if (!isLoggedIn.value) {
-    showLoginSheet.value = true
+    showLoginSheet.value = true;
   }
-}
+};
 
 const handleFeatureTap = (item: { key: string }) => {
-  if (!isLoggedIn.value) {
-    showLoginSheet.value = true
-    return
-  }
+  // if (!isLoggedIn.value) {
+  //   showLoginSheet.value = true
+  //   return
+  // }
   if (item.key === 'garage') {
     uni.navigateTo({
-      url: '/pages/profile/personal-info'
-    })
-    return
+      url: '/pages/profile/personal-info',
+    });
+    return;
+  }
+  if (item.key === 'feedback') {
+    uni.navigateTo({
+      url: '/pages/profile/feedback',
+    });
+    return;
   }
   uni.showToast({
     title: '功能开发中，敬请期待',
-    icon: 'none'
-  })
-}
+    icon: 'none',
+  });
+};
 
 const handleLogout = () => {
   uni.showModal({
@@ -238,27 +268,27 @@ const handleLogout = () => {
     confirmColor: '#f56c6c',
     success: (res) => {
       if (!res.confirm) {
-        return
+        return;
       }
       // 1. 清除本地缓存
-      uni.removeStorageSync('token')
-      uni.removeStorageSync('userProfile')
+      uni.removeStorageSync('token');
+      uni.removeStorageSync('userProfile');
 
       // 2. 更新 Vue 响应式数据 清空当前用户信息
       // 更新 isLoggedIn
-      setStoredToken()
-      setStoredProfile()
+      setStoredToken();
+      setStoredProfile();
       // 清空当前用户信息
-      applyProfile()
+      applyProfile();
 
-      showLoginSheet.value = false
+      showLoginSheet.value = false;
       uni.showToast({
         title: '已退出登录',
-        icon: 'none'
-      })
-    }
-  })
-}
+        icon: 'none',
+      });
+    },
+  });
+};
 </script>
 
 <style lang="scss" scoped>
@@ -280,9 +310,21 @@ const handleLogout = () => {
     .identity-glow {
       position: absolute;
       inset: -60rpx;
-      background: radial-gradient(circle at 15% 15%, rgba(190, 225, 255, 0.7), transparent 60%),
-        radial-gradient(circle at 85% 5%, rgba(255, 203, 240, 0.55), transparent 50%),
-        radial-gradient(circle at 50% 80%, rgba(198, 248, 219, 0.5), transparent 55%);
+      background: radial-gradient(
+          circle at 15% 15%,
+          rgba(190, 225, 255, 0.7),
+          transparent 60%
+        ),
+        radial-gradient(
+          circle at 85% 5%,
+          rgba(255, 203, 240, 0.55),
+          transparent 50%
+        ),
+        radial-gradient(
+          circle at 50% 80%,
+          rgba(198, 248, 219, 0.5),
+          transparent 55%
+        );
       filter: blur(8rpx);
     }
 
@@ -393,7 +435,8 @@ const handleLogout = () => {
       padding: 24rpx;
       border-radius: 28rpx;
       background: rgba(255, 255, 255, 0.85);
-      box-shadow: inset 0 0 0 1rpx rgba(255, 255, 255, 0.3), 0 12rpx 32rpx rgba(86, 126, 173, 0.14);
+      box-shadow: inset 0 0 0 1rpx rgba(255, 255, 255, 0.3),
+        0 12rpx 32rpx rgba(86, 126, 173, 0.14);
       position: relative;
       z-index: 1;
 
