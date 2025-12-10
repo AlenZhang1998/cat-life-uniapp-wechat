@@ -4,8 +4,8 @@
   "private": true,
   "description": "Uni-app 微信小程序油耗记录项目脚手架",
   "scripts": {
-    "dev:mp-weixin": "uni",
-    "build:mp-weixin": "uni build -p mp-weixin"
+    "dev:mp-weixin": "UNI_INPUT_DIR=. uni",
+    "build:mp-weixin": "UNI_INPUT_DIR=. uni build -p mp-weixin"
   },
   "dependencies": {
     "@dcloudio/uni-app": "2.0.2-4070620250821001",
