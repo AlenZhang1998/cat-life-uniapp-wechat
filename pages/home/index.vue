@@ -1052,6 +1052,10 @@ const handleNavigate = (actionKey: string) => {
 };
 
 const navigateToCity = () => {
+  if (!isLoggedIn.value) {
+    showLoginSheet.value = true;
+    return;
+  }
   uni.navigateTo({
     url: `/pages/city/index?currentCity=${encodeURIComponent(city.value)}`,
     events: {
