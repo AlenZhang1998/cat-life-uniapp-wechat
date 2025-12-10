@@ -1,11 +1,10 @@
 "use strict";
 const common_vendor = require("../common/vendor.js");
 const utils_request = require("./request.js");
-var define_import_meta_env_default = { VITE_CJS_IGNORE_WARNING: "true", VITE_USER_NODE_ENV: "development", VITE_ROOT_DIR: "/Users/alan2/Downloads/zm/cat-life-uniapp-wechat", BASE_URL: "/", MODE: "development", DEV: true, PROD: false, SSR: false };
 const TENCENT_MAP_KEY = (
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore uni-app 会在编译阶段注入 import.meta.env
-  (define_import_meta_env_default == null ? void 0 : define_import_meta_env_default.VITE_TENCENT_MAP_KEY) || ""
+  "T64BZ-CJYCL-MIKPS-M4SQU-IXTRZ-GKBAA"
 );
 const GEOCODER_ENDPOINT = "https://apis.map.qq.com/ws/geocoder/v1";
 const CITY_NAME_MATCHER = /(北京市|天津市|上海市|重庆市|[\u4e00-\u9fa5]+?(?:自治区|自治州|地区|盟|市|区|县))/u;
@@ -57,9 +56,7 @@ const normalizeCityName = (text) => {
   return (normalized ?? text).trim();
 };
 const reverseGeocodeByTencent = async (latitude, longitude) => {
-  if (!TENCENT_MAP_KEY) {
-    return null;
-  }
+  common_vendor.index.__f__("log", "at utils/location.ts:83", 83, "[reverseGeocodeByTencent] KEY =", TENCENT_MAP_KEY);
   try {
     const response = await utils_request.axios.request({
       url: GEOCODER_ENDPOINT,
@@ -82,7 +79,7 @@ const reverseGeocodeByTencent = async (latitude, longitude) => {
       };
     }
   } catch (error) {
-    common_vendor.index.__f__("warn", "at utils/location.ts:122", "reverseGeocodeByTencent failed", error);
+    common_vendor.index.__f__("warn", "at utils/location.ts:123", "reverseGeocodeByTencent failed", error);
   }
   return null;
 };
@@ -100,13 +97,13 @@ const locateCityByGPS = async () => {
       };
     }
   } catch (error) {
-    common_vendor.index.__f__("warn", "at utils/location.ts:141", "locateCityByGPS failed", error);
+    common_vendor.index.__f__("warn", "at utils/location.ts:142", "locateCityByGPS failed", error);
   }
   return null;
 };
 const chooseCityFromMap = async () => {
   const selection = await chooseLocationManually();
-  common_vendor.index.__f__("log", "at utils/location.ts:148", 149, "selection = ", selection);
+  common_vendor.index.__f__("log", "at utils/location.ts:149", 149, "selection = ", selection);
   if (!selection)
     return null;
   const cityName = extractCityFromText(selection.address) ?? extractCityFromText(selection.name);

@@ -14,10 +14,10 @@
     "navigationBarBackgroundColor": "#F7F8FA",
     "backgroundColor": "#F7F8FA"
   },
-  "usingComponents": {},
   "permission": {
     "scope.userLocation": {
       "desc": "用于获取城市油价和定位"
     }
-  }
+  },
+  "usingComponents": {}
 }

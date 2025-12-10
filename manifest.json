@@ -11,6 +11,11 @@
     "setting": {
       "urlCheck": false
     },
-    "usingComponents": {}
+    "usingComponents": {},
+    "permission": {
+      "scope.userLocation": {
+        "desc": "用于获取城市油价和定位"
+      }
+    }
   }
 }
