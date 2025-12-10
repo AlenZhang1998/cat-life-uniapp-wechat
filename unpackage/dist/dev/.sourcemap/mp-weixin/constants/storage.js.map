@@ -1,0 +1,1 @@
+{"version":3,"file":"storage.js","sources":["constants/storage.ts"],"sourcesContent":["export const STORAGE_KEYS = {\n  selectedCity: 'app:selected-city'\n} as const\n"],"names":[],"mappings":";AAAO,MAAM,eAAe;AAAA,EAC1B,cAAc;AAChB;;"}
