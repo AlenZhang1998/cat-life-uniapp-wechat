@@ -80,12 +80,13 @@ export const reverseGeocodeByTencent = async (
   latitude: number,
   longitude: number
 ): Promise<ReverseGeocodeResult | null> => {
+  console.log(83, '[reverseGeocodeByTencent] KEY =', TENCENT_MAP_KEY);
   if (!TENCENT_MAP_KEY) {
     return null;
   }
 
   try {
-    const response = await axios.request<{
+    const res = await axios.request<{
       status: number;
       result?: {
         address: string;
@@ -100,6 +101,7 @@ export const reverseGeocodeByTencent = async (
     }>({
       url: GEOCODER_ENDPOINT,
       method: 'GET',
+      // uni.request 用 data 作为 query 参数，这里继续用 data
       data: {
         key: TENCENT_MAP_KEY,
         location: `${latitude},${longitude}`,
@@ -108,16 +110,34 @@ export const reverseGeocodeByTencent = async (
       showErrorToast: false,
     });
 
-    if (response.status === 0 && response.result) {
-      const {
-        result: { address, ad_info },
-      } = response;
+    // 关键：统一从 data 里取
+    const payload = (res as any).data || res || {};
+    console.log('[reverseGeocodeByTencent] payload =', payload);
+
+    if (payload.status !== 0) {
+      if (payload.status === 121) {
+        uni.showToast({
+          title: 'TMD马化腾，定位次数已用完，请手动选择城市',
+          icon: 'none',
+        });
+      }
+      return null;
+    }
+
+    if (payload.status === 0 && payload.result) {
+      const { address, ad_info } = payload.result;
       return {
         city: ad_info.city.replace(/(市|地区|盟)$/u, ''),
         province: ad_info.province,
         address,
       };
     }
+
+    console.warn(
+      '[reverseGeocodeByTencent] invalid response:',
+      payload.status,
+      payload
+    );
   } catch (error) {
     console.warn('reverseGeocodeByTencent failed', error);
   }

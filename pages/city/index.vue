@@ -15,31 +15,31 @@
     </view>
 
     <view class="location-card">
-      <view>
+      <view class="location-card__header">
         <text class="location-label">当前位置：</text>
         <text class="location-value">
           {{ locationCity || currentCity || '未定位' }}
           <!-- {{ locationProvince }}-{{ locationCity }}-{{ currentCity }} -->
         </text>
-        <text v-if="!locationCity" class="location-tip">
-          {{ locating ? '定位中...' : '点击右侧按钮重新定位' }}
-        </text>
       </view>
+      <!-- <text v-if="!locationCity" class="location-tip">
+        {{ locating ? '定位中...' : '点击下方按钮重新定位或手动选择' }}
+      </text> -->
       <view class="location-actions">
         <button
-          class="icon-button"
-          hover-class="icon-button__hover"
+          class="action-button"
+          hover-class="action-button__hover"
           :loading="locating"
           @tap="handleLocate"
         >
-          <text class="icon-text">👇</text>
+          <text class="action-button__text">👇 重新定位</text>
         </button>
         <button
-          class="icon-button"
-          hover-class="icon-button__hover"
+          class="action-button"
+          hover-class="action-button__hover"
           @tap="handlePickFromMap"
         >
-          <text class="icon-text">👆</text>
+          <text class="action-button__text">👆 手动选点</text>
           <!-- ◎ -->
         </button>
       </view>
@@ -120,6 +120,11 @@ type CitySection = {
 type IndexBarRect = {
   top: number;
   height: number;
+};
+
+type SelectedCityPayload = {
+  city: string;
+  province?: string;
 };
 
 type TouchLikeEvent = {
@@ -232,8 +237,8 @@ const persistCity = (cityName: string) => {
   return normalized;
 };
 
-const emitSelection = (cityName: string) => {
-  eventChannel.value?.emit('city-selected', cityName);
+const emitSelection = (payload: SelectedCityPayload) => {
+  eventChannel.value?.emit('city-selected', payload);
 };
 
 const closePage = () => {
@@ -242,15 +247,17 @@ const closePage = () => {
   }, 150);
 };
 
-const handleCityTap = (cityName: string) => {
-  const normalized = persistCity(cityName);
-  emitSelection(normalized);
+const handleCityTap = (cityName: string, provinceName?: string) => {
+  const normalizedCity = persistCity(cityName);
+  const normalizedProvince = provinceName ? formatCityName(provinceName) : '';
+  emitSelection({ city: normalizedCity, province: normalizedProvince });
   closePage();
 };
 
 const handleLocate = async (applyCity = true) => {
   if (locating.value) return;
   locating.value = true;
+  uni.showLoading({ title: '定位中...', mask: true });
   try {
     await ensureLocationAuth();
     const located = await locateCityByGPS();
@@ -265,7 +272,7 @@ const handleLocate = async (applyCity = true) => {
       locationCity.value = normalizedCity;
 
       if (applyCity) {
-        handleCityTap(normalizedCity);
+        handleCityTap(normalizedCity, normalizedProvince);
       }
       return;
     }
@@ -280,6 +287,7 @@ const handleLocate = async (applyCity = true) => {
       });
     }
   } finally {
+    uni.hideLoading();
     locating.value = false;
   }
 };
@@ -388,9 +396,10 @@ onLoad((options) => {
   locationCity.value = storedCity;
 
   // 自动定位但不立即切换城市，仅展示定位结果
-  setTimeout(() => {
-    handleLocate(false);
-  }, 200);
+  const shouldAutoLocate = !storedCity;
+  if (shouldAutoLocate) {
+    setTimeout(() => handleLocate(true), 200);
+  }
 });
 
 onReady(() => {
@@ -448,8 +457,15 @@ onReady(() => {
   background-color: #fff;
   border-bottom: 12rpx solid #f2f3f5;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 16rpx;
+
+  &__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 10rpx;
+  }
 
   .location-label {
     font-size: 26rpx;
@@ -458,14 +474,13 @@ onReady(() => {
 
   .location-value {
     font-size: 34rpx;
-    font-weight: 600;
-    margin-left: 6rpx;
+    font-weight: 700;
     color: #1c1f26;
+    word-break: break-all;
   }
 
   .location-tip {
     display: block;
-    margin-top: 8rpx;
     font-size: 22rpx;
     color: #9ca4b3;
   }
@@ -473,27 +488,36 @@ onReady(() => {
 
 .location-actions {
   display: flex;
-  gap: 18rpx;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  width: 100%;
 }
 
-.icon-button {
-  width: 72rpx;
+.action-button {
+  flex: 1;
+  min-width: 240rpx;
   height: 72rpx;
-  border-radius: 50%;
-  border: 1rpx solid #e1e4ea;
-  background: #fff;
-  display: flex;
+  padding: 0 22rpx;
+  border-radius: 24rpx;
+  border: 1rpx solid #e4e7ed;
+  // background: linear-gradient(135deg, #f7f9ff 0%, #f2f5fb 100%);
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
+  box-sizing: border-box;
+  // box-shadow: 0 6rpx 12rpx rgba(17, 24, 39, 0.05);
 
   &__hover {
-    background: #f8f9fb;
+    background: #eef2fb;
   }
 
-  .icon-text {
-    font-size: 30rpx;
-    color: #111;
+  &__text {
+    display: inline-flex;
+    align-items: center;
+    gap: 10rpx;
+    font-size: 28rpx;
+    color: #1f2d3d;
+    // font-weight: 600;
   }
 }
 
