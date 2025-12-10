@@ -332,6 +332,32 @@ const calcHeroDays = (deliveryDate?: string | null) => {
   return days + 1;
 };
 
+// 计算“当前筛选列表中最早一条记录”距今的天数
+const calcDaysSinceEarliestRecord = (records: any[]): number => {
+  if (!Array.isArray(records) || records.length === 0) return 0;
+
+  let earliestTs: number | null = null;
+
+  records.forEach((item) => {
+    const dateStr = item?.date || item?.refuelDate;
+    if (!dateStr) return;
+
+    const ts = new Date(String(dateStr).replace(/-/g, '/')).getTime();
+    if (Number.isNaN(ts)) return;
+
+    if (earliestTs === null || ts < earliestTs) {
+      earliestTs = ts;
+    }
+  });
+
+  if (earliestTs === null) return 0;
+
+  const diff = Date.now() - earliestTs;
+  if (diff < 0) return 0;
+
+  return Math.floor(diff / DAY_MS) + 1;
+};
+
 // ============= 用户交车日期（用于统计卡片） =============
 const profileDeliveryDate = ref<string | null>(null);
 
@@ -488,9 +514,10 @@ const fetchHeroData = async (rangeKey: RangeKey = heroRange.value.key) => {
 
     // ===== 爱车相伴天数 & 成本/天 =====
     const heroDaysNum = calcHeroDays(profileDeliveryDate.value);
+    const listSpanDays = calcDaysSinceEarliestRecord(list);
 
-    // 成本/天 = 总支出 / 爱车相伴天数
-    const costPerDay = heroDaysNum > 0 ? totalSpendNum / heroDaysNum : 0;
+    // 成本/天 = 总支出 / 当前筛选数据跨度天数
+    const costPerDay = listSpanDays > 0 ? totalSpendNum / listSpanDays : 0;
 
     // ===== 更新 heroOverview 数据 =====
     heroOverview.value = {
@@ -513,7 +540,7 @@ const fetchHeroData = async (rangeKey: RangeKey = heroRange.value.key) => {
         {
           key: 'perDay',
           label: '成本/天',
-          value: heroDaysNum > 0 ? costPerDay.toFixed(2) : '--',
+          value: listSpanDays > 0 ? costPerDay.toFixed(2) : '--',
           unit: '元',
         },
       ],
