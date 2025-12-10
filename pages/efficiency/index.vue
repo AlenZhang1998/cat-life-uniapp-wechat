@@ -7,25 +7,31 @@
         '--accent-light': accentLightColor,
       }"
     >
-      <view class="hero-top">
-        <view class="pill">{{ displayLevel || '未评' }}</view>
+      <view class="hero-header">
+        <view class="hero-level" :style="{ color: accentColor }">{{
+          displayLevel || '?'
+        }}</view>
         <view class="title-group">
           <text class="hero-title">油耗评级说明</text>
           <text class="hero-sub">基于行业平均值的参考模型</text>
         </view>
       </view>
-      <view class="hero-meta">
+
+      <view class="hero-meta-wrapper">
         <view class="meta-item">
           <text class="meta-label">最新油耗</text>
-          <text class="meta-value">
+          <text class="meta-value fuel-value">
             {{ displayFuelText }}
           </text>
         </view>
         <view class="meta-item">
           <text class="meta-label">当前级别</text>
-          <text class="meta-value">{{ displayLevel || '--' }}</text>
+          <text class="meta-value level-value" :style="{ color: accentColor }">
+            {{ displayLevel || '--' }}
+          </text>
         </view>
       </view>
+
       <view class="hero-tip">
         数据基于行业平均水平，具体油耗受路况、驾驶习惯、气候和车辆状态等影响，仅供参考。
       </view>
@@ -177,8 +183,7 @@ const levelColors: Record<string, { main: string; light: string }> = {
 };
 
 const accentColor = computed(
-  () =>
-    levelColors[displayLevel.value.toUpperCase?.() || '']?.main || '#1ec15f'
+  () => levelColors[displayLevel.value.toUpperCase?.() || '']?.main || '#1ec15f'
 );
 const accentLightColor = computed(
   () =>
@@ -214,95 +219,97 @@ onLoad((options) => {
 
 .hero-card {
   background: #fff;
-  border-radius: 24rpx;
-  padding: 28rpx 30rpx;
-  box-shadow: 0 12rpx 30rpx rgba(30, 193, 95, 0.08);
+  border-radius: 30rpx;
+  padding: 35rpx 30rpx;
+  // 增强阴影，但移除内部渐变，使其更简洁
+  box-shadow: 0 15rpx 40rpx rgba(0, 0, 0, 0.08);
   border: 1rpx solid #e7ebf1;
   position: relative;
   overflow: hidden;
-  margin-bottom: 24rpx;
+  margin-bottom: 30rpx;
   color: #1f2d3d;
 
-  &::after {
-    content: '';
-    position: absolute;
-    inset: -30rpx 40rpx auto auto;
-    width: 180rpx;
-    height: 180rpx;
-    background: radial-gradient(
-      circle at center,
-      var(--accent-light),
-      rgba(255, 255, 255, 0)
-    );
-    opacity: 0.85;
-    pointer-events: none;
-  }
+  // 移除::after 伪元素，使用更简洁的视觉效果
 
-  .hero-top {
+  .hero-header {
     display: flex;
     align-items: center;
-    gap: 14rpx;
-    margin-bottom: 16rpx;
+    gap: 20rpx;
+    margin-bottom: 30rpx;
   }
 
-  .pill {
-    padding: 6rpx 18rpx;
-    border-radius: 999rpx;
-    background: #fff;
-    border: 2rpx solid var(--accent);
-    color: var(--accent);
-    font-weight: 700;
+  // 突出评级字母
+  .hero-level {
+    font-size: 80rpx;
+    font-weight: 900;
+    line-height: 1;
+    // 使用主色，增强视觉冲击力
+    text-shadow: 0 4rpx 10rpx rgba(0, 0, 0, 0.1);
   }
 
   .title-group {
     display: flex;
     flex-direction: column;
-    gap: 4rpx;
+    gap: 8rpx;
   }
 
   .hero-title {
-    font-size: 32rpx;
+    font-size: 38rpx;
     font-weight: 800;
+    color: #1f2d3d;
   }
 
   .hero-sub {
-    font-size: 24rpx;
-    color: #4b5563;
+    font-size: 26rpx;
+    color: #9ca3af; // 使用柔和的灰色
   }
 
-  .hero-meta {
+  .hero-meta-wrapper {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12rpx;
-    margin-bottom: 12rpx;
+    gap: 20rpx;
+    margin-bottom: 20rpx;
   }
 
+  // 数据展示区块优化
   .meta-item {
-    background: rgba(255, 255, 255, 0.75);
-    border-radius: 16rpx;
-    padding: 18rpx 18rpx;
+    background: #f9fbfd; // 浅蓝灰色背景，区分于卡片主体
+    border-radius: 20rpx;
+    padding: 24rpx 20rpx;
     display: flex;
     flex-direction: column;
-    gap: 6rpx;
-    border: 1rpx solid #e9eef5;
+    gap: 8rpx;
+    border: 1rpx solid #eef2f6;
+    box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.03);
   }
 
   .meta-label {
-    font-size: 24rpx;
-    color: #6b7280;
+    font-size: 26rpx;
+    color: #71717a;
+    font-weight: 500;
   }
 
   .meta-value {
-    font-size: 34rpx;
-    font-weight: 800;
-    color: #111827;
+    font-size: 42rpx;
+    font-weight: 900;
+  }
+
+  .fuel-value {
+    color: #1f2d3d;
+  }
+
+  .level-value {
+    // 颜色通过行内 style 绑定，这里无需定义
   }
 
   .hero-tip {
-    margin-top: 6rpx;
+    margin-top: 10rpx;
     font-size: 24rpx;
-    color: #5c6b7a;
-    line-height: 1.5;
+    color: #8c9096;
+    line-height: 1.6;
+    background: #f7f9fc;
+    padding: 12rpx;
+    border-radius: 12rpx;
   }
 }
 
@@ -358,7 +365,7 @@ onLoad((options) => {
 
   &.active {
     background: linear-gradient(90deg, var(--accent-light), #f9fbff 100%);
-    border-left: 6rpx solid var(--accent);
+    border-left: 18rpx solid var(--accent);
   }
 
   &.colored {
@@ -367,7 +374,7 @@ onLoad((options) => {
       var(--row-accent-light, #fff) 0%,
       #fff 70%
     );
-    border-left: 4rpx solid var(--row-accent, #e5e7eb);
+    border-left: 10rpx solid var(--row-accent, #e5e7eb);
   }
 }
 
