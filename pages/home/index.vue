@@ -294,9 +294,9 @@ const oilError = ref('');
 
 // 获取今日油价
 const fetchOilPrice = async () => {
-  // if (!isLoggedIn.value) {
-  //   return
-  // }
+  if (!isLoggedIn.value) {
+    return;
+  }
   if (!province.value) return;
   oilLoading.value = true;
   oilError.value = '';
