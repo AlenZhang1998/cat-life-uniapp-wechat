@@ -236,10 +236,20 @@ const showLoginSheet = ref(false);
 
 const city = ref(normalizeOrDefault(DEFAULT_CITY));
 const province = ref(resolveProvinceByCity(city.value));
+let skipSyncSelectedCityOnce = false; // 避免从城市页回跳时二次触发 applyCity
 
-const applyCity = (value: string) => {
-  city.value = normalizeOrDefault(value);
-  province.value = resolveProvinceByCity(value);
+const applyCity = (value: string, provinceName?: string) => {
+  const normalizedCity = normalizeOrDefault(value);
+  city.value = normalizedCity;
+  if (provinceName) {
+    console.log('自动定位，有省份');
+    const normalizedProvince =
+      normalizeCityName(provinceName) || provinceName || '';
+    province.value = normalizedProvince;
+  } else {
+    console.log('无省份');
+    province.value = resolveProvinceByCity(value);
+  }
   console.log(233, 'applyCity = ', city.value, province.value);
 };
 watch(
@@ -613,8 +623,8 @@ const fetchRefuelData = async (rangeKey: RangeKey = rangeOptions[3].key) => {
       typeof resolvedDateRangeDaysFromList === 'number'
         ? resolvedDateRangeDaysFromList
         : typeof s.dateRangeDays === 'number'
-          ? s.dateRangeDays
-          : calcDateRangeDays(s.startDate, s.endDate);
+        ? s.dateRangeDays
+        : calcDateRangeDays(s.startDate, s.endDate);
     const validDateRangeDays =
       typeof resolvedDateRangeDays === 'number' && resolvedDateRangeDays > 0
         ? resolvedDateRangeDays
@@ -1045,9 +1055,15 @@ const navigateToCity = () => {
   uni.navigateTo({
     url: `/pages/city/index?currentCity=${encodeURIComponent(city.value)}`,
     events: {
-      'city-selected': (selectedCity: string) => {
-        if (selectedCity) {
-          applyCity(selectedCity);
+      'city-selected': (
+        payload: string | { city: string; province?: string }
+      ) => {
+        if (!payload) return;
+        skipSyncSelectedCityOnce = true;
+        if (typeof payload === 'string') {
+          applyCity(payload);
+        } else if (payload.city) {
+          applyCity(payload.city, payload.province);
         }
       },
     },
@@ -1056,7 +1072,11 @@ const navigateToCity = () => {
 
 onShow(() => {
   refreshLoginState();
-  syncSelectedCity();
+  if (!skipSyncSelectedCityOnce) {
+    syncSelectedCity();
+  } else {
+    skipSyncSelectedCityOnce = false;
+  }
   runPageEnterAnimation();
 
   // 获取用户资料信息和加油记录数据
