@@ -25,6 +25,7 @@
 | `/pages/expense/index` | 费用分析：统计卡片 + 月度柱状图 + 年度折线图，均由 RangePicker 控制时间范围。 |
 | `/pages/profile/index` | 个人档案：模拟登录、加入时间/标签、快捷入口，支持退出登录。 |
 | `/pages/profile/personal-info` | 资料编辑：头像上传（拍照/相册）、昵称/车型/日期等表单，数据写入 `userProfile` 与后端。 |
+| `/pages/profile/feedback` | 建议反馈：提交问题/想法/文案等类型，附可选联系方式，POST `/api/feedback`。 |
 
 ## 技术栈
 
@@ -114,6 +115,7 @@
 - **城市列表与定位**：`data/cities.ts` 提供城市列表；`utils/location.ts` 负责授权/GPS/腾讯地图解析；`STORAGE_KEYS.selectedCity` 用于跨页复用最近城市。
 - **油耗记录快照**：`pages/records` 的 `recordSnapshots`、`summarySnapshots` 示例展示按年份切换，真实接入时按年份请求接口即可。
 - **个人档案存储**：`userProfile` 与 `token` 持久化在本地；`pages/profile/index.vue` 支持退出登录；`pages/profile/personal-info.vue` 兼容旧字段 `name` / `avatar` 并回退使用接口数据。
+- **建议反馈**：`pages/profile/feedback` 支持类型选择、描述、联系方式，默认 POST `/api/feedback`。
 - **样式变量**：`uni.scss` 定义主题色、阴影、圆角等 Token，统一管理视觉风格。
 
 ## 常用脚本
