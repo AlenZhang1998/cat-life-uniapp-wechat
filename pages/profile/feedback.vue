@@ -16,8 +16,11 @@
         <view
           v-for="item in feelingOptions"
           :key="item.value"
-          class="feeling-tag"
-          :class="{ 'feeling-tag--active': item.value === feeling }"
+          :class="[
+            'feeling-tag',
+            `feeling-tag--${item.value}`,
+            { 'feeling-tag--active': item.value === feeling },
+          ]"
           @tap="feeling = item.value"
         >
           <text class="feeling-emoji">{{ item.emoji }}</text>
@@ -28,8 +31,8 @@
 
     <!-- 反馈内容 -->
     <view class="section-card">
-      <view class="section-title required">
-        反馈内容
+      <view class="section-title">
+        反馈内容（必填）
         <text class="section-subtitle"
           >（越详细越好，比如在哪个页面、操作步骤等）</text
         >
@@ -233,69 +236,84 @@ onShow(() => {
   min-height: 100vh;
   padding: 16rpx 24rpx 140rpx;
   box-sizing: border-box;
-  background: #f7f8fa;
+  background: linear-gradient(180deg, #f5f7ff 0%, #f7f8fa 36%, #f5f7f9 100%);
   font-size: 28rpx;
   color: #1d2129;
 }
 
+/* 顶部卡片 */
 .header-card {
+  position: relative;
   margin-bottom: 24rpx;
   padding: 28rpx 24rpx 32rpx;
-  background: #ffffff;
+  background: linear-gradient(135deg, #ffffff 0%, #f6f7ff 40%, #f8fbff 100%);
   border-radius: 24rpx;
-  box-shadow: 0 10rpx 30rpx rgba(15, 35, 95, 0.03);
+  box-shadow: 0 12rpx 32rpx rgba(28, 63, 160, 0.06);
+  overflow: hidden;
 
   .header-title {
     font-size: 34rpx;
     font-weight: 600;
     margin-bottom: 8rpx;
+    padding-left: 10rpx;
   }
 
   .header-sub {
+    padding-left: 10rpx;
     font-size: 26rpx;
-    color: #86909c;
-    line-height: 1.5;
+    color: #8a93a3;
+    line-height: 1.6;
   }
 }
 
+/* 通用卡片 */
 .section-card {
+  position: relative;
   margin-bottom: 20rpx;
   padding: 24rpx 24rpx 28rpx;
   background: #ffffff;
   border-radius: 24rpx;
-  box-shadow: 0 10rpx 30rpx rgba(15, 35, 95, 0.02);
+  border: 1rpx solid #eef0f4;
+  box-shadow: 0 10rpx 28rpx rgba(15, 35, 95, 0.03);
 }
 
+/* ✅✅✅ 这里是关键修复点 ✅✅✅ */
 .section-title {
   display: flex;
-  align-items: baseline;
+  flex-direction: column; // ✅ 改成纵向排列
+  align-items: flex-start; // ✅ 左对齐
   font-size: 28rpx;
   font-weight: 500;
   color: #1d2129;
   margin-bottom: 18rpx;
+  padding-left: 44rpx;
 
   &.required::before {
     content: '*';
-    color: #f53f3f;
-    margin-right: 4rpx;
+    color: #ff4d4f;
+    margin-bottom: 4rpx;
   }
 }
 
+/* ✅ 副标题独占一行 */
 .section-subtitle {
-  margin-left: 8rpx;
+  margin-top: 6rpx; // ✅ 由 margin-left 改为 margin-top
   font-size: 24rpx;
   color: #a0a5b3;
+  line-height: 1.5;
 }
 
+/* 使用感受 tags */
 .feeling-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 16rpx;
+  padding-left: 20rpx;
 }
 
 .feeling-tag {
   min-width: 150rpx;
-  padding: 14rpx 20rpx;
+  padding: 12rpx 20rpx;
   border-radius: 999rpx;
   background: #f5f7fb;
   color: #4e5969;
@@ -304,10 +322,31 @@ onShow(() => {
   justify-content: center;
   gap: 8rpx;
   font-size: 26rpx;
+  border: 1rpx solid transparent;
+  transition: all 0.18s ease-out;
+
+  &--great {
+    background: rgba(57, 209, 129, 0.06);
+    color: #21a96b;
+  }
+  &--ok {
+    background: rgba(64, 134, 255, 0.05);
+    color: #3a7afe;
+  }
+  &--bug {
+    background: rgba(255, 193, 79, 0.06);
+    color: #ff9f31;
+  }
+  &--bad {
+    background: rgba(255, 119, 119, 0.06);
+    color: #ff5a5f;
+  }
 
   &--active {
-    background: #e8f5ff;
-    color: #2a7afe;
+    color: #1d2129;
+    box-shadow: 0 10rpx 24rpx rgba(58, 122, 254, 0.22);
+    background: #ffffff;
+    border-image: linear-gradient(135deg, #3a7afe, #6ae0ff) 1;
   }
 }
 
@@ -315,10 +354,12 @@ onShow(() => {
   font-size: 30rpx;
 }
 
+/* 文本输入块 */
 .textarea-wrapper {
   border-radius: 20rpx;
-  background: #f7f8fa;
+  background: #f7f8fc;
   padding: 16rpx 18rpx 10rpx;
+  border: 1rpx dashed #dde2f0;
 }
 
 .feedback-textarea {
@@ -348,14 +389,19 @@ onShow(() => {
 }
 
 .textarea-count {
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+  background: #eef3ff;
   font-size: 22rpx;
-  color: #86909c;
+  color: #3a7afe;
 }
 
+/* 图片上传 */
 .image-list {
   display: flex;
   flex-wrap: wrap;
   gap: 16rpx;
+  padding-left: 4rpx;
 }
 
 .image-item {
@@ -388,31 +434,27 @@ onShow(() => {
 }
 
 .image-item--add {
-  border: 1px dashed #d0d3dd;
+  border-radius: 20rpx;
+  border: 1rpx dashed #b7c0d8;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   color: #a0a5b3;
-
-  .add-icon {
-    font-size: 40rpx;
-    margin-bottom: 6rpx;
-  }
-
-  .add-text {
-    font-size: 24rpx;
-  }
-
-  &__hover {
-    background: #f0f2f5;
-  }
+  background: radial-gradient(
+    circle at 20% 0,
+    #f7fbff 0,
+    #f5f7fb 36%,
+    #f4f5f7 100%
+  );
 }
 
+/* 联系方式输入框 */
 .input-wrapper {
   border-radius: 999rpx;
   background: #f7f8fa;
   padding: 10rpx 22rpx;
+  border: 1rpx solid #e4e7f2;
 }
 
 .feedback-input {
@@ -423,11 +465,7 @@ onShow(() => {
   color: #1d2129;
 }
 
-.feedback-input__placeholder {
-  color: #c0c4cc;
-  font-size: 26rpx;
-}
-
+/* 底部提交按钮 */
 .bottom-safe {
   height: 120rpx;
 }
@@ -438,8 +476,13 @@ onShow(() => {
   right: 0;
   bottom: 0;
   padding: 12rpx 24rpx 32rpx;
-  background: linear-gradient(to top, #f7f8fa, rgba(247, 248, 250, 0.1));
-  box-sizing: border-box;
+  background: linear-gradient(
+    180deg,
+    rgba(247, 248, 250, 0.1) 0%,
+    rgba(247, 248, 250, 0.92) 30%,
+    #f7f8fa 100%
+  );
+  backdrop-filter: blur(12rpx);
 }
 
 .submit-btn {
@@ -447,13 +490,15 @@ onShow(() => {
   height: 88rpx;
   line-height: 88rpx;
   border-radius: 999rpx;
-  background: #2a7afe;
+  background: linear-gradient(135deg, #3a7afe, #45c6ff);
+  box-shadow: 0 16rpx 32rpx rgba(58, 122, 254, 0.35);
   color: #ffffff;
   font-size: 30rpx;
   font-weight: 500;
 
   &--disabled {
-    background: #a0b5f0;
+    background: linear-gradient(135deg, #afc3ff, #cdeaff);
+    box-shadow: none;
   }
 }
 </style>
