@@ -1,0 +1,242 @@
+/* 全局通用阴影，保持风格统一 */
+/* 全局通用阴影，保持风格统一 */
+.profile-page.data-v-201c0da5 {
+  padding: 32rpx 32rpx 160rpx;
+  background: linear-gradient(180deg, #f8fbff 0%, #eef4f7 100%);
+  color: #1f2329;
+}
+.profile-page .identity-card.data-v-201c0da5 {
+  position: relative;
+  border-radius: 44rpx;
+  padding: 44rpx 40rpx 36rpx;
+  background: linear-gradient(135deg, #ffffff 0%, #eef8ff 45%, #fdf1ff 100%);
+  box-shadow: 0 28rpx 60rpx rgba(74, 111, 160, 0.2);
+  overflow: hidden;
+  margin-bottom: 32rpx;
+}
+.profile-page .identity-card .identity-glow.data-v-201c0da5 {
+  position: absolute;
+  inset: -60rpx;
+  background: radial-gradient(circle at 15% 15%, rgba(190, 225, 255, 0.7), transparent 60%), radial-gradient(circle at 85% 5%, rgba(255, 203, 240, 0.55), transparent 50%), radial-gradient(circle at 50% 80%, rgba(198, 248, 219, 0.5), transparent 55%);
+  filter: blur(8rpx);
+}
+.profile-page .identity-card .identity-header.data-v-201c0da5 {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  position: relative;
+  z-index: 1;
+}
+.profile-page .identity-card .identity-header .avatar-ring.data-v-201c0da5 {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 50%;
+  background: conic-gradient(#2ed97a, #52a1ff, #ffd976, #2ed97a);
+  padding: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.profile-page .identity-card .identity-header .avatar-ring .avatar-core.data-v-201c0da5 {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #1f2329;
+  box-shadow: inset 0 0 18rpx rgba(0, 0, 0, 0.06);
+}
+.profile-page .identity-card .identity-header .avatar-ring .avatar-core .avatar-image.data-v-201c0da5 {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+.profile-page .identity-card .identity-header .avatar-ring .avatar-core .avatar-placeholder.data-v-201c0da5 {
+  color: #94a2b8;
+  font-size: 28rpx;
+}
+.profile-page .identity-card .identity-header .identity-meta.data-v-201c0da5 {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+.profile-page .identity-card .identity-header .identity-meta .identity-label.data-v-201c0da5 {
+  font-size: 22rpx;
+  letter-spacing: 4rpx;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.35);
+}
+.profile-page .identity-card .identity-header .identity-meta .user-name.data-v-201c0da5 {
+  font-size: 40rpx;
+  font-weight: 700;
+}
+.profile-page .identity-card .identity-header .identity-meta .user-subtitle.data-v-201c0da5 {
+  font-size: 26rpx;
+  color: #6a7283;
+}
+.profile-page .identity-card .identity-header .identity-meta .user-tags.data-v-201c0da5 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+.profile-page .identity-card .identity-header .identity-meta .user-tags .user-tag.data-v-201c0da5 {
+  padding: 6rpx 18rpx;
+  border-radius: 999rpx;
+  background: rgba(30, 193, 95, 0.12);
+  font-size: 22rpx;
+  color: #1d7243;
+}
+.profile-page .identity-card .identity-header .identity-meta--placeholder.data-v-201c0da5 {
+  align-items: flex-start;
+  gap: 8rpx;
+}
+.profile-page .identity-card .identity-header .identity-meta--placeholder .user-name.data-v-201c0da5 {
+  font-size: 32rpx;
+  color: #2a61d1;
+}
+.profile-page .identity-card .identity-motto-card.data-v-201c0da5 {
+  margin-top: 24rpx;
+  padding: 24rpx;
+  border-radius: 28rpx;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: inset 0 0 0 1rpx rgba(255, 255, 255, 0.3), 0 12rpx 32rpx rgba(86, 126, 173, 0.14);
+  position: relative;
+  z-index: 1;
+}
+.profile-page .identity-card .identity-motto-card .motto-label.data-v-201c0da5 {
+  font-size: 22rpx;
+  color: #7a8295;
+  margin-bottom: 8rpx;
+  display: block;
+}
+.profile-page .identity-card .identity-motto-card .motto-text.data-v-201c0da5 {
+  font-size: 28rpx;
+  color: #3a3f4d;
+  line-height: 1.4;
+}
+.profile-page .identity-action.data-v-201c0da5 {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 28rpx;
+  padding: 24rpx 26rpx;
+  gap: 20rpx;
+  box-shadow: 0 12rpx 28rpx rgba(78, 120, 172, 0.18);
+}
+.profile-page .identity-action .action-icon.data-v-201c0da5 {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 20rpx;
+  background: rgba(46, 217, 122, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  flex-shrink: 0;
+}
+.profile-page .identity-action .action-meta.data-v-201c0da5 {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+.profile-page .identity-action .action-meta .action-label.data-v-201c0da5 {
+  font-size: 30rpx;
+  font-weight: 600;
+}
+.profile-page .identity-action .action-meta .action-desc.data-v-201c0da5 {
+  font-size: 24rpx;
+  color: #8a93a0;
+}
+.profile-page .identity-action .action-arrow.data-v-201c0da5 {
+  font-size: 32rpx;
+  color: #aab0c0;
+}
+.profile-page .stats-panel.data-v-201c0da5,
+.profile-page .journey-card.data-v-201c0da5,
+.profile-page .garage-card.data-v-201c0da5 {
+  border-radius: 32rpx;
+  padding: 32rpx;
+  background: #fff;
+  box-shadow: 0 20rpx 48rpx rgba(72, 117, 149, 0.12);
+  margin-bottom: 32rpx;
+}
+.profile-page .garage-card .section-header.data-v-201c0da5 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+.profile-page .garage-card .section-header .section-title.data-v-201c0da5 {
+  font-size: 32rpx;
+  font-weight: 700;
+}
+.profile-page .garage-card .section-header .section-subtitle.data-v-201c0da5 {
+  font-size: 24rpx;
+  color: #8a93a0;
+}
+.profile-page .garage-card .feature-list.data-v-201c0da5 {
+  display: flex;
+  flex-direction: column;
+  border-radius: 28rpx;
+  overflow: hidden;
+  border: 1rpx solid rgba(164, 186, 211, 0.25);
+}
+.profile-page .garage-card .feature-list .feature-item.data-v-201c0da5 {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 26rpx;
+  background: #fbfdff;
+}
+.profile-page .garage-card .feature-list .feature-item + .feature-item.data-v-201c0da5 {
+  border-top: 1rpx solid rgba(223, 229, 238, 0.9);
+}
+.profile-page .garage-card .feature-list .feature-item .feature-icon.data-v-201c0da5 {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 20rpx;
+  background: rgba(30, 193, 95, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34rpx;
+}
+.profile-page .garage-card .feature-list .feature-item .feature-content.data-v-201c0da5 {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+.profile-page .garage-card .feature-list .feature-item .feature-content .feature-title.data-v-201c0da5 {
+  font-size: 30rpx;
+  font-weight: 600;
+}
+.profile-page .garage-card .feature-list .feature-item .feature-content .feature-desc.data-v-201c0da5 {
+  font-size: 24rpx;
+  color: #8a93a0;
+}
+.profile-page .garage-card .feature-list .feature-item .feature-arrow.data-v-201c0da5 {
+  font-size: 32rpx;
+  color: #c0c5d2;
+}
+.profile-page .logout-card.data-v-201c0da5 {
+  margin-top: 32rpx;
+  border-radius: 32rpx;
+  background: #fff5f5;
+  color: #f16060;
+  text-align: center;
+  padding: 28rpx 24rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  box-shadow: 0 12rpx 32rpx rgba(241, 96, 96, 0.2);
+  letter-spacing: 4rpx;
+}
+.profile-page .logout-card .logout-text.data-v-201c0da5 {
+  color: inherit;
+}

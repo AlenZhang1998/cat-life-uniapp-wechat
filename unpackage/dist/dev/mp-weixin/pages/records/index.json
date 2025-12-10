@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "油耗列表",
+  "usingComponents": {
+    "bottom-action-bar": "../../components/BottomActionBar",
+    "login-overlay": "../../components/LoginOverlay"
+  }
+}

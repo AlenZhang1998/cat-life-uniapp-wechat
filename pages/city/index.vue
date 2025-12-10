@@ -10,13 +10,7 @@
           placeholder-class="search-placeholder"
           confirm-type="search"
         />
-        <text
-          v-if="keyword"
-          class="clear-icon"
-          @tap="clearKeyword"
-        >
-          ✕
-        </text>
+        <text v-if="keyword" class="clear-icon" @tap="clearKeyword"> ✕ </text>
       </view>
     </view>
 
@@ -27,10 +21,7 @@
           {{ locationCity || currentCity || '未定位' }}
           <!-- {{ locationProvince }}-{{ locationCity }}-{{ currentCity }} -->
         </text>
-        <text
-          v-if="!locationCity"
-          class="location-tip"
-        >
+        <text v-if="!locationCity" class="location-tip">
           {{ locating ? '定位中...' : '点击右侧按钮重新定位' }}
         </text>
       </view>
@@ -77,19 +68,13 @@
             @tap="handleCityTap(city.name)"
           >
             <text>{{ city.name }}</text>
-            <text
-              v-if="city.name === currentCity"
-              class="city-tag"
-            >
+            <text v-if="city.name === currentCity" class="city-tag">
               当前
             </text>
           </view>
         </view>
 
-        <view
-          v-if="!displayedSections.length"
-          class="empty-hint"
-        >
+        <view v-if="!displayedSections.length" class="empty-hint">
           <text>没有匹配的城市，换个关键词试试～</text>
         </view>
       </scroll-view>
@@ -116,59 +101,59 @@
 </template>
 
 <script setup lang="ts">
-import { onLoad, onReady } from '@dcloudio/uni-app'
-import { computed, getCurrentInstance, nextTick, ref } from 'vue'
-import { STORAGE_KEYS } from '@/constants/storage'
-import { CITY_LIST, CityItem } from '@/data/cities'
+import { onLoad, onReady } from '@dcloudio/uni-app';
+import { computed, getCurrentInstance, nextTick, ref } from 'vue';
+import { STORAGE_KEYS } from '@/constants/storage';
+import { CITY_LIST, CityItem } from '@/data/cities';
 import {
   chooseCityFromMap,
   ensureLocationAuth,
   locateCityByGPS,
-  normalizeCityName
-} from '@/utils/location'
+  normalizeCityName,
+} from '@/utils/location';
 
 type CitySection = {
-  letter: string
-  items: CityItem[]
-}
+  letter: string;
+  items: CityItem[];
+};
 
 type IndexBarRect = {
-  top: number
-  height: number
-}
+  top: number;
+  height: number;
+};
 
 type TouchLikeEvent = {
   touches?: Array<{
-    clientY?: number
-    pageY?: number
-  }>
+    clientY?: number;
+    pageY?: number;
+  }>;
   changedTouches?: Array<{
-    clientY?: number
-    pageY?: number
-  }>
-}
+    clientY?: number;
+    pageY?: number;
+  }>;
+};
 
-const keyword = ref('')
-const currentCity = ref('')
-const locationProvince = ref('') // 定位省份
-const locationCity = ref('') // 定位城市
-const locating = ref(false)
-const activeAnchor = ref('')
-const highlightedLetter = ref('')
-const eventChannel = ref<UniApp.EventChannel | null>(null)
-const pageInstance = getCurrentInstance()
-const indexTouching = ref(false)
-const indexBarRect = ref<IndexBarRect | null>(null)
+const keyword = ref('');
+const currentCity = ref('');
+const locationProvince = ref(''); // 定位省份
+const locationCity = ref(''); // 定位城市
+const locating = ref(false);
+const activeAnchor = ref('');
+const highlightedLetter = ref('');
+const eventChannel = ref<UniApp.EventChannel | null>(null);
+const pageInstance = getCurrentInstance();
+const indexTouching = ref(false);
+const indexBarRect = ref<IndexBarRect | null>(null);
 
 const resolveEventChannel = () => {
   const getter =
     pageInstance?.proxy?.getOpenerEventChannel ??
-    pageInstance?.ctx?.getOpenerEventChannel
-  return typeof getter === 'function' ? getter() : null
-}
+    pageInstance?.ctx?.getOpenerEventChannel;
+  return typeof getter === 'function' ? getter() : null;
+};
 
 const measureIndexBar = () => {
-  if (!pageInstance?.proxy) return
+  if (!pageInstance?.proxy) return;
   uni
     .createSelectorQuery()
     .in(pageInstance.proxy)
@@ -177,241 +162,240 @@ const measureIndexBar = () => {
       if (rect) {
         indexBarRect.value = {
           top: rect.top ?? 0,
-          height: rect.height ?? 0
-        }
+          height: rect.height ?? 0,
+        };
       }
     })
-    .exec()
-}
+    .exec();
+};
 
 const getClientY = (event: TouchLikeEvent) => {
-  const touch = event.touches?.[0] ?? event.changedTouches?.[0]
-  return touch?.clientY ?? touch?.pageY ?? null
-}
+  const touch = event.touches?.[0] ?? event.changedTouches?.[0];
+  return touch?.clientY ?? touch?.pageY ?? null;
+};
 
-const baseCities: CityItem[] = CITY_LIST as CityItem[]
+const baseCities: CityItem[] = CITY_LIST as CityItem[];
 
 const sortSections = (entries: CitySection[]) =>
   entries.sort((a, b) => {
-    if (a.letter === '#') return 1
-    if (b.letter === '#') return -1
-    return a.letter.localeCompare(b.letter)
-  })
+    if (a.letter === '#') return 1;
+    if (b.letter === '#') return -1;
+    return a.letter.localeCompare(b.letter);
+  });
 
 const groupCities = (cities: CityItem[]) => {
-  const map = new Map<string, CityItem[]>()
+  const map = new Map<string, CityItem[]>();
   cities.forEach((city) => {
-    const letter = city.letter || '#'
+    const letter = city.letter || '#';
     if (!map.has(letter)) {
-      map.set(letter, [])
+      map.set(letter, []);
     }
-    map.get(letter)!.push(city)
-  })
+    map.get(letter)!.push(city);
+  });
   return sortSections(
     Array.from(map.entries()).map(([letter, items]) => ({
       letter,
-      items: items.sort((a, b) => a.pinyin.localeCompare(b.pinyin))
+      items: items.sort((a, b) => a.pinyin.localeCompare(b.pinyin)),
     }))
-  )
-}
+  );
+};
 
-const allSections = computed(() => groupCities(baseCities))
+const allSections = computed(() => groupCities(baseCities));
 
 const displayedSections = computed(() => {
-  const rawKeyword = keyword.value.trim()
-  const value = rawKeyword.toLowerCase()
+  const rawKeyword = keyword.value.trim();
+  const value = rawKeyword.toLowerCase();
   if (!rawKeyword) {
-    return allSections.value
+    return allSections.value;
   }
 
   const filtered = baseCities.filter((city) => {
-    if (city.name.includes(rawKeyword)) return true
-    return city.pinyin.includes(value) || city.abbr.includes(value)
-  })
-  return groupCities(filtered)
-})
+    if (city.name.includes(rawKeyword)) return true;
+    return city.pinyin.includes(value) || city.abbr.includes(value);
+  });
+  return groupCities(filtered);
+});
 
 const clearKeyword = () => {
-  keyword.value = ''
-}
+  keyword.value = '';
+};
 
-const formatCityName = (value: string) =>
-  normalizeCityName(value) || value
+const formatCityName = (value: string) => normalizeCityName(value) || value;
 
 const persistCity = (cityName: string) => {
-  const normalized = formatCityName(cityName)
-  currentCity.value = normalized
+  const normalized = formatCityName(cityName);
+  currentCity.value = normalized;
   uni.setStorage({
     key: STORAGE_KEYS.selectedCity,
-    data: normalized
-  })
-  return normalized
-}
+    data: normalized,
+  });
+  return normalized;
+};
 
 const emitSelection = (cityName: string) => {
-  eventChannel.value?.emit('city-selected', cityName)
-}
+  eventChannel.value?.emit('city-selected', cityName);
+};
 
 const closePage = () => {
   setTimeout(() => {
-    uni.navigateBack()
-  }, 150)
-}
+    uni.navigateBack();
+  }, 150);
+};
 
 const handleCityTap = (cityName: string) => {
-  const normalized = persistCity(cityName)
-  emitSelection(normalized)
-  closePage()
-}
+  const normalized = persistCity(cityName);
+  emitSelection(normalized);
+  closePage();
+};
 
 const handleLocate = async (applyCity = true) => {
-  if (locating.value) return
-  locating.value = true
+  if (locating.value) return;
+  locating.value = true;
   try {
-    await ensureLocationAuth()
-    const located = await locateCityByGPS()
-    console.log(273, 'located = ', located)
+    await ensureLocationAuth();
+    const located = await locateCityByGPS();
+    console.log(273, 'located = ', located);
 
     if (located?.city) {
-      const normalizedCity = formatCityName(located.city)
-      const normalizedProvince = formatCityName(located.province || '')
+      const normalizedCity = formatCityName(located.city);
+      const normalizedProvince = formatCityName(located.province || '');
 
       // 保存到页面状态
-      locationProvince.value = normalizedProvince
-      locationCity.value = normalizedCity
+      locationProvince.value = normalizedProvince;
+      locationCity.value = normalizedCity;
 
       if (applyCity) {
-        handleCityTap(normalizedCity)
+        handleCityTap(normalizedCity);
       }
-      return
+      return;
     }
     if (applyCity) {
-      await handlePickFromMap()
+      await handlePickFromMap();
     }
   } catch (error) {
     if (applyCity) {
       uni.showToast({
         title: '请先开启定位权限',
-        icon: 'none'
-      })
+        icon: 'none',
+      });
     }
   } finally {
-    locating.value = false
+    locating.value = false;
   }
-}
+};
 
 const handlePickFromMap = async () => {
-  const result = await chooseCityFromMap()
-  console.log(305, 'result = ', result)
+  const result = await chooseCityFromMap();
+  console.log(305, 'result = ', result);
   if (result?.city) {
-    const normalizedCity = formatCityName(result.city)
-    const normalizedProvince = formatCityName(result.province || '')
+    const normalizedCity = formatCityName(result.city);
+    const normalizedProvince = formatCityName(result.province || '');
 
-    locationProvince.value = normalizedProvince
-    locationCity.value = normalizedCity
+    locationProvince.value = normalizedProvince;
+    locationCity.value = normalizedCity;
 
-    handleCityTap(normalizedCity)
+    handleCityTap(normalizedCity);
   } else {
     uni.showToast({
       title: '无法获取定位',
-      icon: 'none'
-    })
+      icon: 'none',
+    });
   }
-}
+};
 
 const resolveClosestLetter = (letter: string) => {
-  const sections = displayedSections.value
-  if (!sections.length) return ''
-  const availableLetters = sections.map((section) => section.letter)
-  const availableSet = new Set(availableLetters)
-  if (availableSet.has(letter)) return letter
-  const orderedLetters = allSections.value.map((section) => section.letter)
-  const targetIndex = orderedLetters.indexOf(letter)
+  const sections = displayedSections.value;
+  if (!sections.length) return '';
+  const availableLetters = sections.map((section) => section.letter);
+  const availableSet = new Set(availableLetters);
+  if (availableSet.has(letter)) return letter;
+  const orderedLetters = allSections.value.map((section) => section.letter);
+  const targetIndex = orderedLetters.indexOf(letter);
   if (targetIndex !== -1) {
     for (let i = targetIndex + 1; i < orderedLetters.length; i++) {
-      const candidate = orderedLetters[i]
-      if (availableSet.has(candidate)) return candidate
+      const candidate = orderedLetters[i];
+      if (availableSet.has(candidate)) return candidate;
     }
     for (let i = targetIndex - 1; i >= 0; i--) {
-      const candidate = orderedLetters[i]
-      if (availableSet.has(candidate)) return candidate
+      const candidate = orderedLetters[i];
+      if (availableSet.has(candidate)) return candidate;
     }
   }
-  return availableLetters[0]
-}
+  return availableLetters[0];
+};
 
 const jumpTo = (letter: string) => {
-  const resolvedLetter = resolveClosestLetter(letter)
-  if (!resolvedLetter) return
-  highlightedLetter.value = resolvedLetter
-  activeAnchor.value = `anchor-${resolvedLetter}`
+  const resolvedLetter = resolveClosestLetter(letter);
+  if (!resolvedLetter) return;
+  highlightedLetter.value = resolvedLetter;
+  activeAnchor.value = `anchor-${resolvedLetter}`;
   setTimeout(() => {
-    activeAnchor.value = ''
-  }, 300)
-}
+    activeAnchor.value = '';
+  }, 300);
+};
 
 const handleIndexTap = (letter: string) => {
-  jumpTo(letter)
-}
+  jumpTo(letter);
+};
 
 const getLetterByClientY = (clientY: number | null) => {
-  if (!clientY || !indexBarRect.value || !allSections.value.length) return null
-  const { top, height } = indexBarRect.value
-  const sections = allSections.value
-  const relativeY = clientY - top
-  if (relativeY <= 0) return sections[0].letter
-  if (relativeY >= height) return sections[sections.length - 1].letter
-  const itemHeight = height / sections.length
+  if (!clientY || !indexBarRect.value || !allSections.value.length) return null;
+  const { top, height } = indexBarRect.value;
+  const sections = allSections.value;
+  const relativeY = clientY - top;
+  if (relativeY <= 0) return sections[0].letter;
+  if (relativeY >= height) return sections[sections.length - 1].letter;
+  const itemHeight = height / sections.length;
   const letterIndex = Math.min(
     sections.length - 1,
     Math.max(0, Math.floor(relativeY / itemHeight))
-  )
-  return sections[letterIndex].letter
-}
+  );
+  return sections[letterIndex].letter;
+};
 
 const updateLetterByTouch = (event: TouchLikeEvent) => {
-  const clientY = getClientY(event)
-  const letter = getLetterByClientY(clientY)
+  const clientY = getClientY(event);
+  const letter = getLetterByClientY(clientY);
   if (letter) {
-    jumpTo(letter)
+    jumpTo(letter);
   }
-}
+};
 
 const handleIndexTouchStart = (event: TouchLikeEvent) => {
-  indexTouching.value = true
-  updateLetterByTouch(event)
-}
+  indexTouching.value = true;
+  updateLetterByTouch(event);
+};
 
 const handleIndexTouchMove = (event: TouchLikeEvent) => {
-  if (!indexTouching.value) return
-  updateLetterByTouch(event)
-}
+  if (!indexTouching.value) return;
+  updateLetterByTouch(event);
+};
 
 const handleIndexTouchEnd = () => {
-  indexTouching.value = false
-}
+  indexTouching.value = false;
+};
 
 onLoad((options) => {
-  eventChannel.value = resolveEventChannel()
+  eventChannel.value = resolveEventChannel();
   const queryCityRaw =
-    (options?.currentCity && decodeURIComponent(options.currentCity)) || ''
+    (options?.currentCity && decodeURIComponent(options.currentCity)) || '';
   const storedCityRaw =
-    (uni.getStorageSync(STORAGE_KEYS.selectedCity) as string | null) || ''
-  const queryCity = normalizeCityName(queryCityRaw)
-  const storedCity = normalizeCityName(storedCityRaw)
+    (uni.getStorageSync(STORAGE_KEYS.selectedCity) as string | null) || '';
+  const queryCity = normalizeCityName(queryCityRaw);
+  const storedCity = normalizeCityName(storedCityRaw);
 
-  currentCity.value = queryCity || storedCity || '--'
-  locationCity.value = storedCity
+  currentCity.value = queryCity || storedCity || '--';
+  locationCity.value = storedCity;
 
   // 自动定位但不立即切换城市，仅展示定位结果
   setTimeout(() => {
-    handleLocate(false)
-  }, 200)
-})
+    handleLocate(false);
+  }, 200);
+});
 
 onReady(() => {
-  nextTick(measureIndexBar)
-})
+  nextTick(measureIndexBar);
+});
 </script>
 
 <style lang="scss" scoped>
@@ -603,5 +587,4 @@ onReady(() => {
     font-weight: 600;
   }
 }
-
 </style>
