@@ -1,9 +1,8 @@
-1111
 <template>
   <view class="feedback-page">
     <!-- 顶部说明 -->
     <view class="header-card">
-      <view class="header-title">建议反馈111</view>
+      <view class="header-title">建议反馈</view>
       <view class="header-sub">
         谢谢你愿意告诉我真实的使用感受，这会帮助我持续优化「爱车油耗」。
       </view>
@@ -126,6 +125,7 @@ import { computed, ref } from 'vue';
 import { onShow } from '@dcloudio/uni-app';
 import { axios } from '@/utils/request';
 import { useAuth } from '@/utils/auth';
+import { uploadImagesToCos } from '@/utils/upload';
 
 const { isLoggedIn } = useAuth();
 
@@ -166,11 +166,9 @@ const removeImage = (index: number) => {
   localImages.value.splice(index, 1);
 };
 
-// 这里先假装“上传成功”，真实项目你可以走你之前头像/COS 的那套上传逻辑，返回 url 数组
-const uploadImagesMock = async (): Promise<string[]> => {
-  // TODO: 替换成真正的上传逻辑
-  // 现在直接用本地路径占位，后端先不强依赖截图
-  return localImages.value.slice();
+const uploadSelectedImages = async (): Promise<string[]> => {
+  if (!localImages.value.length) return [];
+  return uploadImagesToCos(localImages.value);
 };
 
 const handleSubmit = async () => {
@@ -179,7 +177,8 @@ const handleSubmit = async () => {
   submitting.value = true;
   try {
     // 1. 上传截图（如果有）
-    const imageUrls = await uploadImagesMock();
+    const imageUrls = await uploadSelectedImages();
+    console.log(303, 'imageUrls = ', imageUrls);
 
     // 2. 调用反馈接口
     const payload = {
@@ -193,7 +192,9 @@ const handleSubmit = async () => {
       images: imageUrls,
     };
 
-    const res = (await axios.post('/api/feedback/create', payload)) as any;
+    const res = (await axios.post('/api/feedback/create', {
+      data: payload,
+    })) as any;
 
     if (!res || res.success !== true) {
       throw new Error(res?.error || '提交失败');
@@ -211,11 +212,17 @@ const handleSubmit = async () => {
     feeling.value = 'great';
 
     // 提交后稍微返回上一页也行，看你需求
-    // setTimeout(() => uni.navigateBack(), 600);
+    setTimeout(() => uni.navigateBack({ delta: 1 }), 600);
   } catch (err) {
     console.error('submit feedback error:', err);
+    const message =
+      err instanceof Error && err.message === 'no token for upload'
+        ? '请登录后再上传截图'
+        : err instanceof Error && err.message.toLowerCase().includes('upload')
+        ? '截图上传失败，请稍后再试'
+        : '提交失败，请稍后再试';
     uni.showToast({
-      title: '提交失败，请稍后再试',
+      title: message,
       icon: 'none',
     });
   } finally {
