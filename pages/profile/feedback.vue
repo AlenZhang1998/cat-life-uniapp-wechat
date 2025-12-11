@@ -1,9 +1,8 @@
-1111
 <template>
   <view class="feedback-page">
     <!-- 顶部说明 -->
     <view class="header-card">
-      <view class="header-title">建议反馈111</view>
+      <view class="header-title">建议反馈</view>
       <view class="header-sub">
         谢谢你愿意告诉我真实的使用感受，这会帮助我持续优化「爱车油耗」。
       </view>
@@ -124,10 +123,13 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { onShow } from '@dcloudio/uni-app';
+import debounce from 'lodash-es/debounce';
 import { axios } from '@/utils/request';
 import { useAuth } from '@/utils/auth';
+import { STORAGE_KEYS } from '@/constants/storage';
+import { uploadImagesToCos } from '@/utils/upload';
 
-const { isLoggedIn } = useAuth();
+const { isLoggedIn, getStoredProfile } = useAuth();
 
 const feelingOptions = [
   { value: 'great', label: '很好用', emoji: '👍' },
@@ -145,6 +147,19 @@ const localImages = ref<string[]>([]);
 const maxImages = 3;
 
 const submitting = ref(false);
+
+const getAppVersion = () => {
+  try {
+    const baseInfo =
+      typeof uni.getAppBaseInfo === 'function' ? uni.getAppBaseInfo() : null;
+    if (!baseInfo) return '';
+    const version = (baseInfo as Record<string, any>).appVersion;
+    const versionCode = (baseInfo as Record<string, any>).appVersionCode;
+    return version || (versionCode ? String(versionCode) : '');
+  } catch {
+    return '';
+  }
+};
 
 // 有内容（去掉空白后长度>=5）才能提交
 const canSubmit = computed(() => content.value.trim().length >= 5);
@@ -166,41 +181,69 @@ const removeImage = (index: number) => {
   localImages.value.splice(index, 1);
 };
 
-// 这里先假装“上传成功”，真实项目你可以走你之前头像/COS 的那套上传逻辑，返回 url 数组
-const uploadImagesMock = async (): Promise<string[]> => {
-  // TODO: 替换成真正的上传逻辑
-  // 现在直接用本地路径占位，后端先不强依赖截图
-  return localImages.value.slice();
+const uploadSelectedImages = async (): Promise<string[]> => {
+  if (!localImages.value.length) return [];
+  return uploadImagesToCos(localImages.value);
 };
 
-const handleSubmit = async () => {
+const submitCore = async () => {
   if (!canSubmit.value || submitting.value) return;
+  if (!isLoggedIn.value) {
+    uni.showToast({ title: '请先登录再提交反馈', icon: 'none' });
+    return;
+  }
 
   submitting.value = true;
   try {
     // 1. 上传截图（如果有）
-    const imageUrls = await uploadImagesMock();
+    const imageUrls = await uploadSelectedImages();
+    console.log(303, 'imageUrls = ', imageUrls);
 
     // 2. 调用反馈接口
+    const systemInfo = uni.getSystemInfoSync();
+    const city =
+      uni.getStorageSync(STORAGE_KEYS.selectedCity) ||
+      uni.getStorageSync('selectedCity') ||
+      '';
+    const appVersion = getAppVersion();
+    const profile = getStoredProfile?.() || {};
+    const username =
+      (profile && (profile.username || profile.name || profile.nickname)) || '';
+    const userId =
+      (profile && (profile.userId || profile._id || profile.id)) || '';
+
     const payload = {
       content: content.value.trim(),
-      contact: contact.value.trim() || '',
-      page: 'settings-feedback',
-      version: '', // 如果你有版本号，可以在这里填
-      system: uni.getSystemInfoSync().system,
-      city: uni.getStorageSync('selectedCity') || '',
+      contact: contact.value.trim(),
       feeling: feeling.value,
       images: imageUrls,
+      page: 'settings-feedback',
+      system: systemInfo?.system || '',
+      platform: systemInfo?.platform || '',
+      model: systemInfo?.model || '',
+      brand: systemInfo?.brand || '',
+      language: systemInfo?.language || '',
+      screenSize:
+        systemInfo?.screenWidth && systemInfo?.screenHeight
+          ? `${systemInfo.screenWidth}x${systemInfo.screenHeight}`
+          : '',
+      city,
+      appVersion,
+      username,
+      userId,
     };
+    console.log(234, 'payload = ', payload);
 
-    const res = (await axios.post('/api/feedback/create', payload)) as any;
+    const res = (await axios.post('/api/feedback', {
+      data: payload,
+    })) as any;
 
     if (!res || res.success !== true) {
-      throw new Error(res?.error || '提交失败');
+      throw new Error(res?.error || res?.message || '提交失败');
     }
 
     uni.showToast({
-      title: '已收到你的反馈 🙏',
+      title: res.message || '已收到你的反馈 🙏',
       icon: 'none',
     });
 
@@ -211,17 +254,32 @@ const handleSubmit = async () => {
     feeling.value = 'great';
 
     // 提交后稍微返回上一页也行，看你需求
-    // setTimeout(() => uni.navigateBack(), 600);
+    setTimeout(() => uni.navigateBack({ delta: 1 }), 600);
   } catch (err) {
     console.error('submit feedback error:', err);
+    const message =
+      (err as any)?.statusCode === 401 ||
+      (err instanceof Error && err.message === 'no token for upload')
+        ? '请登录后再上传截图'
+        : err instanceof Error && err.message.toLowerCase().includes('upload')
+        ? '截图上传失败，请稍后再试'
+        : err instanceof Error && err.message
+        ? err.message
+        : '提交失败，请稍后再试';
     uni.showToast({
-      title: '提交失败，请稍后再试',
+      title: message,
       icon: 'none',
     });
   } finally {
     submitting.value = false;
   }
 };
+
+// 使用 lodash 的防抖：间隔内只响应第一次点击
+const handleSubmit = debounce(submitCore, 800, {
+  leading: true,
+  trailing: false,
+});
 
 onShow(() => {
   // 没登录也允许匿名反馈，但你也可以强制登录
