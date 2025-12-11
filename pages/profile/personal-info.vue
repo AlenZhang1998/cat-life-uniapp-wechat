@@ -354,10 +354,14 @@ const handleSave = () => {
     }
     await axios.put('/api/profile', { data: payload });
     // 同步给旧字段 name 方便其他页面兼容
+    const stored = uni.getStorageSync('userProfile');
+    const storedUserId =
+      (stored && (stored.userId || stored._id || stored.id)) || '';
     uni.setStorageSync('userProfile', {
       ...form.value,
       name: form.value.username,
       avatar: form.value.userAvatar,
+      userId: storedUserId,
     });
     refreshLoginState();
     uni.showToast({

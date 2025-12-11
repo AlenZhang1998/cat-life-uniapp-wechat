@@ -125,9 +125,10 @@ import { computed, ref } from 'vue';
 import { onShow } from '@dcloudio/uni-app';
 import { axios } from '@/utils/request';
 import { useAuth } from '@/utils/auth';
+import { STORAGE_KEYS } from '@/constants/storage';
 import { uploadImagesToCos } from '@/utils/upload';
 
-const { isLoggedIn } = useAuth();
+const { isLoggedIn, getStoredProfile } = useAuth();
 
 const feelingOptions = [
   { value: 'great', label: '很好用', emoji: '👍' },
@@ -145,6 +146,19 @@ const localImages = ref<string[]>([]);
 const maxImages = 3;
 
 const submitting = ref(false);
+
+const getAppVersion = () => {
+  try {
+    const baseInfo =
+      typeof uni.getAppBaseInfo === 'function' ? uni.getAppBaseInfo() : null;
+    if (!baseInfo) return '';
+    const version = (baseInfo as Record<string, any>).appVersion;
+    const versionCode = (baseInfo as Record<string, any>).appVersionCode;
+    return version || (versionCode ? String(versionCode) : '');
+  } catch {
+    return '';
+  }
+};
 
 // 有内容（去掉空白后长度>=5）才能提交
 const canSubmit = computed(() => content.value.trim().length >= 5);
@@ -173,6 +187,10 @@ const uploadSelectedImages = async (): Promise<string[]> => {
 
 const handleSubmit = async () => {
   if (!canSubmit.value || submitting.value) return;
+  if (!isLoggedIn.value) {
+    uni.showToast({ title: '请先登录再提交反馈', icon: 'none' });
+    return;
+  }
 
   submitting.value = true;
   try {
@@ -181,27 +199,50 @@ const handleSubmit = async () => {
     console.log(303, 'imageUrls = ', imageUrls);
 
     // 2. 调用反馈接口
+    const systemInfo = uni.getSystemInfoSync();
+    const city =
+      uni.getStorageSync(STORAGE_KEYS.selectedCity) ||
+      uni.getStorageSync('selectedCity') ||
+      '';
+    const appVersion = getAppVersion();
+    const profile = getStoredProfile?.() || {};
+    const username =
+      (profile && (profile.username || profile.name || profile.nickname)) || '';
+    const userId =
+      (profile && (profile.userId || profile._id || profile.id)) || '';
+
     const payload = {
       content: content.value.trim(),
-      contact: contact.value.trim() || '',
-      page: 'settings-feedback',
-      version: '', // 如果你有版本号，可以在这里填
-      system: uni.getSystemInfoSync().system,
-      city: uni.getStorageSync('selectedCity') || '',
+      contact: contact.value.trim(),
       feeling: feeling.value,
       images: imageUrls,
+      page: 'settings-feedback',
+      system: systemInfo?.system || '',
+      platform: systemInfo?.platform || '',
+      model: systemInfo?.model || '',
+      brand: systemInfo?.brand || '',
+      language: systemInfo?.language || '',
+      screenSize:
+        systemInfo?.screenWidth && systemInfo?.screenHeight
+          ? `${systemInfo.screenWidth}x${systemInfo.screenHeight}`
+          : '',
+      city,
+      appVersion,
+      username,
+      userId,
     };
+    console.log(234, 'payload = ', payload);
 
-    const res = (await axios.post('/api/feedback/create', {
+    const res = (await axios.post('/api/feedback', {
       data: payload,
     })) as any;
 
     if (!res || res.success !== true) {
-      throw new Error(res?.error || '提交失败');
+      throw new Error(res?.error || res?.message || '提交失败');
     }
 
     uni.showToast({
-      title: '已收到你的反馈 🙏',
+      title: res.message || '已收到你的反馈 🙏',
       icon: 'none',
     });
 
@@ -216,10 +257,13 @@ const handleSubmit = async () => {
   } catch (err) {
     console.error('submit feedback error:', err);
     const message =
-      err instanceof Error && err.message === 'no token for upload'
+      (err as any)?.statusCode === 401 ||
+      (err instanceof Error && err.message === 'no token for upload')
         ? '请登录后再上传截图'
         : err instanceof Error && err.message.toLowerCase().includes('upload')
         ? '截图上传失败，请稍后再试'
+        : err instanceof Error && err.message
+        ? err.message
         : '提交失败，请稍后再试';
     uni.showToast({
       title: message,
