@@ -93,7 +93,7 @@ import { ref } from 'vue';
 import { onLoad, onShow } from '@dcloudio/uni-app';
 import { useAuth } from '@/utils/auth';
 import { axios } from '@/utils/request';
-import { uploadAvatarToCos } from '@/utils/avatar';
+import { uploadAvatarToCos } from '@/utils/upload';
 
 interface UserProfile {
   userAvatar: string;
@@ -282,7 +282,13 @@ const pickAvatar = (sourceType: 'camera' | 'album') => {
       } catch (err) {
         console.error('上传头像失败', err);
         uni.hideLoading();
-        uni.showToast({ title: '上传头像失败', icon: 'none' });
+        uni.showToast({
+          title:
+            err instanceof Error && err.message === 'no token for upload'
+              ? '请先登录'
+              : '上传头像失败',
+          icon: 'none',
+        });
       }
     },
   });
