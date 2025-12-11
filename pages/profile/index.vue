@@ -93,7 +93,7 @@ const defaultProfile = {
   carModel: '',
   phone: '',
   email: '',
-  userId: ''
+  userId: '',
 };
 
 const { isLoggedIn, refreshLoginState, setStoredToken, setStoredProfile } =
@@ -241,10 +241,10 @@ const handleLoginRequired = () => {
 };
 
 const handleFeatureTap = (item: { key: string }) => {
-  // if (!isLoggedIn.value) {
-  //   showLoginSheet.value = true
-  //   return
-  // }
+  if (!isLoggedIn.value) {
+    showLoginSheet.value = true;
+    return;
+  }
   if (item.key === 'garage') {
     uni.navigateTo({
       url: '/pages/profile/personal-info',
