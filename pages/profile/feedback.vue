@@ -123,6 +123,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { onShow } from '@dcloudio/uni-app';
+import debounce from 'lodash-es/debounce';
 import { axios } from '@/utils/request';
 import { useAuth } from '@/utils/auth';
 import { STORAGE_KEYS } from '@/constants/storage';
@@ -185,7 +186,7 @@ const uploadSelectedImages = async (): Promise<string[]> => {
   return uploadImagesToCos(localImages.value);
 };
 
-const handleSubmit = async () => {
+const submitCore = async () => {
   if (!canSubmit.value || submitting.value) return;
   if (!isLoggedIn.value) {
     uni.showToast({ title: '请先登录再提交反馈', icon: 'none' });
@@ -273,6 +274,12 @@ const handleSubmit = async () => {
     submitting.value = false;
   }
 };
+
+// 使用 lodash 的防抖：间隔内只响应第一次点击
+const handleSubmit = debounce(submitCore, 800, {
+  leading: true,
+  trailing: false,
+});
 
 onShow(() => {
   // 没登录也允许匿名反馈，但你也可以强制登录

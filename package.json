@@ -9,7 +9,8 @@
   },
   "dependencies": {
     "@dcloudio/uni-app": "2.0.2-4070620250821001",
-    "@dcloudio/uni-ui": "^1.4.23"
+    "@dcloudio/uni-ui": "^1.4.23",
+    "lodash-es": "^4.17.21"
   },
   "devDependencies": {
     "@dcloudio/types": "^3.4.28",
