@@ -132,6 +132,14 @@
         "navigationBarBackgroundColor": "#F7F8FA",
         "navigationBarTextStyle": "black"
       }
+    },
+    {
+      "path": "pages/profile/about",
+      "style": {
+        "navigationBarTitleText": "关于我们",
+        "navigationBarBackgroundColor": "#F7F8FA",
+        "navigationBarTextStyle": "black"
+      }
     }
   ],
   "globalStyle": {

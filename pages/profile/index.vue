@@ -132,6 +132,12 @@ const features = ref([
     title: '设置中心',
     desc: '订阅提醒、隐私偏好、一键反馈',
   },
+  {
+    key: 'about',
+    icon: 'ℹ️',
+    title: '关于我们',
+    desc: '作者介绍、联系与声明',
+  },
 ]);
 
 const formatJoinDateLabel = (value: unknown) => {
@@ -260,6 +266,12 @@ const handleFeatureTap = (item: { key: string }) => {
   if (item.key === 'faq') {
     uni.navigateTo({
       url: '/pages/faq/index',
+    });
+    return;
+  }
+  if (item.key === 'about') {
+    uni.navigateTo({
+      url: '/pages/profile/about',
     });
     return;
   }
