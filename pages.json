@@ -96,7 +96,7 @@
     {
       "path": "pages/faq/why-no-avg",
       "style": {
-        "navigationBarTitleText": "为什么油耗算不出来",
+        "navigationBarTitleText": "疑难解答",
         "navigationBarBackgroundColor": "#F7F8FA",
         "navigationBarTextStyle": "black"
       }
@@ -104,7 +104,7 @@
     {
       "path": "pages/faq/good-habits",
       "style": {
-        "navigationBarTitleText": "加油记录习惯",
+        "navigationBarTitleText": "疑难解答",
         "navigationBarBackgroundColor": "#F7F8FA",
         "navigationBarTextStyle": "black"
       }
@@ -112,7 +112,15 @@
     {
       "path": "pages/faq/flags",
       "style": {
-        "navigationBarTitleText": "加油选项说明",
+        "navigationBarTitleText": "疑难解答",
+        "navigationBarBackgroundColor": "#F7F8FA",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/faq/cost-per-day",
+      "style": {
+        "navigationBarTitleText": "疑难解答",
         "navigationBarBackgroundColor": "#F7F8FA",
         "navigationBarTextStyle": "black"
       }
