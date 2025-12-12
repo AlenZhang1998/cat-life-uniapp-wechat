@@ -124,6 +124,14 @@
         "navigationBarBackgroundColor": "#F7F8FA",
         "navigationBarTextStyle": "black"
       }
+    },
+    {
+      "path": "pages/faq/fuel-per-km",
+      "style": {
+        "navigationBarTitleText": "疑难解答",
+        "navigationBarBackgroundColor": "#F7F8FA",
+        "navigationBarTextStyle": "black"
+      }
     }
   ],
   "globalStyle": {

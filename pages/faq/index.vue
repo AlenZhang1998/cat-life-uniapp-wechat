@@ -95,6 +95,15 @@ const faqItems = [
     ],
     link: { label: '查看成本/天说明', path: '/pages/faq/cost-per-day' },
   },
+  {
+    key: 'fuel-per-km',
+    q: '8、费用页面的“油费/公里”是怎么计算的？',
+    a: [
+      '油费/公里 = 统计区间内的总油费 ÷ 总里程。',
+      '总里程来自同一时间范围内加油记录的里程差或累计行驶里程。',
+    ],
+    link: { label: '查看油费/公里说明', path: '/pages/faq/fuel-per-km' },
+  },
 ];
 
 const navigate = (path?: string) => {

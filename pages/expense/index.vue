@@ -60,7 +60,13 @@
             <text>{{ metric.label }}</text>
             <text
               class="info-badge"
-              @tap.stop="metric.key === 'perDay' ? goCostPerDayInfo() : null"
+              @tap.stop="
+                metric.key === 'perDay'
+                  ? goCostPerDayInfo()
+                  : metric.key === 'fuelKm'
+                  ? goFuelPerKmInfo()
+                  : null
+              "
             >
               ?
             </text>
@@ -305,6 +311,12 @@ const handleLoginRequired = () => {
 const goCostPerDayInfo = () => {
   uni.navigateTo({
     url: '/pages/faq/cost-per-day',
+  });
+};
+
+const goFuelPerKmInfo = () => {
+  uni.navigateTo({
+    url: '/pages/faq/fuel-per-km',
   });
 };
 
