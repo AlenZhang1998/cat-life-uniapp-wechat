@@ -59,6 +59,7 @@
           <view class="equation-label">
             <text>{{ metric.label }}</text>
             <text
+              v-if="metric.key !== 'days'"
               class="info-badge"
               @tap.stop="
                 metric.key === 'perDay'
