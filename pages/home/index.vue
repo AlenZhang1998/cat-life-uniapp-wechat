@@ -413,7 +413,7 @@ const fetchProfile = async () => {
     carInfo.value.name = data.favoriteCarModel;
     carInfo.value.heroDays = calcHeroDays(data.deliveryDate);
   } catch (err) {
-  console.warn('fetchProfile error:', err);
+    console.warn('fetchProfile error:', err);
   }
 };
 
@@ -511,7 +511,7 @@ const stats = ref([
     label: '平均油价',
     value: '0',
     unit: '元/公里',
-    accent: true,
+    // accent: true,
   },
   {
     key: 'mileageTotal',
@@ -676,7 +676,7 @@ const fetchRefuelData = async (rangeKey: RangeKey = rangeOptions[3].key) => {
         label: '平均油价',
         value: avgPricePerL === '--' ? '--' : avgPricePerL,
         unit: '元/升',
-        accent: true,
+        // accent: true,
       },
       {
         key: 'mileageTotal',
