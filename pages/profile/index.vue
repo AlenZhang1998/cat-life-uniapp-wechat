@@ -115,10 +115,10 @@ const features = ref([
     desc: '和我们聊聊你的灵感，持续优化体验',
   },
   {
-    key: 'backup',
-    icon: '☁️',
-    title: '数据备份',
-    desc: '同步到云端，换机无忧',
+    key: 'faq',
+    icon: '❓',
+    title: '疑难解答',
+    desc: '使用无忧， 放心使用',
   },
   {
     key: 'subscription',
@@ -254,6 +254,12 @@ const handleFeatureTap = (item: { key: string }) => {
   if (item.key === 'feedback') {
     uni.navigateTo({
       url: '/pages/profile/feedback',
+    });
+    return;
+  }
+  if (item.key === 'faq') {
+    uni.navigateTo({
+      url: '/pages/faq/index',
     });
     return;
   }

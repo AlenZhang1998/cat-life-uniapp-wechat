@@ -84,6 +84,22 @@
         "navigationBarBackgroundColor": "#F7F8FA",
         "navigationBarTextStyle": "black"
       }
+    },
+    {
+      "path": "pages/faq/index",
+      "style": {
+        "navigationBarTitleText": "疑难解答",
+        "navigationBarBackgroundColor": "#F7F8FA",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/faq/why-no-avg",
+      "style": {
+        "navigationBarTitleText": "为什么油耗算不出来",
+        "navigationBarBackgroundColor": "#F7F8FA",
+        "navigationBarTextStyle": "black"
+      }
     }
   ],
   "globalStyle": {
