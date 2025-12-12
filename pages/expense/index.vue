@@ -58,7 +58,12 @@
         >
           <view class="equation-label">
             <text>{{ metric.label }}</text>
-            <text class="info-badge">?</text>
+            <text
+              class="info-badge"
+              @tap.stop="metric.key === 'perDay' ? goCostPerDayInfo() : null"
+            >
+              ?
+            </text>
           </view>
           <text class="hero-metric__value">{{ metric.value }}</text>
           <text class="hero-metric__unit">{{ metric.unit }}</text>
@@ -295,6 +300,12 @@ const handleLoginRequired = () => {
   if (!isLoggedIn.value) {
     showLoginSheet.value = true;
   }
+};
+
+const goCostPerDayInfo = () => {
+  uni.navigateTo({
+    url: '/pages/faq/cost-per-day',
+  });
 };
 
 // ============= 公共日期工具 =============
