@@ -108,6 +108,14 @@
         "navigationBarBackgroundColor": "#F7F8FA",
         "navigationBarTextStyle": "black"
       }
+    },
+    {
+      "path": "pages/faq/flags",
+      "style": {
+        "navigationBarTitleText": "加油选项说明",
+        "navigationBarBackgroundColor": "#F7F8FA",
+        "navigationBarTextStyle": "black"
+      }
     }
   ],
   "globalStyle": {
