@@ -118,6 +118,13 @@
       <view class="stats-grid">
         <view class="stat-item" v-for="item in stats" :key="item.key">
           <text class="stat-label">{{ item.label }}</text>
+          <text
+            v-if="item.key === 'fuelAvg'"
+            class="info-badge"
+            @tap.stop="goFuelAvgInfo"
+          >
+            ?
+          </text>
           <text class="stat-value" :class="{ accent: item.accent }">
             {{ item.value }}
           </text>
@@ -406,8 +413,14 @@ const fetchProfile = async () => {
     carInfo.value.name = data.favoriteCarModel;
     carInfo.value.heroDays = calcHeroDays(data.deliveryDate);
   } catch (err) {
-    console.warn('fetchProfile error:', err);
+  console.warn('fetchProfile error:', err);
   }
+};
+
+const goFuelAvgInfo = () => {
+  uni.navigateTo({
+    url: '/pages/faq/fuel-avg',
+  });
 };
 
 // 统计口径筛选
@@ -1451,10 +1464,24 @@ onUnmounted(() => {
         background-color: #f7f9fb;
         border-radius: 20rpx;
         padding: 20rpx;
+        position: relative;
+        gap: 4rpx;
 
         .stat-label {
           font-size: 24rpx;
           color: $muted-text;
+        }
+
+        .info-badge {
+          width: 28rpx;
+          height: 28rpx;
+          border-radius: 50%;
+          background: #eef1f5;
+          font-size: 20rpx;
+          color: #8a93a0;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
         }
 
         .stat-value {

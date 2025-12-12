@@ -68,6 +68,22 @@
         "navigationBarBackgroundColor": "#F7F8FA",
         "navigationBarTextStyle": "black"
       }
+    },
+    {
+      "path": "pages/faq/fuel-avg",
+      "style": {
+        "navigationBarTitleText": "平均油耗说明",
+        "navigationBarBackgroundColor": "#F7F8FA",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/faq/single-fuel",
+      "style": {
+        "navigationBarTitleText": "单次油耗说明",
+        "navigationBarBackgroundColor": "#F7F8FA",
+        "navigationBarTextStyle": "black"
+      }
     }
   ],
   "globalStyle": {

@@ -19,7 +19,7 @@
         <view class="equation-block">
           <view class="equation-label">
             <text>总支出</text>
-            <text class="info-badge">?</text>
+            <!-- <text class="info-badge">?</text> -->
           </view>
           <view class="equation-value equation-value--accent">
             <text class="equation-number">{{ heroOverview.total }}</text>
