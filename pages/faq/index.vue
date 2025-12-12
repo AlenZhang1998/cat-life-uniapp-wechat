@@ -12,11 +12,7 @@
           <text class="text">{{ item.q }}</text>
         </view>
         <view class="faq-content">
-          <text
-            v-for="(line, idx) in item.a"
-            :key="idx"
-            class="faq-line"
-          >
+          <text v-for="(line, idx) in item.a" :key="idx" class="faq-line">
             {{ line }}
           </text>
         </view>
@@ -58,9 +54,10 @@ const faqItems = [
     key: 'good-habits',
     q: '3、爱车油耗推荐的 6 种燃油车加油记录习惯',
     a: [
-      '① 每次记总金额/单价/加油量/里程；② 记录是否加满跳枪；③ 记录是否亮燃油警告灯；',
-      '④ 里程表用车机/仪表读数；⑤ 逐笔记，不补录；⑥ 尽量在油灯亮后不久或跳枪时加油，便于计算。',
+      // '① 每次记总金额/单价/加油量/里程；② 记录是否加满跳枪；③ 记录是否亮燃油警告灯；',
+      // '④ 里程表用车机/仪表读数；⑤ 逐笔记，不补录；⑥ 尽量在油灯亮后不久或跳枪时加油，便于计算。',
     ],
+    link: { label: '查看 6 种习惯', path: '/pages/faq/good-habits' },
   },
   {
     key: 'fuel-avg',
