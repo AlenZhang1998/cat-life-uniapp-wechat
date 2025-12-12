@@ -4,7 +4,7 @@
       <view class="logo-box">
         <image
           class="app-logo"
-          src="/static/app-logo.png"
+          src="/static/icons/logo.jpeg"
           mode="aspectFit"
         ></image>
       </view>
