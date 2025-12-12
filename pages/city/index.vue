@@ -111,6 +111,8 @@ import {
   locateCityByGPS,
   normalizeCityName,
 } from '@/utils/location';
+import { axios } from '@/utils/request';
+import { useAuth } from '@/utils/auth';
 
 type CitySection = {
   letter: string;
@@ -149,6 +151,7 @@ const eventChannel = ref<UniApp.EventChannel | null>(null);
 const pageInstance = getCurrentInstance();
 const indexTouching = ref(false);
 const indexBarRect = ref<IndexBarRect | null>(null);
+const { isLoggedIn } = useAuth();
 
 const resolveEventChannel = () => {
   const getter =
@@ -237,21 +240,43 @@ const persistCity = (cityName: string) => {
   return normalized;
 };
 
+const saveCityToProfile = async (city: string, province?: string) => {
+  if (!isLoggedIn.value) return;
+  try {
+    await axios.put('/api/profile', {
+      data: {
+        city,
+        province: province || '',
+      },
+      showErrorToast: false,
+    } as any);
+  } catch (err) {
+    console.warn('save city to profile failed', err);
+  }
+};
+
 const emitSelection = (payload: SelectedCityPayload) => {
   eventChannel.value?.emit('city-selected', payload);
 };
 
-const closePage = () => {
-  setTimeout(() => {
-    uni.navigateBack();
-  }, 150);
+const closePage = async (payload?: SelectedCityPayload) => {
+  try {
+    if (payload) {
+      await saveCityToProfile(payload.city, payload.province);
+    }
+  } finally {
+    setTimeout(() => {
+      uni.navigateBack();
+    }, 150);
+  }
 };
 
-const handleCityTap = (cityName: string, provinceName?: string) => {
+const handleCityTap = async (cityName: string, provinceName?: string) => {
   const normalizedCity = persistCity(cityName);
   const normalizedProvince = provinceName ? formatCityName(provinceName) : '';
-  emitSelection({ city: normalizedCity, province: normalizedProvince });
-  closePage();
+  const payload = { city: normalizedCity, province: normalizedProvince };
+  emitSelection(payload);
+  await closePage(payload);
 };
 
 const handleLocate = async (applyCity = true) => {
@@ -302,7 +327,7 @@ const handlePickFromMap = async () => {
     locationProvince.value = normalizedProvince;
     locationCity.value = normalizedCity;
 
-    handleCityTap(normalizedCity);
+    handleCityTap(normalizedCity, normalizedProvince);
   } else {
     uni.showToast({
       title: '无法获取定位',
@@ -383,6 +408,25 @@ const handleIndexTouchEnd = () => {
   indexTouching.value = false;
 };
 
+const loadCityFromProfile = async () => {
+  if (!isLoggedIn.value) return;
+  try {
+    const res = await axios.get('/api/profile', {
+      showErrorToast: false,
+    } as any);
+    const profile =
+      res && (res as any).data && (res as any).code === undefined
+        ? (res as any).data
+        : res || {};
+    if (profile?.city) {
+      const normalized = persistCity(profile.city);
+      locationCity.value = normalized;
+    }
+  } catch (err) {
+    console.warn('load profile city failed', err);
+  }
+};
+
 onLoad((options) => {
   eventChannel.value = resolveEventChannel();
   const queryCityRaw =
@@ -400,6 +444,8 @@ onLoad((options) => {
   if (shouldAutoLocate) {
     setTimeout(() => handleLocate(true), 200);
   }
+
+  loadCityFromProfile();
 });
 
 onReady(() => {

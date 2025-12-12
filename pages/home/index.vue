@@ -389,10 +389,19 @@ const fetchProfile = async () => {
     return;
   }
   try {
-    const res = await axios.get('/api/profile');
-    // console.log(1111, res)
-    const resp = res as any;
-    const data = resp.data || resp || {};
+    const res = (await axios.get('/api/profile', {
+      showErrorToast: false,
+    } as any)) as any;
+    const data =
+      res && res.data && res.code === undefined ? res.data : res || {};
+
+    if (data.city) {
+      applyCity(data.city, data.province);
+      uni.setStorage({
+        key: STORAGE_KEYS.selectedCity,
+        data: normalizeCityName(data.city) || data.city,
+      });
+    }
 
     carInfo.value.name = data.favoriteCarModel;
     carInfo.value.heroDays = calcHeroDays(data.deliveryDate);
