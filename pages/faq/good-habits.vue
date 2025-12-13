@@ -45,10 +45,8 @@
           </text>
         </view>
       </view>
-      <text class="paragraph note">
-        其中第 3 种算法由王雨等车友总结，第 6 种算法由 @小虾米_LongFly_跑呀跑呀
-        车友提供，感谢！
-      </text>
+      <!-- <text class="paragraph note">
+      </text> -->
       <text class="paragraph warning">
         我们不推荐加满以外的习惯，因为通过亮灯计算油耗必须严格掌握亮灯时机，心累且不如加满准确；记录不够严谨会算不准。
       </text>
