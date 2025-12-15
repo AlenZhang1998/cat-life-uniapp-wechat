@@ -134,6 +134,14 @@
       }
     },
     {
+      "path": "pages/faq/agreement-user",
+      "style": {
+        "navigationBarTitleText": "用户使用协议",
+        "navigationBarBackgroundColor": "#F7F8FA",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
       "path": "pages/profile/about",
       "style": {
         "navigationBarTitleText": "关于我们",

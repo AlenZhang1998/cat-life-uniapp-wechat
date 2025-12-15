@@ -24,9 +24,13 @@
         </view>
         <view class="agreement-text">
           我已阅读并同意
-          <text class="agreement-link" @tap.stop="openAgreement('user')">爱车油耗助手用户使用协议</text>
+          <text class="agreement-link" @tap.stop="openAgreement('user')"
+            >爱车油耗助手用户使用协议</text
+          >
           和
-          <text class="agreement-link" @tap.stop="openAgreement('privacy')">隐私保护协议</text>
+          <text class="agreement-link" @tap.stop="openAgreement('privacy')"
+            >隐私保护协议</text
+          >
         </view>
       </view>
     </view>
@@ -34,74 +38,80 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import { useAuth } from '@/utils/auth'
-import { axios } from '@/utils/request'
+import { ref, watch } from 'vue';
+import { useAuth } from '@/utils/auth';
+import { axios } from '@/utils/request';
 
 const props = defineProps<{
-  visible: boolean
-}>()
+  visible: boolean;
+}>();
 
 const emit = defineEmits<{
-  (e: 'update:visible', value: boolean): void
+  (e: 'update:visible', value: boolean): void;
   // 带上登录结果
-  (e: 'login-success', payload: { token: string; user: Record<string, any> }): void
-}>()
+  (
+    e: 'login-success',
+    payload: { token: string; user: Record<string, any> }
+  ): void;
+}>();
 
-const hasAgreed = ref(false)
-const isSubmitting = ref(false)
-const { refreshLoginState } = useAuth()
+const hasAgreed = ref(false);
+const isSubmitting = ref(false);
+const { refreshLoginState } = useAuth();
 
 watch(
   () => props.visible,
   (visible) => {
     if (!visible) {
-      hasAgreed.value = false
-      isSubmitting.value = false
+      hasAgreed.value = false;
+      isSubmitting.value = false;
     }
   }
-)
+);
 
 const closeSheet = () => {
-  emit('update:visible', false)
-}
+  emit('update:visible', false);
+};
 
 const toggleAgreement = () => {
-  hasAgreed.value = !hasAgreed.value
-}
+  hasAgreed.value = !hasAgreed.value;
+};
 
 const openAgreement = (type: 'user' | 'privacy') => {
-  const name = type === 'user' ? '用户使用协议' : '隐私保护协议'
+  if (type === 'user') {
+    uni.navigateTo({ url: '/pages/faq/agreement-user' });
+    return;
+  }
   uni.showToast({
-    title: `${name}暂未上线`,
-    icon: 'none'
-  })
-}
+    title: '隐私保护协议稍后上线',
+    icon: 'none',
+  });
+};
 
 const handleWeChatLogin = () => {
-  if (isSubmitting.value) return
+  if (isSubmitting.value) return;
 
   if (!hasAgreed.value) {
     uni.showToast({
       title: '请勾选协议后再登录',
-      icon: 'none'
-    })
-    return
+      icon: 'none',
+    });
+    return;
   }
 
-  isSubmitting.value = true
+  isSubmitting.value = true;
 
   // 👇 这里是按钮 @tap 的同步回调 → 可以正常调用 getUserProfile
   uni.getUserProfile({
     desc: '用于完善个人信息',
     success: (profileRes) => {
-      const userInfo = profileRes.userInfo
-      console.log(99, 'getUserProfile userInfo = ', userInfo)
+      const userInfo = profileRes.userInfo;
+      console.log(99, 'getUserProfile userInfo = ', userInfo);
 
       uni.login({
         provider: 'weixin',
         success: (loginRes) => {
-          const code = loginRes.code
+          const code = loginRes.code;
 
           // 用法1
           // axios.post<{ token?: string; user?: Record<string, any> }>(
@@ -116,57 +126,58 @@ const handleWeChatLogin = () => {
           // .finally(...)
 
           // 用法2
-          axios.request<{
-            token?: string // 给 request 的返回数据加 TypeScript 类型约束。 // token 是可选字段，可能有可能没有
-            user?: Record<string, any> // user 也是可选字段，但它是一个对象（键值对）
-          }>({
-            url: '/api/auth/login',
-            method: 'POST',
-            data: {
-              code,
-              userInfo
-            },
-            showErrorToast: false
-          })
+          axios
+            .request<{
+              token?: string; // 给 request 的返回数据加 TypeScript 类型约束。 // token 是可选字段，可能有可能没有
+              user?: Record<string, any>; // user 也是可选字段，但它是一个对象（键值对）
+            }>({
+              url: '/api/auth/login',
+              method: 'POST',
+              data: {
+                code,
+                userInfo,
+              },
+              showErrorToast: false,
+            })
             .then((data) => {
-              console.log(116, 'login success data = ', data)
+              console.log(116, 'login success data = ', data);
 
-              const { token, user } = data || {}
+              const { token, user } = data || {};
 
               if (!token || !user) {
-                uni.showToast({ title: '登录数据异常', icon: 'none' })
-                return
+                uni.showToast({ title: '登录数据异常', icon: 'none' });
+                return;
               }
 
-              uni.setStorageSync('token', token)
-              uni.setStorageSync('userProfile', user)
+              uni.setStorageSync('token', token);
+              uni.setStorageSync('userProfile', user);
 
-              refreshLoginState()
-              uni.showToast({ title: '登录成功', icon: 'success' })
-              emit('login-success', { token, user })
-              emit('update:visible', false)
+              refreshLoginState();
+              uni.showToast({ title: '登录成功', icon: 'success' });
+              emit('login-success', { token, user });
+              emit('update:visible', false);
             })
             .catch((error) => {
-              console.log('login request fail', error)
-              uni.showToast({ title: '登录失败，请稍后再试', icon: 'none' })
+              console.log('login request fail', error);
+              uni.showToast({ title: '登录失败，请稍后再试', icon: 'none' });
             })
             .finally(() => {
-              isSubmitting.value = false
-            })
+              isSubmitting.value = false;
+            });
         },
         fail: () => {
-          isSubmitting.value = false
-          uni.showToast({ title: '寰俊鐧诲綍澶辫触', icon: 'none' })
-        }
-      })
+          isSubmitting.value = false;
+          uni.showToast({ title: '寰俊鐧诲綍澶辫触', icon: 'none' });
+        },
+      });
     },
     fail: (err) => {
-      isSubmitting.value = false
-      console.log('getUserProfile fail', err)
-      uni.showToast({ title: '需要获取用户信息权限', icon: 'none' })
-    }
-  })
-}
+      isSubmitting.value = false;
+      console.log('getUserProfile fail', err);
+      uni.showToast({ title: '需要获取用户信息权限', icon: 'none' });
+    },
+  });
+};
 </script>
 
 <style lang="scss" scoped>
