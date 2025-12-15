@@ -34,7 +34,6 @@ export const requestLocation = () =>
         isHighAccuracy: highAccuracy,
         highAccuracyExpireTime: 3000,
         success: (pos) => {
-          console.log('[requestLocation] success', pos);
           resolve(pos);
         },
         fail: (err: any) => {
@@ -80,7 +79,6 @@ export const reverseGeocodeByTencent = async (
   latitude: number,
   longitude: number
 ): Promise<ReverseGeocodeResult | null> => {
-  console.log(83, '[reverseGeocodeByTencent] KEY =', TENCENT_MAP_KEY);
   if (!TENCENT_MAP_KEY) {
     return null;
   }
@@ -112,7 +110,6 @@ export const reverseGeocodeByTencent = async (
 
     // 关键：统一从 data 里取
     const payload = (res as any).data || res || {};
-    console.log('[reverseGeocodeByTencent] payload =', payload);
 
     if (payload.status !== 0) {
       if (payload.status === 121) {
@@ -165,7 +162,6 @@ export const locateCityByGPS = async (): Promise<LocatedCity | null> => {
 
 export const chooseCityFromMap = async (): Promise<LocatedCity | null> => {
   const selection = await chooseLocationManually();
-  console.log(149, 'selection = ', selection);
   if (!selection) return null;
 
   const cityName =

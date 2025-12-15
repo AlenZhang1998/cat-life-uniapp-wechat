@@ -44,7 +44,7 @@
       <view class="contact-item">
         <text class="contact-label">微信客服:</text>
         <text class="contact-value highlight">1464253423</text>
-        <text class="copy-btn" @tap="copyContact('WeChat_FuelHelper')"
+        <text class="copy-btn" @tap="copyContact('1464253423')"
           >复制</text
         >
       </view>
@@ -103,7 +103,7 @@ const copyContact = (content: string) => {
 onShareAppMessage(() => {
   return {
     title: '爱车油耗 - 我的私人节油专家',
-    path: '/pages/index/index',
+    path: '/pages/home/index',
   };
 });
 
