@@ -17,7 +17,7 @@ export interface RequestError<T = any> extends Error {
   raw?: RequestSuccessResult<T>;
 }
 
-const DEFAULT_BASE_URL = 'http://192.168.60.90:3000'; // 192.168.60.78    10.48.75.101
+const DEFAULT_BASE_URL = 'https://api.alenzhang.top'; // 192.168.60.78    10.48.75.101
 
 const getEnvBaseUrl = () => {
   try {
