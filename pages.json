@@ -142,6 +142,14 @@
       }
     },
     {
+      "path": "pages/faq/agreement-privacy",
+      "style": {
+        "navigationBarTitleText": "隐私保护协议",
+        "navigationBarBackgroundColor": "#F7F8FA",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
       "path": "pages/profile/about",
       "style": {
         "navigationBarTitleText": "关于我们",

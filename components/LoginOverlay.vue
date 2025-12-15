@@ -82,10 +82,7 @@ const openAgreement = (type: 'user' | 'privacy') => {
     uni.navigateTo({ url: '/pages/faq/agreement-user' });
     return;
   }
-  uni.showToast({
-    title: '隐私保护协议稍后上线',
-    icon: 'none',
-  });
+  uni.navigateTo({ url: '/pages/faq/agreement-privacy' });
 };
 
 const handleWeChatLogin = () => {
