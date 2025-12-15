@@ -94,6 +94,7 @@ import { onLoad, onShow } from '@dcloudio/uni-app';
 import { useAuth } from '@/utils/auth';
 import { axios } from '@/utils/request';
 import { uploadAvatarToCos } from '@/utils/upload';
+import { ensureWeixinPrivacyAuthorized } from '@/utils/privacy';
 
 interface UserProfile {
   userAvatar: string;
@@ -260,38 +261,44 @@ const chooseAvatar = () => {
 };
 
 const pickAvatar = (sourceType: 'camera' | 'album') => {
-  uni.chooseImage({
-    count: 1,
-    sizeType: ['compressed'],
-    sourceType: [sourceType],
-    success: async (res) => {
-      const tempPath = res.tempFilePaths[0];
+  ensureWeixinPrivacyAuthorized({
+    content: '为向你提供头像上传功能，需要你阅读并同意《隐私保护指引》。',
+  })
+    .then(() => {
+      uni.chooseImage({
+        count: 1,
+        sizeType: ['compressed'],
+        sourceType: [sourceType],
+        success: async (res) => {
+          const tempPath = res.tempFilePaths[0];
 
-      // 1. 先用 wxfile:// 做本地预览，让用户马上看到效果
-      form.value.userAvatar = tempPath;
+          // 1. 先用 wxfile:// 做本地预览，让用户马上看到效果
+          form.value.userAvatar = tempPath;
 
-      // 2. 再上传到服务器 -> 服务器上传 COS -> 返回 https URL
-      try {
-        uni.showLoading({ title: '上传中...' });
-        const url = await uploadAvatarToCos(tempPath);
+          // 2. 再上传到服务器 -> 服务器上传 COS -> 返回 https URL
+          try {
+            uni.showLoading({ title: '上传中...' });
+            const url = await uploadAvatarToCos(tempPath);
 
-        // 3. 用真正的 COS URL 覆盖掉临时路径
-        form.value.userAvatar = url as string;
-        uni.hideLoading();
-        uni.showToast({ title: '头像已更新', icon: 'success' });
-      } catch (err) {
-        console.error('上传头像失败', err);
-        uni.hideLoading();
-        uni.showToast({
-          title:
-            err instanceof Error && err.message === 'no token for upload'
-              ? '请先登录'
-              : '上传头像失败',
-          icon: 'none',
-        });
-      }
-    },
-  });
+            // 3. 用真正的 COS URL 覆盖掉临时路径
+            form.value.userAvatar = url as string;
+            uni.hideLoading();
+            uni.showToast({ title: '头像已更新', icon: 'success' });
+          } catch (err) {
+            console.error('上传头像失败', err);
+            uni.hideLoading();
+            uni.showToast({
+              title:
+                err instanceof Error && err.message === 'no token for upload'
+                  ? '请先登录'
+                  : '上传头像失败',
+              icon: 'none',
+            });
+          }
+        },
+      });
+    })
+    .catch(() => {});
 };
 
 const handleSave = () => {

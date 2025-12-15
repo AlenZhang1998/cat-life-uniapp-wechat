@@ -3,6 +3,13 @@
     <view class="hero">
       <text class="hero-title">爱车油耗助手隐私保护协议</text>
       <text class="hero-sub">V1.0.0 | 生效日期：{{ effectiveDate }}</text>
+      <button
+        v-if="canOpenWeixinContract"
+        class="privacy-contract-btn"
+        @tap="handleOpenWeixinContract"
+      >
+        打开微信《隐私保护指引》
+      </button>
     </view>
 
     <view class="agreement-list">
@@ -36,9 +43,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
+import {
+  canUseWeixinPrivacyContract,
+  openWeixinPrivacyContract,
+} from '@/utils/privacy';
 
 const effectiveDate = ref('2025-12-15'); // 保持原有的生效日期
+const canOpenWeixinContract = computed(() => canUseWeixinPrivacyContract());
+
+const handleOpenWeixinContract = async () => {
+  try {
+    await openWeixinPrivacyContract();
+  } catch {
+    uni.showToast({
+      title: '当前环境暂不支持打开隐私指引',
+      icon: 'none',
+    });
+  }
+};
 
 const sections = [
   {
@@ -155,6 +178,17 @@ $bg-color: #f0f4f7;
     color: #4a5875;
     font-weight: 500;
   }
+}
+
+.privacy-contract-btn {
+  margin-top: 18rpx;
+  padding: 18rpx 24rpx;
+  border-radius: 999rpx;
+  background: rgba(37, 99, 235, 0.12);
+  color: $theme-blue;
+  border: 1rpx solid rgba(37, 99, 235, 0.25);
+  font-size: 26rpx;
+  line-height: 1;
 }
 
 .agreement-list {

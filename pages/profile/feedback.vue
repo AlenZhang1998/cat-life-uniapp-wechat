@@ -128,6 +128,7 @@ import { axios } from '@/utils/request';
 import { useAuth } from '@/utils/auth';
 import { STORAGE_KEYS } from '@/constants/storage';
 import { uploadImagesToCos } from '@/utils/upload';
+import { ensureWeixinPrivacyAuthorized } from '@/utils/privacy';
 
 const { isLoggedIn, getStoredProfile } = useAuth();
 
@@ -168,13 +169,19 @@ const chooseImages = () => {
   const remain = maxImages - localImages.value.length;
   if (remain <= 0) return;
 
-  uni.chooseImage({
-    count: remain,
-    sizeType: ['compressed'],
-    success(res) {
-      localImages.value = localImages.value.concat(res.tempFilePaths);
-    },
-  });
+  ensureWeixinPrivacyAuthorized({
+    content: '为向你提供截图上传功能，需要你阅读并同意《隐私保护指引》。',
+  })
+    .then(() => {
+      uni.chooseImage({
+        count: remain,
+        sizeType: ['compressed'],
+        success(res) {
+          localImages.value = localImages.value.concat(res.tempFilePaths);
+        },
+      });
+    })
+    .catch(() => {});
 };
 
 const removeImage = (index: number) => {

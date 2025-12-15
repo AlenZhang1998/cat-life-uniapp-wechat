@@ -41,6 +41,7 @@
 import { ref, watch } from 'vue';
 import { useAuth } from '@/utils/auth';
 import { axios } from '@/utils/request';
+import { ensureWeixinPrivacyAuthorized } from '@/utils/privacy';
 
 const props = defineProps<{
   visible: boolean;
@@ -164,13 +165,23 @@ const handleWeChatLogin = () => {
         },
         fail: () => {
           isSubmitting.value = false;
-          uni.showToast({ title: '寰俊鐧诲綍澶辫触', icon: 'none' });
+          uni.showToast({ title: '微信登录失败', icon: 'none' });
         },
       });
     },
-    fail: (err) => {
+    fail: async (err) => {
       isSubmitting.value = false;
       console.log('getUserProfile fail', err);
+      const message = String((err as any)?.errMsg || '');
+      if (/privacy/i.test(message)) {
+        try {
+          await ensureWeixinPrivacyAuthorized({
+            content: '登录前需要你阅读并同意《隐私保护指引》。',
+          });
+        } catch {}
+        uni.showToast({ title: '请同意隐私保护指引后再登录', icon: 'none' });
+        return;
+      }
       uni.showToast({ title: '需要获取用户信息权限', icon: 'none' });
     },
   });

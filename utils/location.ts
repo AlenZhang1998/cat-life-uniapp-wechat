@@ -1,4 +1,5 @@
 ﻿import { axios } from '@/utils/request';
+import { ensureWeixinPrivacyAuthorized } from '@/utils/privacy';
 
 type ReverseGeocodeResult = {
   city: string;
@@ -143,6 +144,9 @@ export const reverseGeocodeByTencent = async (
 
 export const locateCityByGPS = async (): Promise<LocatedCity | null> => {
   try {
+    await ensureWeixinPrivacyAuthorized({
+      content: '为向你提供自动定位功能，需要你阅读并同意《隐私保护指引》。',
+    });
     const { latitude, longitude } = await requestLocation();
     const geocode = await reverseGeocodeByTencent(latitude, longitude);
     if (geocode) {
@@ -161,6 +165,13 @@ export const locateCityByGPS = async (): Promise<LocatedCity | null> => {
 };
 
 export const chooseCityFromMap = async (): Promise<LocatedCity | null> => {
+  try {
+    await ensureWeixinPrivacyAuthorized({
+      content: '为向你提供地图选点功能，需要你阅读并同意《隐私保护指引》。',
+    });
+  } catch {
+    return null;
+  }
   const selection = await chooseLocationManually();
   if (!selection) return null;
 
