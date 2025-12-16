@@ -301,7 +301,6 @@ const fetchRecords = async () => {
 
     // 前端筛选，接口始终取全部
     const res = await axios.get(`/api/refuels/list?range=all`);
-    console.log('records res:', res);
 
     if (!res || res.success !== true) {
       throw new Error('接口返回异常');
@@ -495,7 +494,6 @@ const handleLoginRequired = () => {
 const handleEdit = (entry: FuelRecordItem) => {
   handleLoginRequired();
 
-  console.log(590, 'handleEdit', entry);
   uni.navigateTo({
     url: `/pages/add/index?id=${entry.id}`,
   });

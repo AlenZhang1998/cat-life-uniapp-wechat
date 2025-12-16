@@ -278,8 +278,6 @@ const handleSubmit = async () => {
   uni.showLoading({ title: '保存中...', mask: true })
 
   try {
-    console.log(266, 'payload = ', payload)
-
     let res
 
     if (isEditing.value && editingId.value) {
@@ -344,11 +342,9 @@ const toNumber = (value: string) => {
 
 // 查询单条数据、回填数据
 const loadDetail = async(id: string) => {
-  console.log(326, 'loadDetail id = ', id)
   try {
     uni.showLoading({ title: '加载中...', mask: true })
     const res = await axios.get(`/api/refuels/${id}`)
-    console.log(330, 'loadDetail res = ', res)
 
     const { success, data } = (res as any) || {}
     if (!success) {
@@ -382,7 +378,6 @@ const loadDetail = async(id: string) => {
 
 // 删除本条记录
 const handleDelete = async () => {
-  console.log(385, 'handleDelete editingId = ', editingId.value)
   if (!editingId.value || !isEditing.value) {
     return
   }
@@ -423,7 +418,6 @@ const handleDelete = async () => {
 }
 
 onLoad(async(options: { id: string }) => {
-  console.log(325, 'onLoad options = ', options)
   if (options.id) {
     // 编辑
     isEditing.value = true

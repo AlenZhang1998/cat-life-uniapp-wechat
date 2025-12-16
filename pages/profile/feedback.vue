@@ -204,7 +204,6 @@ const submitCore = async () => {
   try {
     // 1. 上传截图（如果有）
     const imageUrls = await uploadSelectedImages();
-    console.log(303, 'imageUrls = ', imageUrls);
 
     // 2. 调用反馈接口
     const systemInfo = uni.getSystemInfoSync();
@@ -239,7 +238,6 @@ const submitCore = async () => {
       username,
       userId,
     };
-    console.log(234, 'payload = ', payload);
 
     const res = (await axios.post('/api/feedback', {
       data: payload,

@@ -193,7 +193,6 @@ const applyProfile = (profile?: Record<string, any>) => {
 const initUserFromStorage = () => {
   try {
     const stored = uni.getStorageSync('userProfile');
-    console.log(117, 'stored', stored);
     if (stored) {
       applyProfile(typeof stored === 'string' ? JSON.parse(stored) : stored);
     } else {
@@ -229,7 +228,6 @@ const handleLoginSuccess = (payload: { token: string; user: any }) => {
     userId: backendUser.userId || backendUser._id || backendUser.id || '',
     // 你后面可以再加：gender / deliveryDate / carModel 等
   };
-  console.log(152, 'finalProfile = ', finalProfile);
 
   // 存本地，跟 initUserFromStorage 对上
   uni.setStorageSync('token', token);

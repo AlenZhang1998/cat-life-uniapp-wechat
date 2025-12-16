@@ -249,15 +249,12 @@ const applyCity = (value: string, provinceName?: string) => {
   const normalizedCity = normalizeOrDefault(value);
   city.value = normalizedCity;
   if (provinceName) {
-    console.log('自动定位，有省份');
     const normalizedProvince =
       normalizeCityName(provinceName) || provinceName || '';
     province.value = normalizedProvince;
   } else {
-    console.log('无省份');
     province.value = resolveProvinceByCity(value);
   }
-  console.log(233, 'applyCity = ', city.value, province.value);
 };
 watch(
   () => province.value,
@@ -316,7 +313,6 @@ const fetchOilPrice = async () => {
       oilError.value = '油价数据异常';
       return;
     }
-    console.log(276, 'data = ', data);
     oilPriceList.value = data.prices;
     if (data.prices.length) {
       oilPrice.value = data.prices[0];

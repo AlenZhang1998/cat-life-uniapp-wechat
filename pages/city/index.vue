@@ -286,7 +286,6 @@ const handleLocate = async (applyCity = true) => {
   try {
     await ensureLocationAuth();
     const located = await locateCityByGPS();
-    console.log(273, 'located = ', located);
 
     if (located?.city) {
       const normalizedCity = formatCityName(located.city);
@@ -319,7 +318,6 @@ const handleLocate = async (applyCity = true) => {
 
 const handlePickFromMap = async () => {
   const result = await chooseCityFromMap();
-  console.log(305, 'result = ', result);
   if (result?.city) {
     const normalizedCity = formatCityName(result.city);
     const normalizedProvince = formatCityName(result.province || '');

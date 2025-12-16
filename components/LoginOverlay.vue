@@ -104,7 +104,6 @@ const handleWeChatLogin = () => {
     desc: '用于完善个人信息',
     success: (profileRes) => {
       const userInfo = profileRes.userInfo;
-      console.log(99, 'getUserProfile userInfo = ', userInfo);
 
       uni.login({
         provider: 'weixin',
@@ -138,8 +137,6 @@ const handleWeChatLogin = () => {
               showErrorToast: false,
             })
             .then((data) => {
-              console.log(116, 'login success data = ', data);
-
               const { token, user } = data || {};
 
               if (!token || !user) {
@@ -156,7 +153,6 @@ const handleWeChatLogin = () => {
               emit('update:visible', false);
             })
             .catch((error) => {
-              console.log('login request fail', error);
               uni.showToast({ title: '登录失败，请稍后再试', icon: 'none' });
             })
             .finally(() => {
@@ -171,7 +167,6 @@ const handleWeChatLogin = () => {
     },
     fail: async (err) => {
       isSubmitting.value = false;
-      console.log('getUserProfile fail', err);
       const message = String((err as any)?.errMsg || '');
       if (/privacy/i.test(message)) {
         try {

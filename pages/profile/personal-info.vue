@@ -197,8 +197,6 @@ const loadProfile = async () => {
         ? (res as any).data
         : res || {};
 
-    console.log('loadProfile remote = ', remote);
-
     // 如果后端返回真实 username/userAvatar，就优先使用后端的（只要非空字符串）
     const finalUserAvatar = isNonEmpty(remote.userAvatar)
       ? remote.userAvatar
@@ -302,7 +300,6 @@ const pickAvatar = (sourceType: 'camera' | 'album') => {
 };
 
 const handleSave = () => {
-  console.log(199, 'handleSave form.value = ', form.value);
   const phoneRegex = /^1\d{10}$/;
   const emailRegex = /^[\w.+-]+@[\w-]+(\.[\w-]+)+$/;
 
