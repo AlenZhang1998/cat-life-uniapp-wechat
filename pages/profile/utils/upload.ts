@@ -1,4 +1,4 @@
-import { getBaseUrl } from './request';
+import { getBaseUrl } from '@/utils/request';
 
 type UploadFeedbackResponse =
   | {
@@ -37,7 +37,7 @@ const ensureAuthHeader = () => {
 
 /**
  * 把小程序临时图片路径上传到后端，后端再传 COS。
- * @param filePaths  chooseImage 返回的本地临时路径
+ * @param filePaths chooseImage 返回的本地临时路径
  */
 export const uploadImagesToCos = async (filePaths: string[]) => {
   if (!filePaths.length) return [];
@@ -143,3 +143,4 @@ export const uploadAvatarToCos = (filePath: string) =>
       },
     });
   });
+

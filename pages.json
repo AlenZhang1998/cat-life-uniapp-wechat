@@ -9,155 +9,193 @@
           "ec-canvas": "/wxcomponents/ec-canvas/ec-canvas"
         }
       }
-    },
-    {
-      "path": "pages/city/index",
-      "style": {
-        "navigationBarTitleText": "选择城市",
-        "navigationBarBackgroundColor": "#F7F8FA",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/records/index",
-      "style": {
-        "navigationBarTitleText": "油耗列表"
-      }
-    },
-    {
-      "path": "pages/add/index",
-      "style": {
-        "navigationBarTitleText": "添加记录"
-      }
-    },
-    {
-      "path": "pages/expense/index",
-      "style": {
-        "navigationBarTitleText": "费用",
-        "usingComponents": {
-          "ec-canvas": "/wxcomponents/ec-canvas/ec-canvas"
-        }
-      }
-    },
-    {
-      "path": "pages/profile/index",
-      "style": {
-        "navigationBarTitleText": "我的"
-      }
-    },
-    {
-      "path": "pages/profile/personal-info",
-      "style": {
-        "navigationBarTitleText": "个人信息",
-        "navigationBarBackgroundColor": "#F7F8FA",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/profile/feedback",
-      "style": {
-        "navigationBarTitleText": "建议反馈",
-        "navigationBarBackgroundColor": "#F7F8FA",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/efficiency/index",
-      "style": {
-        "navigationBarTitleText": "油耗评级说明",
-        "navigationBarBackgroundColor": "#F7F8FA",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/faq/fuel-avg",
-      "style": {
-        "navigationBarTitleText": "平均油耗说明",
-        "navigationBarBackgroundColor": "#F7F8FA",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/faq/single-fuel",
-      "style": {
-        "navigationBarTitleText": "单次油耗说明",
-        "navigationBarBackgroundColor": "#F7F8FA",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/faq/index",
-      "style": {
-        "navigationBarTitleText": "疑难解答",
-        "navigationBarBackgroundColor": "#F7F8FA",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/faq/why-no-avg",
-      "style": {
-        "navigationBarTitleText": "疑难解答",
-        "navigationBarBackgroundColor": "#F7F8FA",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/faq/good-habits",
-      "style": {
-        "navigationBarTitleText": "疑难解答",
-        "navigationBarBackgroundColor": "#F7F8FA",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/faq/flags",
-      "style": {
-        "navigationBarTitleText": "疑难解答",
-        "navigationBarBackgroundColor": "#F7F8FA",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/faq/cost-per-day",
-      "style": {
-        "navigationBarTitleText": "疑难解答",
-        "navigationBarBackgroundColor": "#F7F8FA",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/faq/fuel-per-km",
-      "style": {
-        "navigationBarTitleText": "疑难解答",
-        "navigationBarBackgroundColor": "#F7F8FA",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/faq/agreement-user",
-      "style": {
-        "navigationBarTitleText": "用户使用协议",
-        "navigationBarBackgroundColor": "#F7F8FA",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/faq/agreement-privacy",
-      "style": {
-        "navigationBarTitleText": "隐私保护协议",
-        "navigationBarBackgroundColor": "#F7F8FA",
-        "navigationBarTextStyle": "black"
-      }
-    },
-    {
-      "path": "pages/profile/about",
-      "style": {
-        "navigationBarTitleText": "关于我们",
-        "navigationBarBackgroundColor": "#F7F8FA",
-        "navigationBarTextStyle": "black"
-      }
     }
   ],
+  "subPackages": [
+    {
+      "root": "pages/city",
+      "pages": [
+        {
+          "path": "index",
+          "style": {
+            "navigationBarTitleText": "选择城市",
+            "navigationBarBackgroundColor": "#F7F8FA",
+            "navigationBarTextStyle": "black"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages/records",
+      "pages": [
+        {
+          "path": "index",
+          "style": {
+            "navigationBarTitleText": "油耗列表"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages/add",
+      "pages": [
+        {
+          "path": "index",
+          "style": {
+            "navigationBarTitleText": "添加记录"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages/expense",
+      "pages": [
+        {
+          "path": "index",
+          "style": {
+            "navigationBarTitleText": "费用",
+            "usingComponents": {
+              "ec-canvas": "/wxcomponents/ec-canvas/ec-canvas"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages/efficiency",
+      "pages": [
+        {
+          "path": "index",
+          "style": {
+            "navigationBarTitleText": "油耗评级说明",
+            "navigationBarBackgroundColor": "#F7F8FA",
+            "navigationBarTextStyle": "black"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages/faq",
+      "pages": [
+        {
+          "path": "fuel-avg",
+          "style": {
+            "navigationBarTitleText": "平均油耗说明",
+            "navigationBarBackgroundColor": "#F7F8FA",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "single-fuel",
+          "style": {
+            "navigationBarTitleText": "单次油耗说明",
+            "navigationBarBackgroundColor": "#F7F8FA",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "index",
+          "style": {
+            "navigationBarTitleText": "疑难解答",
+            "navigationBarBackgroundColor": "#F7F8FA",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "why-no-avg",
+          "style": {
+            "navigationBarTitleText": "疑难解答",
+            "navigationBarBackgroundColor": "#F7F8FA",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "good-habits",
+          "style": {
+            "navigationBarTitleText": "疑难解答",
+            "navigationBarBackgroundColor": "#F7F8FA",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "flags",
+          "style": {
+            "navigationBarTitleText": "疑难解答",
+            "navigationBarBackgroundColor": "#F7F8FA",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "cost-per-day",
+          "style": {
+            "navigationBarTitleText": "疑难解答",
+            "navigationBarBackgroundColor": "#F7F8FA",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "fuel-per-km",
+          "style": {
+            "navigationBarTitleText": "疑难解答",
+            "navigationBarBackgroundColor": "#F7F8FA",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "agreement-user",
+          "style": {
+            "navigationBarTitleText": "用户使用协议",
+            "navigationBarBackgroundColor": "#F7F8FA",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "agreement-privacy",
+          "style": {
+            "navigationBarTitleText": "隐私保护协议",
+            "navigationBarBackgroundColor": "#F7F8FA",
+            "navigationBarTextStyle": "black"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages/profile",
+      "pages": [
+        {
+          "path": "index",
+          "style": {
+            "navigationBarTitleText": "我的"
+          }
+        },
+        {
+          "path": "personal-info",
+          "style": {
+            "navigationBarTitleText": "个人信息",
+            "navigationBarBackgroundColor": "#F7F8FA",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "feedback",
+          "style": {
+            "navigationBarTitleText": "建议反馈",
+            "navigationBarBackgroundColor": "#F7F8FA",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        {
+          "path": "about",
+          "style": {
+            "navigationBarTitleText": "关于我们",
+            "navigationBarBackgroundColor": "#F7F8FA",
+            "navigationBarTextStyle": "black"
+          }
+        }
+      ]
+    }
+  ],
+  "lazyCodeLoading": "requiredComponents",
   "globalStyle": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "爱车油耗助手",

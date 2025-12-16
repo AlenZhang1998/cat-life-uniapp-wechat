@@ -93,7 +93,7 @@ import { ref } from 'vue';
 import { onLoad, onShow } from '@dcloudio/uni-app';
 import { useAuth } from '@/utils/auth';
 import { axios } from '@/utils/request';
-import { uploadAvatarToCos } from '@/utils/upload';
+import { uploadAvatarToCos } from './utils/upload';
 import { ensureWeixinPrivacyAuthorized } from '@/utils/privacy';
 
 interface UserProfile {

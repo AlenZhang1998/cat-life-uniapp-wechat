@@ -127,7 +127,7 @@ import debounce from 'lodash-es/debounce';
 import { axios } from '@/utils/request';
 import { useAuth } from '@/utils/auth';
 import { STORAGE_KEYS } from '@/constants/storage';
-import { uploadImagesToCos } from '@/utils/upload';
+import { uploadImagesToCos } from './utils/upload';
 import { ensureWeixinPrivacyAuthorized } from '@/utils/privacy';
 
 const { isLoggedIn, getStoredProfile } = useAuth();
