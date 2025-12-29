@@ -44,9 +44,7 @@
       <view class="contact-item">
         <text class="contact-label">微信客服:</text>
         <text class="contact-value highlight">1464253423</text>
-        <text class="copy-btn" @tap="copyContact('1464253423')"
-          >复制</text
-        >
+        <text class="copy-btn" @tap="copyContact('1464253423')">复制</text>
       </view>
       <view class="contact-item">
         <text class="contact-label">电子邮箱:</text>
@@ -72,6 +70,13 @@
         <text class="btn-icon">🔗</text>
         <text>分享给好友</text>
       </button>
+    </view>
+
+    <view class="record-section">
+      <text class="record-label">ICP备案号</text>
+      <view class="record-row">
+        <text class="record-value">粤ICP备2025511476号</text>
+      </view>
     </view>
   </view>
 </template>
@@ -316,5 +321,28 @@ $bg-color: #f7f9fc; // 柔和背景色
 .btn-icon {
   margin-right: 10rpx;
   font-size: 36rpx;
+}
+
+.record-section {
+  margin-top: 36rpx;
+  padding-bottom: 20rpx;
+  text-align: center;
+}
+.record-label {
+  display: block;
+  font-size: 24rpx;
+  color: $text-light;
+  margin-bottom: 8rpx;
+}
+.record-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+}
+.record-value {
+  font-size: 24rpx;
+  color: $text-light;
+  // font-weight: 600;
 }
 </style>
